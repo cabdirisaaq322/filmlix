@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { MediaGrid } from '@/components/MediaGrid';
-import { AdContainer } from '@/components/AdContainer';
 import { TMDB_BASE_URL, TMDB_API_KEY, toMediaItems, type MediaItem, type TMDBMovie, type TMDBTVShow } from '@/lib/tmdb';
 
 const GENRE_MAP: Record<string, number> = {
@@ -91,8 +90,6 @@ export default async function GenrePage({ params }: GenrePageProps) {
 
   return (
     <div className="space-y-8 pb-16">
-      <AdContainer slot="header" className="mx-auto max-w-7xl px-4" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
@@ -103,8 +100,6 @@ export default async function GenrePage({ params }: GenrePageProps) {
 
         <MediaGrid title={`${title} TV Series`} items={tv} />
       </div>
-
-      <AdContainer slot="footer" className="mx-auto max-w-7xl px-4" />
     </div>
   );
 }

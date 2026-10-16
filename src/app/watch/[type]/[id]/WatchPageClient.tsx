@@ -1,15 +1,13 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, Play, Download, Share2, Star, Clock, Calendar, Film, Tv, Loader2, ExternalLink } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronDown, Download, Share2, Star, Clock, Calendar, Film, Tv, ExternalLink, Info, Play } from 'lucide-react';
 import { VidSrcPlayer } from '@/components/VidSrcPlayer';
 import { SeasonEpisodeDrawer } from '@/components/SeasonEpisodeDrawer';
-import { AdContainer } from '@/components/AdContainer';
 import { BackButton } from '@/components/BackButton';
 import { MediaGrid } from '@/components/MediaGrid';
 import { saveContinueWatching } from '@/lib/history';
-import { getBackdropUrl, getPosterUrl, toMediaItems, TMDBDetails } from '@/lib/tmdb';
+import { getBackdropUrl, toMediaItems, TMDBDetails } from '@/lib/tmdb';
 
 interface WatchPageClientProps {
   type: 'movie' | 'tv';
@@ -19,31 +17,25 @@ interface WatchPageClientProps {
   initialEpisode: number;
 }
 
-const GENRE_MAP: Record<number, string> = {
-  28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy',
-  80: 'Crime', 99: 'Documentary', 18: 'Drama', 10751: 'Family',
-  14: 'Fantasy', 36: 'History', 27: 'Horror', 10402: 'Music',
-  9648: 'Mystery', 10749: 'Romance', 878: 'Sci-Fi', 10770: 'TV Movie',
-  53: 'Thriller', 10752: 'War', 37: 'Western',
-};
-
 export function WatchPageClient({ type, tmdbId, details, initialSeason, initialEpisode }: WatchPageClientProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
   const [selectedEpisode, setSelectedEpisode] = useState(initialEpisode);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   const title = details.title || details.name || 'Unknown';
   const year = details.release_date?.slice(0, 4) || details.first_air_date?.slice(0, 4) || '—';
   const genres = details.genres?.slice(0, 3).map((g) => g.name) || [];
   const backdropUrl = getBackdropUrl(details.backdrop_path, 'w1280');
-  const posterUrl = getPosterUrl(details.poster_path, 'w342');
   const runtime = details.runtime || details.episode_run_time?.[0] || 0;
   const cast = details.credits?.cast?.slice(0, 10) || [];
   const seasons = details.seasons?.filter((s) => s.season_number > 0) || [];
   const recommendationSource = details.recommendations?.results?.length
     ? details.recommendations.results
     : details.similar?.results || [];
-  const recommended = toMediaItems(recommendationSource, type).slice(0, 12);
+  const recommended = toMediaItems(recommendationSource, type)
+    .filter((item) => item.id !== tmdbId)
+    .slice(0, 12);
 
   // Remember what the viewer is watching so the homepage can offer "Continue Watching"
   useEffect(() => {
@@ -65,6 +57,14 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
     window.history.pushState({}, '', url);
   }, [type, tmdbId]);
 
+  // "Watch Now" starts playback immediately in the on-page player (no external sites)
+  const handleWatchNow = useCallback(() => {
+    setPlaying(true);
+    setTimeout(() => {
+      document.getElementById('video-player')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  }, []);
+
   const formatRuntime = (minutes: number) => {
     if (!minutes) return '—';
     const h = Math.floor(minutes / 60);
@@ -73,35 +73,90 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="relative h-64 md:h-80 lg:h-96">
-        <img
-          src={backdropUrl}
-          alt=""
-          className="w-full h-full object-cover"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
-      </div>
+    <div className="-mt-36 min-h-screen bg-[#080808] pb-8 md:-mt-24">
+      <section className="mx-auto max-w-7xl px-4 pb-10 pt-36 sm:px-6 md:pb-14 md:pt-28 lg:px-8">
+        <BackButton label="Back to browsing" className="mb-8" />
+        <div className="grid items-center gap-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12">
+          <div className="min-w-0 space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/65">
+              {genres.length > 0 ? genres.join('  •  ') : type === 'movie' ? 'Movie' : 'Series'}
+            </p>
+            <h1 className="text-4xl font-black leading-[1.05] text-white sm:text-5xl md:text-6xl">
+              {title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-white/75">
+              <span>{year}</span>
+              <span className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 fill-current text-yellow-400" />
+                {details.vote_average?.toFixed(1) || '—'}
+              </span>
+              {runtime > 0 && <span>{formatRuntime(runtime)}</span>}
+              {type === 'tv' && details.number_of_seasons && <span>{details.number_of_seasons} Seasons</span>}
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-white/75 sm:text-base sm:leading-7 line-clamp-4">
+              {details.overview || 'No description available.'}
+            </p>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleWatchNow}
+                className="flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-white/85 cursor-pointer"
+              >
+                <Play className="h-4 w-4 fill-current" />
+                Watch Now
+              </button>
+              {type === 'tv' && seasons.length > 0 ? (
+                <button
+                  onClick={() => setDrawerOpen(true)}
+                  className="flex items-center gap-2 rounded-full bg-white/12 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-white/20"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                  Episodes
+                </button>
+              ) : (
+                <button
+                  onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="flex items-center gap-2 rounded-full bg-white/12 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-white/20"
+                >
+                  <Info className="h-4 w-4" />
+                  More Info
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="min-w-0">
+            {playing ? (
+              <VidSrcPlayer
+                type={type}
+                tmdbId={tmdbId}
+                imdbId={details.external_ids?.imdb_id}
+                season={selectedSeason}
+                episode={selectedEpisode}
+                autoPlay
+                title={title}
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={handleWatchNow}
+                aria-label={`Play ${title}`}
+                className="group relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-900 cursor-pointer block"
+              >
+                <img src={backdropUrl} alt={`${title} backdrop`} className="h-full w-full object-cover" />
+                <span className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/10" />
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-black shadow-2xl transition-transform group-hover:scale-110">
+                    <Play className="h-7 w-7 fill-current ml-1" />
+                  </span>
+                </span>
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10 pb-16">
-        <div className="grid lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3 min-w-0 space-y-6">
-            <BackButton label="Back to browsing" />
-
-            <AdContainer slot="player-top" className="mx-auto max-w-4xl" />
-
-            <VidSrcPlayer
-              type={type}
-              tmdbId={tmdbId}
-              imdbId={details.external_ids?.imdb_id}
-              season={selectedSeason}
-              episode={selectedEpisode}
-              title={title}
-            />
-
-            <AdContainer slot="player-bottom" className="mx-auto max-w-4xl" />
-
+      <div className="max-w-7xl mx-auto px-4 pb-8 pt-8 sm:px-6 lg:px-8">
+        <div className="min-w-0 space-y-6">
             {type === 'tv' && seasons.length > 0 && (
               <div className="mt-6">
                 <button
@@ -126,8 +181,8 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
               </div>
             )}
 
-            <div className="mt-8 grid md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 space-y-4">
+            <div id="about" className="mt-8 grid min-w-0 grid-cols-1 scroll-mt-36 gap-6 md:scroll-mt-24 md:grid-cols-3">
+              <div className="min-w-0 space-y-4 md:col-span-2">
                 <h2 className="text-xl font-bold text-white">About</h2>
                 <p className="text-slate-300 leading-relaxed whitespace-pre-line">
                   {details.overview || 'No description available.'}
@@ -186,16 +241,8 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
                 )}
               </div>
 
-              <aside className="space-y-6">
-                <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 space-y-4">
-                  {posterUrl && (
-                    <img
-                      src={posterUrl}
-                      alt={`${title} poster`}
-                      className="w-full aspect-[2/3] object-cover rounded-lg shadow-xl"
-                    />
-                  )}
-
+              <aside className="min-w-0 space-y-6">
+                <div className="w-full min-w-0 bg-slate-900/50 border border-slate-800 rounded-xl p-6 space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-2">
@@ -224,15 +271,6 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
                   </div>
 
                   <div className="flex gap-2 pt-4 border-t border-slate-800">
-                    <button
-                      onClick={() => {
-                        document.getElementById('video-player')?.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-lg font-semibold hover:bg-indigo-400 transition-colors cursor-pointer"
-                    >
-                      <Play className="w-5 h-5 fill-current" />
-                      Play
-                    </button>
                     <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 border border-slate-700 text-white rounded-lg font-semibold hover:bg-slate-700 transition-colors">
                       <Download className="w-5 h-5" />
                     </button>
@@ -242,7 +280,6 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
                   </div>
                 </div>
 
-                <AdContainer slot="sidebar" className="mx-auto" />
               </aside>
             </div>
 
@@ -251,7 +288,6 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
                 <MediaGrid title="More Like This" items={recommended} />
               </div>
             )}
-          </div>
         </div>
       </div>
     </div>

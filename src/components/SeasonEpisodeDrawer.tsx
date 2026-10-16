@@ -75,11 +75,13 @@ export function SeasonEpisodeDrawer({
 
   return (
     <>
-      <button
-        onClick={onClose}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-        aria-label="Close episode drawer"
-      />
+      {isOpen && (
+        <button
+          onClick={onClose}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          aria-label="Close episode drawer"
+        />
+      )}
 
       <aside
         className={cn(

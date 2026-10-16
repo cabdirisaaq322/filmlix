@@ -47,12 +47,12 @@ export function MediaRow({ title, items, href, isLoading = false, skeletonCount 
   );
 
   const header = (
-    <div className="flex items-center justify-between mb-3 px-4 sm:px-6 lg:px-8">
-      <h2 className="text-lg sm:text-xl font-bold text-white">{title}</h2>
+    <div className="flex items-center justify-between mb-3.5 px-4 sm:px-6 lg:px-8">
+      <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white">{title}</h2>
       {href && (
         <a
           href={href}
-          className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
+          className="text-xs font-semibold uppercase tracking-wide text-slate-400 hover:text-white transition-colors flex items-center gap-1"
         >
           View All <ChevronRight className="w-4 h-4" />
         </a>
@@ -102,7 +102,7 @@ export function MediaRow({ title, items, href, isLoading = false, skeletonCount 
           {items.map((item) => (
             <div
               key={`${item.media_type}-${item.id}`}
-              className="w-[140px] sm:w-[170px] lg:w-[190px] shrink-0"
+              className="w-[132px] sm:w-[170px] lg:w-[190px] shrink-0"
             >
               <MediaCard {...item} />
             </div>

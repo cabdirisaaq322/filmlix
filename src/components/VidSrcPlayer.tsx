@@ -19,9 +19,9 @@ export interface Provider {
 }
 
 export const VIDSRC_DOMAINS = [
+  'vidsrc.me',
   'vidsrc.to',
   'vidsrc.net',
-  'vidsrc.me',
   'vidsrc.cc',
   'vidsrc.xyz',
 ] as const;
@@ -41,14 +41,26 @@ export const STREAM_PROVIDERS: Provider[] = [
     },
   },
   {
-    id: 'autoembed',
-    name: 'AutoEmbed',
-    badge: 'Fast',
+    id: '2embed',
+    name: '2Embed',
+    badge: 'Fastest',
     buildUrl: ({ type, tmdbId, season, episode }) => {
       if (type === 'tv') {
-        return `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`;
+        return `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`;
       }
-      return `https://player.autoembed.cc/embed/movie/${tmdbId}`;
+      return `https://www.2embed.cc/embed/${tmdbId}`;
+    },
+  },
+  {
+    id: 'multiembed',
+    name: 'MultiEmbed',
+    badge: 'Fast',
+    buildUrl: ({ type, tmdbId, season, episode }) => {
+      const base = `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
+      if (type === 'tv') {
+        return `${base}&s=${season}&e=${episode}`;
+      }
+      return base;
     },
   },
   {
@@ -60,28 +72,6 @@ export const STREAM_PROVIDERS: Provider[] = [
         return `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`;
       }
       return `https://vidlink.pro/movie/${tmdbId}`;
-    },
-  },
-  {
-    id: '2embed',
-    name: '2Embed',
-    badge: 'Backup',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`;
-      }
-      return `https://www.2embed.cc/embed/${tmdbId}`;
-    },
-  },
-  {
-    id: 'embedsu',
-    name: 'Embed.su',
-    badge: 'Stream',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`;
-      }
-      return `https://embed.su/embed/movie/${tmdbId}`;
     },
   },
 ];
@@ -102,9 +92,10 @@ export function VidSrcPlayer({
   imdbId,
   season = 1,
   episode = 1,
+  autoPlay = false,
   title,
 }: VidSrcPlayerProps) {
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('vidsrc');
+  const [selectedProviderId, setSelectedProviderId] = useState<string>(STREAM_PROVIDERS[0].id);
   const [activeDomainIndex, setActiveDomainIndex] = useState<number>(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -113,45 +104,73 @@ export function VidSrcPlayer({
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
+  const loadedRef = useRef(false);
+  const attemptedRef = useRef<string[]>([]);
 
   const currentProvider =
     STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
   const activeVidSrcDomain = VIDSRC_DOMAINS[activeDomainIndex];
 
-  // Auto-clear loading state after 3.5s timeout if iframe onLoad is silenced by browser sandbox
+  // Reset fallback tracking whenever the streamed title/episode changes
   useEffect(() => {
-    setIsLoading(true);
-    setError(null);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3500);
+    loadedRef.current = false;
+    attemptedRef.current = [];
+  }, [type, tmdbId, imdbId, season, episode]);
 
+  // Drop the loading badge quickly if the iframe silently finishes (some embeds suppress onLoad)
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, [selectedProviderId, activeVidSrcDomain, type, tmdbId, imdbId, season, episode, reloadNonce]);
+
+  // Auto-switch to the next untried server when the current one is too slow to load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (loadedRef.current) return;
+      const next = STREAM_PROVIDERS.find(
+        (p) => p.id !== selectedProviderId && !attemptedRef.current.includes(p.id)
+      );
+      if (!next) {
+        setIsLoading(false);
+        setError('All servers are taking too long to respond. Please reload or try again later.');
+        return;
+      }
+      attemptedRef.current = [...attemptedRef.current, selectedProviderId];
+      setSelectedProviderId(next.id);
+      setError(null);
+      setIsLoading(true);
+    }, 6000);
     return () => clearTimeout(timer);
   }, [selectedProviderId, activeVidSrcDomain, type, tmdbId, imdbId, season, episode, reloadNonce]);
 
   const handleReload = useCallback(() => {
+    loadedRef.current = false;
     setIsLoading(true);
     setError(null);
     setReloadNonce((n) => n + 1);
   }, []);
 
   const buildSrc = useCallback(() => {
-    return currentProvider.buildUrl({
+    const url = new URL(currentProvider.buildUrl({
       type,
       tmdbId,
       imdbId,
       season,
       episode,
       domain: activeVidSrcDomain,
-    });
-  }, [currentProvider, type, tmdbId, imdbId, season, episode, activeVidSrcDomain]);
+    }));
+    if (autoPlay) url.searchParams.set('autoplay', '1');
+    return url.toString();
+  }, [currentProvider, type, tmdbId, imdbId, season, episode, activeVidSrcDomain, autoPlay]);
 
   const handleIframeLoad = () => {
+    loadedRef.current = true;
     setIsLoading(false);
     setError(null);
   };
 
   const handleIframeError = () => {
+    loadedRef.current = true;
     setIsLoading(false);
     setError(`Failed to load stream from ${currentProvider.name}. Try switching provider.`);
   };
@@ -163,25 +182,16 @@ export function VidSrcPlayer({
         direction === 'next'
           ? (currentIndex + 1) % STREAM_PROVIDERS.length
           : (currentIndex - 1 + STREAM_PROVIDERS.length) % STREAM_PROVIDERS.length;
+      attemptedRef.current = [...attemptedRef.current, STREAM_PROVIDERS[nextIndex].id];
       setSelectedProviderId(STREAM_PROVIDERS[nextIndex].id);
     } else {
+      attemptedRef.current = [...attemptedRef.current, direction];
       setSelectedProviderId(direction);
     }
+    loadedRef.current = false;
     setIsLoading(true);
     setError(null);
   }, [selectedProviderId]);
-
-  const handleFullscreen = useCallback(() => {
-    if (playerContainerRef.current) {
-      if (!isFullscreen) {
-        playerContainerRef.current.requestFullscreen?.().catch(() => {});
-        setIsFullscreen(true);
-      } else {
-        document.exitFullscreen?.();
-        setIsFullscreen(false);
-      }
-    }
-  }, [isFullscreen]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -194,7 +204,7 @@ export function VidSrcPlayer({
   const src = buildSrc();
 
   return (
-    <div id="video-player" className="w-full min-w-0 space-y-3">
+    <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
       {/* Provider Selector & Top Utilities (cleanly outside video frame) */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
@@ -272,39 +282,35 @@ export function VidSrcPlayer({
         role="region"
         aria-label={`${title || 'Video'} player`}
       >
-        {/* Loading / Error Overlay (ONLY active during load or error) */}
-        {(isLoading || error) && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm pointer-events-auto">
-            {isLoading && !error && (
-              <div className="flex flex-col items-center gap-3 text-white">
-                <Loader2 className="w-10 h-10 text-indigo-400 animate-spin" />
-                <p className="text-slate-300 text-sm font-medium">
-                  Loading stream from {currentProvider.name}...
-                </p>
+        {/* Error overlay blocks; loading badge is non-blocking so the stream can paint immediately */}
+        {isLoading && !error && (
+          <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white shadow-lg">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
+            <span className="text-xs font-medium text-slate-200">{currentProvider.name}</span>
+          </div>
+        )}
+        {error && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
+              <div className="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center">
+                <X className="w-7 h-7 text-red-400" />
               </div>
-            )}
-            {error && (
-              <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
-                <div className="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center">
-                  <X className="w-7 h-7 text-red-400" />
-                </div>
-                <p className="text-sm text-slate-200">{error}</p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  <button
-                    onClick={() => switchProvider('next')}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    Try Next Server
-                  </button>
-                  <button
-                    onClick={handleReload}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5 inline mr-1" /> Reload
-                  </button>
-                </div>
+              <p className="text-sm text-slate-200">{error}</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <button
+                  onClick={() => switchProvider('next')}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Try Next Server
+                </button>
+                <button
+                  onClick={handleReload}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 inline mr-1" /> Reload
+                </button>
               </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -315,6 +321,8 @@ export function VidSrcPlayer({
           src={src}
           title={`${title || 'Stream'} - ${type === 'movie' ? 'Movie' : `S${season}E${episode}`}`}
           className="w-full h-full border-0 relative z-0"
+          loading="eager"
+          referrerPolicy="origin"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
           allowFullScreen
           onLoad={handleIframeLoad}

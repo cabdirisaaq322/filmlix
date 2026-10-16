@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, X, Loader2, Film, Tv, Flame } from 'lucide-react';
+import { Search, X, Loader2, Flame } from 'lucide-react';
 import { searchMulti, getTrendingMovies, getTrendingTVShows, TMDBMovie, TMDBTVShow } from '@/lib/tmdb';
 import { MediaCard } from '@/components/MediaCard';
-import { cn } from '@/lib/utils';
 
 const POPULAR_SEARCHES = ['Avengers', 'Batman', 'Breaking Bad', 'Stranger Things', 'Spider-Man', 'Wednesday', 'John Wick', 'Avatar'];
 
@@ -106,7 +105,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for movies, TV series..."
-            className="w-full bg-neutral-900/60 border border-neutral-700 rounded-lg pl-12 pr-12 py-4 text-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+            className="w-full rounded-full border border-white/15 bg-neutral-900/80 py-4 pl-12 pr-12 text-base text-white placeholder-neutral-500 transition-all focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-red-600 sm:text-lg"
             autoFocus
             aria-label="Search"
           />
@@ -123,7 +122,7 @@ export default function SearchPage() {
         </div>
         <button
           type="submit"
-          className="mt-4 w-full sm:w-auto px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-black"
+          className="mt-4 w-full rounded-full bg-red-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-black sm:w-auto"
           disabled={isLoading || !query.trim()}
         >
           {isLoading ? (
@@ -156,7 +155,7 @@ export default function SearchPage() {
 
       {hasSearched && query && !isLoading && results.length === 0 && !error && (
         <div className="text-center py-12 text-slate-400">
-          <p>No results found for "{query}"</p>
+          <p>No results found for &quot;{query}&quot;</p>
         </div>
       )}
 
@@ -213,7 +212,7 @@ export default function SearchPage() {
       {results.length > 0 && (
         <section aria-label={`Search results for "${query}"`}>
           <h2 className="text-xl font-bold text-white mb-4">
-            Results for <span className="text-red-400">"{query}"</span> ({results.length})
+            Results for <span className="text-red-400">&quot;{query}&quot;</span> ({results.length})
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {results.map((item) => {

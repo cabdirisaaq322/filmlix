@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { PopUnderTrigger } from '@/components/AdContainer';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -70,14 +69,17 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
         <link rel="preconnect" href="https://image.tmdb.org" />
-        <link rel="preconnect" href="https://vidsrc.to" />
+        <link rel="preconnect" href="https://vidsrc.me" />
+        <link rel="preconnect" href="https://www.2embed.cc" />
+        <link rel="preconnect" href="https://multiembed.mov" />
+        <link rel="preconnect" href="https://vidlink.pro" />
+        <link rel="dns-prefetch" href="https://vidsrc.to" />
         <link rel="dns-prefetch" href="https://vidsrc.net" />
-        <link rel="dns-prefetch" href="https://vidsrc.me" />
+        <link rel="dns-prefetch" href="https://vidsrc.cc" />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#1a0505] text-white">
-        <PopUnderTrigger />
+      <body className="min-h-screen flex flex-col bg-[#080808] text-white">
         <Navbar />
-        <main className="flex-1 pt-36 md:pt-20">{children}</main>
+        <main className="box-border min-w-0 w-full max-w-full flex-1 pt-24">{children}</main>
         <Footer />
       </body>
     </html>

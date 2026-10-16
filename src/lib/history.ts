@@ -68,3 +68,13 @@ export function saveContinueWatching(item: Omit<ContinueWatchingItem, 'updatedAt
     // localStorage unavailable (private mode / quota) — ignore
   }
 }
+
+export function clearContinueWatching(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Local storage may be unavailable in private browsing.
+  }
+  invalidate();
+}

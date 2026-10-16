@@ -4,7 +4,6 @@ import { HeroCarousel, HeroCarouselSkeleton } from '@/components/HeroCarousel';
 import { MediaRow } from '@/components/MediaRow';
 import { ContinueWatchingRow } from '@/components/ContinueWatching';
 import { Top10Rankings } from '@/components/Top10Rankings';
-import { AdContainer } from '@/components/AdContainer';
 import {
   isTMDBConfigured,
   getTrendingAll,
@@ -22,7 +21,7 @@ import {
 } from '@/lib/tmdb';
 
 export const metadata: Metadata = {
-  title: 'StreamFlix - Watch Movies & TV Series Free Online',
+  title: 'FilmFlix - Watch Movies & TV Series Free Online',
   description:
     'Stream the latest movies and TV series in HD for free. Trending titles, top-rated classics and new releases — no registration required.',
 };
@@ -139,7 +138,7 @@ export default function HomePage() {
   const genreSlugs = Array.from(new Set([...MOVIE_GENRES, ...TV_GENRES].map((g) => g.slug)));
 
   return (
-    <div className="pb-16">
+    <div className="-mt-36 pb-16 md:-mt-24">
       {!configured && <HomeSetupNotice />}
 
       {configured && (
@@ -147,8 +146,6 @@ export default function HomePage() {
           <FeaturedContent />
         </Suspense>
       )}
-
-      <AdContainer slot="header" className="mx-auto max-w-7xl mt-8 px-4" />
 
       <div className="mt-8 space-y-10">
         <ContinueWatchingRow />
@@ -164,8 +161,6 @@ export default function HomePage() {
         {configured && <Suspense fallback={<MediaRow title="Popular TV Series" href="/tv" isLoading />}><PopularTVContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Top Rated Movies" href="/top-rated?tab=movie" isLoading />}><TopMoviesContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Top Rated Series" href="/top-rated?tab=tv" isLoading />}><TopTVContent /></Suspense>}
-
-        <AdContainer slot="footer" className="mx-auto max-w-7xl px-4" />
 
         {configured && <Suspense fallback={<MediaRow title="Now Playing in Theaters" isLoading />}><NowPlayingContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Coming Soon" isLoading />}><UpcomingContent /></Suspense>}

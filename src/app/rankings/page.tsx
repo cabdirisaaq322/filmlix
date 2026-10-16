@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { Trophy, Flame, Play, Star, Calendar, ArrowRight, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getTop10Rankings, RankingPeriod, RankingMedia, getPosterUrl, getBackdropUrl } from '@/lib/tmdb';
-import { AdContainer } from '@/components/AdContainer';
 
 export const metadata: Metadata = {
   title: 'Top 10 Most Watched — Real-Time Streaming Leaderboard',
@@ -107,8 +106,6 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
           </div>
         </div>
       </section>
-
-      <AdContainer slot="header" className="mx-auto max-w-7xl mt-6 px-4" />
 
       {/* Leaderboard List */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">

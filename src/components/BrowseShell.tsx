@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { MediaGrid } from './MediaGrid';
 import { FilterBar } from './FilterBar';
 import { Pagination } from './Pagination';
-import { AdContainer } from './AdContainer';
 import { BackButton } from './BackButton';
 import { SearchX } from 'lucide-react';
 import type { MediaItem, GenreOption, SortOption } from '@/lib/tmdb';
@@ -41,12 +40,13 @@ export function BrowseShell({
   const hasFilters = showFilters && genres && sorts && years && active;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
       <div>
         <BackButton className="mb-4" />
         <header>
-          <h1 className="text-3xl font-bold text-white mb-1">{title}</h1>
-          <p className="text-slate-400">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-red-400">Explore FilmFlix</p>
+          <h1 className="mb-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{title}</h1>
+          <p className="max-w-3xl text-sm text-slate-400 sm:text-base">
             {description}
             {typeof totalResults === 'number' && totalResults > 0 && (
               <span className="text-slate-500"> • {totalResults.toLocaleString()} titles</span>
@@ -68,8 +68,6 @@ export function BrowseShell({
         />
       )}
 
-      <AdContainer slot="header" className="mx-auto" />
-
       {items.length > 0 ? (
         <MediaGrid title={gridTitle || title} items={items} />
       ) : (
@@ -84,8 +82,6 @@ export function BrowseShell({
       )}
 
       <Pagination page={page} totalPages={totalPages} />
-
-      <AdContainer slot="footer" className="mx-auto" />
     </div>
   );
 }

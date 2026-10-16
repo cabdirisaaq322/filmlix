@@ -25,7 +25,7 @@ export function AdContainer({ slot, className, children }: AdContainerProps) {
     if (!containerRef.current) return;
 
     const initAd = () => {
-      // Monetag / Adsterra / PopAds integration point
+      // Monetag / Adsterra integration point
       // Replace with your actual ad network code
       
       // Example Monetag:
@@ -42,13 +42,6 @@ export function AdContainer({ slot, className, children }: AdContainerProps) {
       // script.dataset.zone = 'YOUR_ZONE_ID';
       // script.async = true;
       // containerRef.current?.appendChild(script);
-
-      // Example PopAds (pop-under):
-      // const popScript = document.createElement('script');
-      // popScript.src = 'https://popads.net/pop.js';
-      // popScript.dataset.zone = 'YOUR_ZONE_ID';
-      // popScript.async = true;
-      // document.body.appendChild(popScript);
 
       // VAST Video Ad Example:
       // const vastScript = document.createElement('script');
@@ -102,10 +95,7 @@ export function AdContainer({ slot, className, children }: AdContainerProps) {
         2. Adsterra:
         <script async src="https://www.highperformanceformat.com/zone.js" data-zone="YOUR_ZONE_ID"></script>
         
-        3. PopAds Pop-under (place in layout.tsx body):
-        <script async src="https://popads.net/pop.js" data-zone="YOUR_ZONE_ID"></script>
-        
-        4. VAST Video Pre-roll (for player):
+        3. VAST Video Pre-roll (for player):
         <script>
           window.vastPlayer = new VastPlayer({
             zoneId: 'YOUR_ZONE_ID',
@@ -116,19 +106,4 @@ export function AdContainer({ slot, className, children }: AdContainerProps) {
       */}
     </div>
   );
-}
-
-export function PopUnderTrigger() {
-  useEffect(() => {
-    // Pop-under trigger - fires once per session
-    const handleClick = () => {
-      // window.open('https://your-popunder-domain.com', '_blank', 'noopener,noreferrer');
-      // window.focus(); // Return focus to main window
-    };
-    
-    document.addEventListener('click', handleClick, { once: true, passive: true });
-    return () => document.removeEventListener('click', handleClick);
-  }, []);
-
-  return null;
 }

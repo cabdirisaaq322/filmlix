@@ -43,14 +43,14 @@ export function MediaCard({
     <Link
       href={href}
       className={cn(
-        'group relative block bg-slate-900/50 rounded-xl overflow-hidden border border-slate-800',
-        'hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10',
+        'group relative block bg-transparent rounded-md overflow-hidden',
+        'hover:shadow-xl hover:shadow-black/50',
         'transition-all duration-300 cursor-pointer will-change-transform',
         className
       )}
       aria-label={`Watch ${displayTitle} (${year})`}
     >
-      <div className="relative aspect-[2/3] overflow-hidden">
+      <div className="relative aspect-[2/3] overflow-hidden rounded-md bg-neutral-900">
         {poster_path ? (
           <img
             src={posterUrl}
@@ -69,10 +69,10 @@ export function MediaCard({
 
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <span className={cn(
-            'px-2 py-1 text-xs font-bold rounded',
-            quality === '4K' ? 'bg-yellow-500 text-black' :
-            quality === 'HD' ? 'bg-green-500 text-white' :
-            'bg-red-500 text-white'
+            'px-2 py-1 text-[10px] font-bold uppercase rounded-sm shadow-md',
+            quality === '4K' ? 'bg-white text-black' :
+            quality === 'HD' ? 'bg-[#e50914] text-white' :
+            'bg-neutral-800 text-white'
           )}>
             {quality}
           </span>
@@ -88,11 +88,11 @@ export function MediaCard({
         </div>
       </div>
 
-      <div className="p-3">
-        <h3 className="font-semibold text-white truncate group-hover:text-indigo-400 transition-colors" title={displayTitle}>
+      <div className="px-0.5 pt-2.5 pb-1">
+        <h3 className="font-semibold text-[13px] sm:text-sm text-white truncate group-hover:text-white transition-colors" title={displayTitle}>
           {displayTitle}
         </h3>
-        <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-400">
+        <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-400">
           <span className="flex items-center gap-1">
             <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
             {vote_average.toFixed(1)}
@@ -102,8 +102,8 @@ export function MediaCard({
             {year}
           </span>
           <span className={cn(
-            'px-1.5 py-0.5 rounded text-[10px] font-medium uppercase',
-            media_type === 'movie' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-purple-500/20 text-purple-400'
+            'font-medium uppercase text-[10px]',
+            media_type === 'movie' ? 'text-red-400' : 'text-slate-300'
           )}>
             {media_type === 'movie' ? 'Movie' : 'Series'}
           </span>
@@ -119,7 +119,7 @@ interface MediaCardSkeletonProps {
 
 export function MediaCardSkeleton({ className }: MediaCardSkeletonProps) {
   return (
-    <article className={cn('bg-slate-900/50 rounded-xl overflow-hidden border border-slate-800 animate-pulse', className)}>
+    <article className={cn('bg-transparent rounded-md overflow-hidden animate-pulse', className)}>
       <div className="aspect-[2/3] bg-slate-800" />
       <div className="p-3 space-y-2">
         <div className="h-4 bg-slate-800 rounded w-3/4" />

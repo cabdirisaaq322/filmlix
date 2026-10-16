@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
-import { Play, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { Play, ChevronLeft, ChevronRight, Info, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getBackdropUrl } from '@/lib/tmdb';
 
@@ -60,8 +60,8 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
           className="hero-backdrop w-full h-full object-cover"
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a0505] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-black/10 to-transparent" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-end pb-20 sm:pb-16 md:pb-20">
@@ -70,15 +70,25 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
             {displayTitle}
           </h1>
 
+          <div className="flex items-center gap-3 text-sm font-semibold text-white/85">
+            <span>{currentItem.media_type === 'movie' ? 'Movie' : 'Series'}</span>
+            <span className="h-1 w-1 rounded-full bg-white/55" />
+            <span>{currentItem.release_date?.slice(0, 4) || currentItem.first_air_date?.slice(0, 4) || '—'}</span>
+            <span className="flex items-center gap-1">
+              <Star className="h-4 w-4 fill-current text-yellow-400" />
+              {currentItem.vote_average.toFixed(1)}
+            </span>
+          </div>
+
           <p className="text-white/90 text-sm sm:text-base md:text-lg line-clamp-2 sm:line-clamp-3 max-w-xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
             {currentItem.overview || 'No description available.'}
           </p>
 
-          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4 pt-4">
+          <div className="flex flex-row flex-wrap items-center gap-3 pt-3 sm:gap-4">
             <button
               onClick={() => router.push(watchHref)}
               className={cn(
-                'group flex items-center justify-center gap-2 px-8 py-3 rounded-lg font-semibold text-base w-full sm:w-auto',
+                'group flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3 rounded-sm font-semibold text-sm sm:text-base w-auto',
                 'bg-white text-black hover:bg-white/85 transition-all duration-200',
                 'shadow-lg shadow-black/30'
               )}
@@ -89,7 +99,7 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
             </button>
             <button
               onClick={() => router.push(watchHref)}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-base w-full sm:w-auto bg-neutral-500/70 text-white hover:bg-neutral-500/90 transition-colors backdrop-blur-sm"
+              className="flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-sm font-semibold text-sm sm:text-base w-auto bg-neutral-600/80 text-white hover:bg-neutral-500/90 transition-colors"
               aria-label={`More information about ${displayTitle}`}
             >
               <Info className="w-5 h-5" />
@@ -100,7 +110,7 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
 
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
+      <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/10 bg-black/45 px-4 py-2 backdrop-blur-sm">
         {items.map((_, i) => (
           <button
             key={i}
@@ -123,8 +133,8 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
             onClick={() => goToSlide((currentIndex - 1 + items.length) % items.length)}
             className={cn(
               'absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full',
-              'bg-slate-900/50 hover:bg-slate-800/50 text-white',
-              'transition-colors backdrop-blur-sm border border-slate-800',
+              'bg-black/45 hover:bg-black/75 text-white',
+              'transition-colors border border-white/20',
               'hidden md:flex'
             )}
             aria-label="Previous"
@@ -135,8 +145,8 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
             onClick={() => goToSlide((currentIndex + 1) % items.length)}
             className={cn(
               'absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full',
-              'bg-slate-900/50 hover:bg-slate-800/50 text-white',
-              'transition-colors backdrop-blur-sm border border-slate-800',
+              'bg-black/45 hover:bg-black/75 text-white',
+              'transition-colors border border-white/20',
               'hidden md:flex'
             )}
             aria-label="Next"
