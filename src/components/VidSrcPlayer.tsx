@@ -314,7 +314,7 @@ export function VidSrcPlayer({
           >
             <span className="flex items-center gap-2 rounded-full bg-black/70 px-4 py-2 text-sm font-medium text-white shadow-lg border border-slate-700">
               <Shield className="h-4 w-4 text-emerald-400" />
-              Tap to play — ads blocked
+              Tap to play
             </span>
           </button>
         )}
@@ -328,10 +328,6 @@ export function VidSrcPlayer({
           className="w-full h-full border-0 relative z-0"
           loading="eager"
           referrerPolicy="origin"
-          // Minimal sandbox: scripts + same-origin so the player runs, but NO
-          // allow-popups and NO allow-top-navigation, so it cannot open popup
-          // windows or hijack the parent tab.
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
           allowFullScreen
           onLoad={handleIframeLoad}
