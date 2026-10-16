@@ -105,41 +105,19 @@ export function VidSrcPlayer({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
-  const attemptedRef = useRef<string[]>([]);
 
   const currentProvider =
     STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
   const activeVidSrcDomain = VIDSRC_DOMAINS[activeDomainIndex];
 
-  // Reset fallback tracking whenever the streamed title/episode changes
+  // Reset loading state whenever the streamed title/episode changes
   useEffect(() => {
     loadedRef.current = false;
-    attemptedRef.current = [];
   }, [type, tmdbId, imdbId, season, episode]);
 
   // Drop the loading badge quickly if the iframe silently finishes (some embeds suppress onLoad)
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, [selectedProviderId, activeVidSrcDomain, type, tmdbId, imdbId, season, episode, reloadNonce]);
-
-  // Auto-switch to the next untried server when the current one is too slow to load
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (loadedRef.current) return;
-      const next = STREAM_PROVIDERS.find(
-        (p) => p.id !== selectedProviderId && !attemptedRef.current.includes(p.id)
-      );
-      if (!next) {
-        setIsLoading(false);
-        setError('All servers are taking too long to respond. Please reload or try again later.');
-        return;
-      }
-      attemptedRef.current = [...attemptedRef.current, selectedProviderId];
-      setSelectedProviderId(next.id);
-      setError(null);
-      setIsLoading(true);
-    }, 6000);
     return () => clearTimeout(timer);
   }, [selectedProviderId, activeVidSrcDomain, type, tmdbId, imdbId, season, episode, reloadNonce]);
 
@@ -182,10 +160,8 @@ export function VidSrcPlayer({
         direction === 'next'
           ? (currentIndex + 1) % STREAM_PROVIDERS.length
           : (currentIndex - 1 + STREAM_PROVIDERS.length) % STREAM_PROVIDERS.length;
-      attemptedRef.current = [...attemptedRef.current, STREAM_PROVIDERS[nextIndex].id];
       setSelectedProviderId(STREAM_PROVIDERS[nextIndex].id);
     } else {
-      attemptedRef.current = [...attemptedRef.current, direction];
       setSelectedProviderId(direction);
     }
     loadedRef.current = false;
