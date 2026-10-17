@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, Loader2, X, Server } from 'lucide-react';
+import { RefreshCw, Loader2, X, Server, SkipForward } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPreferredServer, setPreferredServer } from '@/lib/serverPrefs';
 
@@ -254,6 +254,15 @@ export function VidSrcPlayer({
               ))}
             </select>
           )}
+          <button
+            onClick={() => switchProvider('next')}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold text-white transition-colors border border-indigo-500 cursor-pointer"
+            aria-label="Switch to next server"
+            title="Switch to next server"
+          >
+            <SkipForward className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Next server</span>
+          </button>
           <button
             onClick={handleReload}
             className="p-1.5 bg-slate-900/80 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors border border-slate-800 cursor-pointer"
