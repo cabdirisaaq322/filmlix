@@ -19,11 +19,11 @@ export interface Provider {
 }
 
 export const VIDSRC_DOMAINS = [
-  'vidsrc.me',
   'vidsrc.to',
   'vidsrc.net',
   'vidsrc.cc',
   'vidsrc.xyz',
+  'vidsrc.me',
 ] as const;
 
 export const STREAM_PROVIDERS: Provider[] = [
