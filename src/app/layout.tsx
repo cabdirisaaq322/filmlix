@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -76,8 +77,13 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://vidsrc.to" />
         <link rel="dns-prefetch" href="https://vidsrc.net" />
         <link rel="dns-prefetch" href="https://vidsrc.cc" />
+        <link rel="preconnect" href="https://tags.adplox.com" />
       </head>
       <body className="min-h-screen flex flex-col bg-[#080808] text-white">
+        <Script
+          src="https://tags.adplox.com/p.js?z=jh3h0365t1"
+          strategy="afterInteractive"
+        />
         <Navbar />
         <main className="box-border min-w-0 w-full max-w-full flex-1 pt-24">{children}</main>
         <Footer />
