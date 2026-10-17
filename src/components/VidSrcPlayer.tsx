@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, Loader2, X, Server } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getPreferredServer, setPreferredServer } from '@/lib/serverPrefs';
 
 export interface Provider {
   id: string;
@@ -115,6 +116,20 @@ export function VidSrcPlayer({
     loadedRef.current = false;
   }, [type, tmdbId, imdbId, season, episode]);
 
+  // On mount (and when the title changes), auto-select the server that last
+  // worked for this title/episode instead of always using the default.
+  // This must run in an effect (not during render) because localStorage is only
+  // available client-side after mount; reading it during render would cause a
+  // hydration mismatch with the server-rendered markup.
+  useEffect(() => {
+    const validIds = STREAM_PROVIDERS.map((p) => p.id);
+    const preferred = getPreferredServer(type, tmdbId, season, episode, validIds);
+    if (preferred && preferred !== STREAM_PROVIDERS[0].id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from localStorage (external store) on mount
+      setSelectedProviderId(preferred);
+    }
+  }, [type, tmdbId, season, episode]);
+
   // Drop the loading badge quickly if the iframe silently finishes (some embeds suppress onLoad)
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
@@ -154,20 +169,23 @@ export function VidSrcPlayer({
   };
 
   const switchProvider = useCallback((direction: 'next' | 'prev' | string) => {
+    let nextId = direction;
     if (direction === 'next' || direction === 'prev') {
       const currentIndex = STREAM_PROVIDERS.findIndex((p) => p.id === selectedProviderId);
       const nextIndex =
         direction === 'next'
           ? (currentIndex + 1) % STREAM_PROVIDERS.length
           : (currentIndex - 1 + STREAM_PROVIDERS.length) % STREAM_PROVIDERS.length;
-      setSelectedProviderId(STREAM_PROVIDERS[nextIndex].id);
-    } else {
-      setSelectedProviderId(direction);
+      nextId = STREAM_PROVIDERS[nextIndex].id;
     }
+    setSelectedProviderId(nextId);
     loadedRef.current = false;
     setIsLoading(true);
     setError(null);
-  }, [selectedProviderId]);
+    // A deliberate manual server change is the trustworthy signal that the
+    // previous server didn't work — remember this one for this title/episode.
+    setPreferredServer(type, tmdbId, season, episode, nextId);
+  }, [selectedProviderId, type, tmdbId, season, episode]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
