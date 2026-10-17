@@ -28,6 +28,17 @@ export const VIDSRC_DOMAINS = [
 
 export const STREAM_PROVIDERS: Provider[] = [
   {
+    id: 'vidlink',
+    name: 'VidLink',
+    badge: 'HD',
+    buildUrl: ({ type, tmdbId, season, episode }) => {
+      if (type === 'tv') {
+        return `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`;
+      }
+      return `https://vidlink.pro/movie/${tmdbId}`;
+    },
+  },
+  {
     id: 'vidsrc',
     name: 'VidSrc',
     badge: 'Multi-Mirror',
@@ -61,17 +72,6 @@ export const STREAM_PROVIDERS: Provider[] = [
         return `${base}&s=${season}&e=${episode}`;
       }
       return base;
-    },
-  },
-  {
-    id: 'vidlink',
-    name: 'VidLink',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`;
-      }
-      return `https://vidlink.pro/movie/${tmdbId}`;
     },
   },
 ];
