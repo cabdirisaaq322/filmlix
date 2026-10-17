@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, Loader2, X, Server, Shield } from 'lucide-react';
+import { RefreshCw, Loader2, X, Server } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Provider {
@@ -101,7 +101,6 @@ export function VidSrcPlayer({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadNonce, setReloadNonce] = useState(0);
-  const [shieldGone, setShieldGone] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
@@ -110,15 +109,6 @@ export function VidSrcPlayer({
   const currentProvider =
     STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
   const activeVidSrcDomain = VIDSRC_DOMAINS[activeDomainIndex];
-
-  // Re-arm the ad shield when the stream target changes (React "adjust state
-  // during render" pattern instead of setState-in-effect).
-  const streamKey = `${type}-${tmdbId}-${imdbId ?? ''}-${season}-${episode}`;
-  const [prevStreamKey, setPrevStreamKey] = useState(streamKey);
-  if (prevStreamKey !== streamKey) {
-    setPrevStreamKey(streamKey);
-    setShieldGone(false);
-  }
 
   // Reset the "has loaded" ref whenever the streamed title/episode changes
   useEffect(() => {
@@ -133,7 +123,6 @@ export function VidSrcPlayer({
 
   const handleReload = useCallback(() => {
     loadedRef.current = false;
-    setShieldGone(false);
     setIsLoading(true);
     setError(null);
     setReloadNonce((n) => n + 1);
@@ -176,7 +165,6 @@ export function VidSrcPlayer({
       setSelectedProviderId(direction);
     }
     loadedRef.current = false;
-    setShieldGone(false);
     setIsLoading(true);
     setError(null);
   }, [selectedProviderId]);
@@ -236,7 +224,6 @@ export function VidSrcPlayer({
               value={activeDomainIndex}
               onChange={(e) => {
                 setActiveDomainIndex(Number(e.target.value));
-                setShieldGone(false);
                 setIsLoading(true);
               }}
               className="bg-slate-900/80 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
@@ -301,22 +288,6 @@ export function VidSrcPlayer({
               </div>
             </div>
           </div>
-        )}
-
-        {/* Click-shield: absorbs the first tap so it can't trigger the embed's
-            "first click opens an ad" popunder. Tap once to arm the player. */}
-        {!shieldGone && !error && (
-          <button
-            type="button"
-            onClick={() => setShieldGone(true)}
-            aria-label="Tap to start video"
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-slate-950/40 backdrop-blur-[1px] cursor-pointer transition-colors hover:bg-slate-950/20"
-          >
-            <span className="flex items-center gap-2 rounded-full bg-black/70 px-4 py-2 text-sm font-medium text-white shadow-lg border border-slate-700">
-              <Shield className="h-4 w-4 text-emerald-400" />
-              Tap to play
-            </span>
-          </button>
         )}
 
         {/* Embedded Video Iframe - zero blocking overlays on top */}
