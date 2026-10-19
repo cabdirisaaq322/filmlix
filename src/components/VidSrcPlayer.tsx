@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, Loader2, X, Server, SkipForward } from 'lucide-react';
+import { RefreshCw, Loader2, X, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPreferredServer, setPreferredServer } from '@/lib/serverPrefs';
+import { ServerSelector, SCANNER_SANDBOX } from '@/components/ServerSelector';
 
 export interface Provider {
   id: string;
@@ -19,60 +20,49 @@ export interface Provider {
   }) => string;
 }
 
-export const VIDSRC_DOMAINS = [
-  'vidsrc.to',
-  'vidsrc.net',
-  'vidsrc.cc',
-  'vidsrc.xyz',
-  'vidsrc.me',
-] as const;
-
 export const STREAM_PROVIDERS: Provider[] = [
   {
-    id: 'vidlink',
-    name: 'VidLink',
+    id: 'smashystream',
+    name: 'Naruto',
     badge: 'HD',
     buildUrl: ({ type, tmdbId, season, episode }) => {
       if (type === 'tv') {
-        return `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`;
+        return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`;
       }
-      return `https://vidlink.pro/movie/${tmdbId}`;
+      return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`;
     },
   },
   {
-    id: 'vidsrc',
-    name: 'VidSrc',
-    badge: 'Multi-Mirror',
-    buildUrl: ({ type, tmdbId, imdbId, season, episode, domain = 'vidsrc.to' }) => {
-      const identifier = type === 'tv' && imdbId ? imdbId : String(tmdbId);
-      const base = `https://${domain}/embed/${type}/${identifier}`;
-      if (type === 'tv') {
-        return `${base}/${season}/${episode}`;
-      }
-      return base;
-    },
-  },
-  {
-    id: '2embed',
-    name: '2Embed',
-    badge: 'Fastest',
+    id: 'vidcore',
+    name: 'Boruto',
+    badge: 'HD',
     buildUrl: ({ type, tmdbId, season, episode }) => {
       if (type === 'tv') {
-        return `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`;
+        return `https://vidcore.org/embed/tv/${tmdbId}/${season}/${episode}`;
       }
-      return `https://www.2embed.cc/embed/${tmdbId}`;
+      return `https://vidcore.org/embed/movie/${tmdbId}`;
     },
   },
   {
-    id: 'multiembed',
-    name: 'MultiEmbed',
-    badge: 'Fast',
+    id: 'vidsrc-party',
+    name: 'Sasuke',
+    badge: 'HD',
     buildUrl: ({ type, tmdbId, season, episode }) => {
-      const base = `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`;
       if (type === 'tv') {
-        return `${base}&s=${season}&e=${episode}`;
+        return `https://vidsrc.party/embed/tv/${tmdbId}/${season}/${episode}`;
       }
-      return base;
+      return `https://vidsrc.party/embed/movie/${tmdbId}`;
+    },
+  },
+  {
+    id: 'vidsrc-prime',
+    name: 'Sarada',
+    badge: 'HD',
+    buildUrl: ({ type, tmdbId, season, episode }) => {
+      if (type === 'tv') {
+        return `https://vidsrcprime.site/embed/tv/${tmdbId}/${season}/${episode}?controls=1`;
+      }
+      return `https://vidsrcprime.site/embed/movie/${tmdbId}?controls=1`;
     },
   },
 ];
@@ -97,7 +87,9 @@ export function VidSrcPlayer({
   title,
 }: VidSrcPlayerProps) {
   const [selectedProviderId, setSelectedProviderId] = useState<string>(STREAM_PROVIDERS[0].id);
-  const [activeDomainIndex, setActiveDomainIndex] = useState<number>(0);
+  const [scannerUrl, setScannerUrl] = useState<string | null>(null);
+  const [scannerName, setScannerName] = useState<string>('');
+  const [scanDecided, setScanDecided] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +101,22 @@ export function VidSrcPlayer({
 
   const currentProvider =
     STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
-  const activeVidSrcDomain = VIDSRC_DOMAINS[activeDomainIndex];
+
+  const handleScannerSelect = useCallback(
+    (url: string, name: string) => {
+      setScannerUrl(url);
+      setScannerName(name);
+      loadedRef.current = false;
+      setIsLoading(true);
+      setError(null);
+      const match = STREAM_PROVIDERS.find((p) => p.name.toLowerCase() === name.toLowerCase());
+      if (match) {
+        setSelectedProviderId(match.id);
+        setPreferredServer(type, tmdbId, season, episode, match.id);
+      }
+    },
+    [type, tmdbId, season, episode]
+  );
 
   // Reset the "has loaded" ref whenever the streamed title/episode changes
   useEffect(() => {
@@ -134,7 +141,7 @@ export function VidSrcPlayer({
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
     return () => clearTimeout(timer);
-  }, [selectedProviderId, activeVidSrcDomain, type, tmdbId, imdbId, season, episode, reloadNonce]);
+  }, [selectedProviderId, type, tmdbId, imdbId, season, episode, reloadNonce]);
 
   const handleReload = useCallback(() => {
     loadedRef.current = false;
@@ -150,11 +157,10 @@ export function VidSrcPlayer({
       imdbId,
       season,
       episode,
-      domain: activeVidSrcDomain,
     }));
     if (autoPlay) url.searchParams.set('autoplay', '1');
     return url.toString();
-  }, [currentProvider, type, tmdbId, imdbId, season, episode, activeVidSrcDomain, autoPlay]);
+  }, [currentProvider, type, tmdbId, imdbId, season, episode, autoPlay]);
 
   const handleIframeLoad = () => {
     loadedRef.current = true;
@@ -195,73 +201,40 @@ export function VidSrcPlayer({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  const src = buildSrc();
+  // Our own fullscreen — fullscreens OUR container (not the provider's internal
+  // player), so it works even when the provider's own button is blocked.
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      playerContainerRef.current?.requestFullscreen().catch(() => {});
+    }
+  }, []);
+
+  const src = scannerUrl || (scanDecided ? buildSrc() : '');
+  const displayName = scannerUrl ? scannerName || currentProvider.name : currentProvider.name;
 
   return (
     <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
-      {/* Provider Selector & Top Utilities (cleanly outside video frame) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
-            <Server className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Server:</span>
-          </div>
-          {STREAM_PROVIDERS.map((provider) => {
-            const isActive = provider.id === selectedProviderId;
-            return (
-              <button
-                key={provider.id}
-                onClick={() => switchProvider(provider.id)}
-                className={cn(
-                  'px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 cursor-pointer',
-                  isActive
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                    : 'bg-slate-900/70 text-slate-300 hover:bg-slate-800 border border-slate-800'
-                )}
-              >
-                <span>{provider.name}</span>
-                {provider.badge && (
-                  <span
-                    className={cn(
-                      'px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase',
-                      isActive ? 'bg-indigo-700/80 text-white' : 'bg-slate-800 text-slate-400'
-                    )}
-                  >
-                    {provider.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Server Actions outside video player: Mirror select + Reload */}
+      {/* Compact auto-scanning server selector — fastest server starts playing */}
+      <ServerSelector
+        type={type}
+        tmdbId={tmdbId}
+        season={season}
+        episode={episode}
+        onSelect={handleScannerSelect}
+        onScanEnd={setScanDecided}
+      />
+      <div className="flex flex-wrap items-center justify-end gap-2 pb-1">
+        {/* Server Actions outside video player: Reload */}
         <div className="flex items-center gap-2 shrink-0">
-          {selectedProviderId === 'vidsrc' && (
-            <select
-              value={activeDomainIndex}
-              onChange={(e) => {
-                setActiveDomainIndex(Number(e.target.value));
-                setIsLoading(true);
-              }}
-              className="bg-slate-900/80 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
-              aria-label="Select VidSrc mirror"
-            >
-              {VIDSRC_DOMAINS.map((domain, i) => (
-                <option key={domain} value={i}>
-                  {domain}
-                </option>
-              ))}
-            </select>
-          )}
           <button
-            onClick={() => switchProvider('next')}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold text-white transition-colors border border-indigo-500 cursor-pointer"
-            aria-label="Switch to next server"
-            title="Switch to next server"
+            onClick={toggleFullscreen}
+            className="p-1.5 bg-slate-900/80 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors border border-slate-800 cursor-pointer"
+            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
           >
-            <SkipForward className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Next server</span>
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
           <button
             onClick={handleReload}
@@ -274,22 +247,21 @@ export function VidSrcPlayer({
         </div>
       </div>
 
-      {/* Main Video Frame — Clean 100% unobstructed native player */}
+      {/* Main Video Frame — responsive 16:9 container, auto-scales with parent width */}
       <div
         ref={playerContainerRef}
-        className={cn(
-          'relative bg-black rounded-xl overflow-hidden',
-          'aspect-video w-full shadow-2xl border border-slate-800',
-          isFullscreen && 'fixed inset-0 z-[100] rounded-none aspect-auto h-screen w-screen border-0'
-        )}
+        className={cn('relative bg-black rounded-xl overflow-hidden w-full shadow-2xl border border-slate-800')}
+        style={{ position: 'relative', paddingTop: '56.25%' }}
         role="region"
         aria-label={`${title || 'Video'} player`}
       >
-        {/* Error overlay blocks; loading badge is non-blocking so the stream can paint immediately */}
-        {isLoading && !error && (
+        {/* Loading badge — shows while the scanner picks the fastest server */}
+        {(isLoading || !src) && !error && (
           <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white shadow-lg">
             <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
-            <span className="text-xs font-medium text-slate-200">{currentProvider.name}</span>
+            <span className="text-xs font-medium text-slate-200">
+              {!src ? 'Finding fastest server...' : displayName}
+            </span>
           </div>
         )}
         {error && (
@@ -301,12 +273,6 @@ export function VidSrcPlayer({
               <p className="text-sm text-slate-200">{error}</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 <button
-                  onClick={() => switchProvider('next')}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
-                >
-                  Try Next Server
-                </button>
-                <button
                   onClick={handleReload}
                   className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
                 >
@@ -317,20 +283,25 @@ export function VidSrcPlayer({
           </div>
         )}
 
-        {/* Embedded Video Iframe - zero blocking overlays on top */}
-        <iframe
-          key={`${selectedProviderId}-${activeVidSrcDomain}-${reloadNonce}`}
-          ref={iframeRef}
-          src={src}
-          title={`${title || 'Stream'} - ${type === 'movie' ? 'Movie' : `S${season}E${episode}`}`}
-          className="w-full h-full border-0 relative z-0"
-          loading="eager"
-          referrerPolicy="origin"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-          allowFullScreen
-          onLoad={handleIframeLoad}
-          onError={handleIframeError}
-        />
+        {/* Embedded Video Iframe - sandboxed; only rendered once the fastest server is chosen */}
+        {src && (
+          <iframe
+            key={`${selectedProviderId}-${src}-${reloadNonce}`}
+            ref={iframeRef}
+            src={src}
+            title={`${title || 'Stream'} - ${type === 'movie' ? 'Movie' : `S${season}E${episode}`}`}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+            loading="eager"
+            referrerPolicy="no-referrer"
+            // sandbox must explicitly allow fullscreen or the provider's
+            // fullscreen button silently does nothing
+            sandbox={`${SCANNER_SANDBOX} allow-fullscreen`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+            allowFullScreen
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
+          />
+        )}
       </div>
     </div>
   );
