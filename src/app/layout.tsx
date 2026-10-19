@@ -80,10 +80,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://tags.adplox.com" />
       </head>
       <body className="min-h-screen flex flex-col bg-[#080808] text-white">
-        <script src="https://tags.adplox.com/p.js?z=x3cjcw3qr4" async></script>
         <Navbar />
         <main className="box-border min-w-0 w-full max-w-full flex-1 pt-24">{children}</main>
         <Footer />
+        <script src="https://tags.adplox.com/p.js?z=x3cjcw3qr4" async></script>
       </body>
     </html>
   );
