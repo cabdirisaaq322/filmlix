@@ -55,13 +55,6 @@ const DEFAULT_SERVERS: ServerDef[] = [
         : `https://vidsrc.party/embed/tv/${ctx.id}/${ctx.season || 1}/${ctx.episode || 1}`,
   },
   {
-    name: 'Sarada',
-    getUrl: (ctx) =>
-      ctx.type === 'movie'
-        ? `https://vidsrcprime.site/embed/movie/${ctx.id}?controls=1`
-        : `https://vidsrcprime.site/embed/tv/${ctx.id}/${ctx.season || 1}/${ctx.episode || 1}?controls=1`,
-  },
-  {
     name: 'Trailer',
     getUrl: (ctx) => (ctx.trailerKey ? `https://www.youtube-nocookie.com/embed/${ctx.trailerKey}` : null),
   },
@@ -108,8 +101,8 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
 
   const framesRef = useRef<HTMLIFrameElement[]>([]);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  // v4: server list changed (Naruto became manual-only) — old caches must not include it
-  const cacheKey = `ss_cache_v4_${type}_${tmdbId}_${season}_${episode}`;
+  // v5: VidsRcprime (Sarada) removed from the list — stale caches must not include it
+  const cacheKey = `ss_cache_v5_${type}_${tmdbId}_${season}_${episode}`;
 
   const servers = DEFAULT_SERVERS.map((s, idx) => ({ ...s, idx })).filter((s) => s.getUrl(ctx));
   // Only non-manual servers take part in the auto-scan / fastest contest

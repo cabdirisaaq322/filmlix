@@ -54,17 +54,6 @@ export const STREAM_PROVIDERS: Provider[] = [
       return `https://vidsrc.party/embed/movie/${tmdbId}`;
     },
   },
-  {
-    id: 'vidsrc-prime',
-    name: 'Sarada',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://vidsrcprime.site/embed/tv/${tmdbId}/${season}/${episode}?controls=1`;
-      }
-      return `https://vidsrcprime.site/embed/movie/${tmdbId}?controls=1`;
-    },
-  },
 ];
 
 interface VidSrcPlayerProps {
