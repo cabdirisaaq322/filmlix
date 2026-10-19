@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Check, Loader2, RefreshCw, X } from 'lucide-react';
+import { Check, Hand, Loader2, RefreshCw, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const SCANNER_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation';
@@ -26,12 +26,15 @@ interface Ctx {
 
 interface ServerDef {
   name: string;
+  /** Manual-only: excluded from auto-scan/fastest contest, always clickable. */
+  manual?: boolean;
   getUrl: (ctx: Ctx) => string | null;
 }
 
 const DEFAULT_SERVERS: ServerDef[] = [
   {
     name: 'Naruto',
+    manual: true,
     getUrl: (ctx) =>
       ctx.type === 'movie'
         ? `https://embed.smashystream.com/playere.php?tmdb=${ctx.id}`
@@ -105,10 +108,14 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
 
   const framesRef = useRef<HTMLIFrameElement[]>([]);
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  // v3: bump when the server list changes so old cached scans can't omit new servers
-  const cacheKey = `ss_cache_v3_${type}_${tmdbId}_${season}_${episode}`;
+  // v4: server list changed (Naruto became manual-only) — old caches must not include it
+  const cacheKey = `ss_cache_v4_${type}_${tmdbId}_${season}_${episode}`;
 
   const servers = DEFAULT_SERVERS.map((s, idx) => ({ ...s, idx })).filter((s) => s.getUrl(ctx));
+  // Only non-manual servers take part in the auto-scan / fastest contest
+  const scanTargets = servers.filter((s) => !s.manual);
+  // Set once the user clicks a pill manually — scan must not override their choice
+  const userPickedRef = useRef(false);
 
   const clearScanArtifacts = useCallback(() => {
     timeoutsRef.current.forEach((t) => clearTimeout(t));
@@ -136,6 +143,7 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
   const runScan = useCallback(
     (force = false) => {
       clearScanArtifacts();
+      userPickedRef.current = false;
 
       // ---- Cached results: recompute the FASTEST from them, never trust a stored "first" ----
       if (!force) {
@@ -145,7 +153,7 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
             const parsed = JSON.parse(raw);
             if (Date.now() - parsed.timestamp < CACHE_MS && parsed.cachedStatuses) {
               const st: Record<number, ScanStatus> = parsed.cachedStatuses;
-              const complete = servers.every((s) => st[s.idx]);
+              const complete = scanTargets.every((s) => st[s.idx]);
               if (!complete) {
                 // Cache from an older server list — fall through to a fresh scan
                 sessionStorage.removeItem(cacheKey);
@@ -163,9 +171,9 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
         }
       }
 
-      // ---- Fresh PARALLEL scan: all servers tested at once, lowest ms wins ----
+      // ---- Fresh PARALLEL scan of the 3 auto servers only (Naruto is manual) ----
       const initStatuses: Record<number, ScanStatus> = {};
-      servers.forEach((s) => {
+      scanTargets.forEach((s) => {
         initStatuses[s.idx] = { state: 'wait' };
       });
       const finalStatuses: Record<number, ScanStatus> = { ...initStatuses };
@@ -173,11 +181,12 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
       setActiveIdx(null);
       setIsScanning(true);
 
-      let remaining = servers.length;
+      let remaining = scanTargets.length;
 
       const onAllSettled = () => {
         setIsScanning(false);
-        const winner = pickAndPlay(finalStatuses);
+        // Never stomp a manual pick made while the scan was running
+        const winner = userPickedRef.current ? fastestWinner(finalStatuses) : pickAndPlay(finalStatuses);
         if (winner != null) {
           try {
             sessionStorage.setItem(
@@ -196,7 +205,7 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
         return;
       }
 
-      servers.forEach((server) => {
+      scanTargets.forEach((server) => {
         const url = server.getUrl(ctx) as string;
         finalStatuses[server.idx] = { state: 'scan' };
         setStatuses({ ...finalStatuses });
@@ -246,6 +255,7 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
     const server = DEFAULT_SERVERS[idx];
     const url = server.getUrl(ctx);
     if (!url) return;
+    userPickedRef.current = true;
     setActiveIdx(idx);
     onSelect?.(url, server.name);
   };
@@ -264,35 +274,44 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
         {/* Server pills — one clean row */}
         <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
           {servers.map((server) => {
+            const manual = !!server.manual;
             const st = statuses[server.idx] || { state: 'wait' as ScanState };
             const isActive = activeIdx === server.idx;
-            const disabled = st.state === 'wait' || st.state === 'scan' || st.state === 'fail';
+            // Manual servers are never scanned — always clickable
+            const disabled = manual ? false : st.state === 'wait' || st.state === 'scan' || st.state === 'fail';
             return (
               <button
                 key={server.name}
                 disabled={disabled}
                 onClick={() => selectServer(server.idx)}
                 title={
-                  st.state === 'ok'
-                    ? `${server.name} responded in ${st.ms}ms`
-                    : st.state === 'fail'
-                      ? `${server.name} not responding`
-                      : 'Checking...'
+                  manual
+                    ? `${server.name} — manual server, click to play (not scanned)`
+                    : st.state === 'ok'
+                      ? `${server.name} responded in ${st.ms}ms`
+                      : st.state === 'fail'
+                        ? `${server.name} not responding`
+                        : 'Checking...'
                 }
                 className={cn(
                   'flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
-                  st.state === 'wait' && 'border-slate-800 bg-slate-900/60 text-slate-500',
-                  st.state === 'scan' && 'border-yellow-500/50 bg-yellow-500/10 text-yellow-400',
-                  st.state === 'fail' && 'border-slate-800 bg-slate-900/60 text-slate-600 line-through',
-                  st.state === 'ok' && !isActive && 'border-emerald-600/50 bg-emerald-500/10 text-emerald-400 hover:border-emerald-400',
-                  st.state === 'ok' && isActive && 'border-emerald-400 bg-emerald-500/25 text-emerald-200 shadow-[0_0_10px_-2px_rgba(34,197,94,0.5)]'
+                  manual &&
+                    (isActive
+                      ? 'border-violet-400 bg-violet-500/25 text-violet-200 shadow-[0_0_10px_-2px_rgba(167,139,250,0.6)]'
+                      : 'border-violet-500/40 bg-violet-500/10 text-violet-300 hover:border-violet-400 hover:bg-violet-500/20'),
+                  !manual && st.state === 'wait' && 'border-slate-800 bg-slate-900/60 text-slate-500',
+                  !manual && st.state === 'scan' && 'border-yellow-500/50 bg-yellow-500/10 text-yellow-400',
+                  !manual && st.state === 'fail' && 'border-slate-800 bg-slate-900/60 text-slate-600 line-through',
+                  !manual && st.state === 'ok' && !isActive && 'border-emerald-600/50 bg-emerald-500/10 text-emerald-400 hover:border-emerald-400',
+                  !manual && st.state === 'ok' && isActive && 'border-emerald-400 bg-emerald-500/25 text-emerald-200 shadow-[0_0_10px_-2px_rgba(34,197,94,0.5)]'
                 )}
               >
-                {st.state === 'scan' && <Loader2 className="h-3 w-3 animate-spin" />}
-                {st.state === 'ok' && <Check className="h-3 w-3" />}
-                {st.state === 'fail' && <X className="h-3 w-3" />}
+                {manual && <Hand className="h-3 w-3" />}
+                {!manual && st.state === 'scan' && <Loader2 className="h-3 w-3 animate-spin" />}
+                {!manual && st.state === 'ok' && <Check className="h-3 w-3" />}
+                {!manual && st.state === 'fail' && <X className="h-3 w-3" />}
                 <span className="whitespace-nowrap">{server.name}</span>
-                {st.state === 'ok' && st.ms != null && (
+                {!manual && st.state === 'ok' && st.ms != null && (
                   <span className="text-[9px] opacity-70">{st.ms}ms</span>
                 )}
               </button>
@@ -302,7 +321,7 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
 
         {/* Progress count + rescan */}
         <span className="hidden shrink-0 text-[10px] tabular-nums text-slate-500 sm:block">
-          {doneCount}/{servers.length}
+          {doneCount}/{scanTargets.length}
         </span>
         <button
           onClick={() => runScan(true)}

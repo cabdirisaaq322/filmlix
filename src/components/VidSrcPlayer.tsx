@@ -89,7 +89,6 @@ export function VidSrcPlayer({
   const [selectedProviderId, setSelectedProviderId] = useState<string>(STREAM_PROVIDERS[0].id);
   const [scannerUrl, setScannerUrl] = useState<string | null>(null);
   const [scannerName, setScannerName] = useState<string>('');
-  const [scanDecided, setScanDecided] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,12 +97,15 @@ export function VidSrcPlayer({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
+  // Mirror of scannerUrl readable inside callbacks (state reads can be stale)
+  const scannerUrlRef = useRef<string>('');
 
   const currentProvider =
     STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
 
   const handleScannerSelect = useCallback(
     (url: string, name: string) => {
+      scannerUrlRef.current = url;
       setScannerUrl(url);
       setScannerName(name);
       loadedRef.current = false;
@@ -117,6 +119,15 @@ export function VidSrcPlayer({
     },
     [type, tmdbId, season, episode]
   );
+
+  // Called once when the auto-scan settles. If nothing auto won and the user
+  // hasn't manually picked a server (incl. the manual-only Naruto), show an error.
+  const handleScanEnd = useCallback((decided: boolean) => {
+    if (!decided && !scannerUrlRef.current) {
+      setIsLoading(false);
+      setError('No auto server responded. Pick a server above.');
+    }
+  }, []);
 
   // Reset the "has loaded" ref whenever the streamed title/episode changes
   useEffect(() => {
@@ -211,19 +222,20 @@ export function VidSrcPlayer({
     }
   }, []);
 
-  const src = scannerUrl || (scanDecided ? buildSrc() : '');
+  // Only the scanner/manual pick starts a stream — Naruto (manual-only) never auto-plays
+  const src = scannerUrl || '';
   const displayName = scannerUrl ? scannerName || currentProvider.name : currentProvider.name;
 
   return (
     <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
-      {/* Compact auto-scanning server selector — fastest server starts playing */}
+      {/* Compact auto-scanning server selector — fastest of the 3 auto servers plays */}
       <ServerSelector
         type={type}
         tmdbId={tmdbId}
         season={season}
         episode={episode}
         onSelect={handleScannerSelect}
-        onScanEnd={setScanDecided}
+        onScanEnd={handleScanEnd}
       />
       <div className="flex flex-wrap items-center justify-end gap-2 pb-1">
         {/* Server Actions outside video player: Reload */}
