@@ -78,6 +78,20 @@ export function VidSrcPlayer({
   const [selectedProviderId, setSelectedProviderId] = useState<string>(STREAM_PROVIDERS[0].id);
   const [scannerUrl, setScannerUrl] = useState<string | null>(null);
   const [scannerName, setScannerName] = useState<string>('');
+  // Auto-play VidCore on load (unless a saved preference says otherwise).
+  // localStorage is only available client-side after mount; reading it during
+  // render would cause a hydration mismatch with the server-rendered markup.
+  useEffect(() => {
+    const validIds = STREAM_PROVIDERS.map((p) => p.id);
+    const preferred = getPreferredServer(type, tmdbId, season, episode, validIds);
+    const startId = preferred ?? STREAM_PROVIDERS[0].id;
+    const startProvider = STREAM_PROVIDERS.find((p) => p.id === startId) ?? STREAM_PROVIDERS[0];
+    const startUrl = startProvider.buildUrl({ type, tmdbId, imdbId, season, episode });
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from localStorage (external store) on mount
+    setSelectedProviderId(startId);
+    setScannerUrl(startUrl);
+    setScannerName(startProvider.name);
+  }, [type, tmdbId, imdbId, season, episode]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,15 +100,12 @@ export function VidSrcPlayer({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
-  // Mirror of scannerUrl readable inside callbacks (state reads can be stale)
-  const scannerUrlRef = useRef<string>('');
 
   const currentProvider =
     STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
 
   const handleServerSelect = useCallback(
     (url: string, name: string) => {
-      scannerUrlRef.current = url;
       setScannerUrl(url);
       setScannerName(name);
       loadedRef.current = false;
@@ -113,20 +124,6 @@ export function VidSrcPlayer({
   useEffect(() => {
     loadedRef.current = false;
   }, [type, tmdbId, imdbId, season, episode]);
-
-  // On mount (and when the title changes), auto-select the server that last
-  // worked for this title/episode instead of always using the default.
-  // This must run in an effect (not during render) because localStorage is only
-  // available client-side after mount; reading it during render would cause a
-  // hydration mismatch with the server-rendered markup.
-  useEffect(() => {
-    const validIds = STREAM_PROVIDERS.map((p) => p.id);
-    const preferred = getPreferredServer(type, tmdbId, season, episode, validIds);
-    if (preferred && preferred !== STREAM_PROVIDERS[0].id) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from localStorage (external store) on mount
-      setSelectedProviderId(preferred);
-    }
-  }, [type, tmdbId, season, episode]);
 
   // Drop the loading badge quickly if the iframe silently finishes (some embeds suppress onLoad)
   useEffect(() => {
@@ -208,12 +205,13 @@ export function VidSrcPlayer({
 
   return (
     <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
-      {/* Manual server selector — VidCore first */}
+      {/* Manual server selector — VidCore first, auto-plays on load */}
       <ServerSelector
         type={type}
         tmdbId={tmdbId}
         season={season}
         episode={episode}
+        activeName={scannerName}
         onSelect={handleServerSelect}
       />
       <div className="flex flex-wrap items-center justify-end gap-2 pb-1">
@@ -251,7 +249,7 @@ export function VidSrcPlayer({
           <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white shadow-lg">
             <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
             <span className="text-xs font-medium text-slate-200">
-              {!src ? 'Pick a server to play...' : displayName}
+              {!src ? currentProvider.name : displayName}
             </span>
           </div>
         )}
