@@ -254,18 +254,48 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
   };
 
   const doneCount = Object.values(statuses).filter((s) => s.state === 'ok' || s.state === 'fail').length;
+  const scanDone = scanTargets.length > 0 && doneCount >= scanTargets.length;
+  const activeServer = activeIdx != null ? servers.find((s) => s.idx === activeIdx) : undefined;
 
   return (
-    <div className="w-full rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5">
-      <div className="flex items-center gap-3">
-        {/* Label + status */}
-        <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-          <span className={cn('h-1.5 w-1.5 rounded-full', isScanning ? 'animate-pulse bg-yellow-400' : 'bg-emerald-400')} />
-          {isScanning ? 'Finding best...' : 'Servers'}
+    <div className="w-full rounded-2xl border border-white/10 bg-slate-950/70 p-2.5 shadow-lg shadow-black/40 backdrop-blur-sm sm:px-3 sm:py-3">
+      {/* Header: status + progress count */}
+      <div className="mb-2 flex items-center justify-between gap-2 px-1">
+        <span className="flex shrink-0 items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 sm:text-[11px]">
+          <span className={cn('h-1.5 w-1.5 rounded-full', isScanning ? 'animate-pulse bg-yellow-400' : scanDone ? 'bg-emerald-400' : 'bg-slate-500')} />
+          {isScanning ? 'Finding best…' : scanDone ? 'Fastest server' : 'Servers'}
         </span>
+        <span className="shrink-0 text-[10px] tabular-nums text-slate-500">
+          {doneCount}/{scanTargets.length}
+        </span>
+      </div>
 
-        {/* Server pills — one clean row */}
-        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+      {/* Progress bar */}
+      <div className="mb-2.5 h-1 w-full overflow-hidden rounded-full bg-white/10">
+        <div
+          className={cn(
+            'h-full rounded-full transition-all duration-500',
+            isScanning ? 'bg-yellow-400' : scanDone ? 'bg-emerald-400' : 'bg-white/30'
+          )}
+          style={{ width: `${scanTargets.length ? (doneCount / scanTargets.length) * 100 : 0}%` }}
+        />
+      </div>
+
+      {/* Winner banner */}
+      {activeServer && !isScanning && (
+        <div className="mb-2.5 flex items-center justify-between gap-2 rounded-lg bg-emerald-500/15 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-300">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">Playing on {activeServer.name}</span>
+          </span>
+          {statuses[activeServer.idx]?.ms != null && (
+            <span className="shrink-0 tabular-nums opacity-70">{statuses[activeServer.idx]?.ms}ms</span>
+          )}
+        </div>
+      )}
+
+      {/* Server cards — 2-col grid on phones, inline pills on desktop */}
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-1.5">
           {servers.map((server) => {
             const manual = !!server.manual;
             const st = statuses[server.idx] || { state: 'wait' as ScanState };
@@ -287,7 +317,7 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
                         : 'Checking...'
                 }
                 className={cn(
-                  'flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
+                  'flex min-w-0 items-center gap-2 rounded-xl border px-2.5 py-2.5 text-left text-xs font-medium transition-all sm:shrink-0 sm:rounded-full sm:gap-1.5 sm:py-1 sm:text-[11px]',
                   manual &&
                     (isActive
                       ? 'border-violet-400 bg-violet-500/25 text-violet-200 shadow-[0_0_10px_-2px_rgba(167,139,250,0.6)]'
@@ -299,33 +329,33 @@ export function ServerSelector({ type, tmdbId, season = 1, episode = 1, trailerK
                   !manual && st.state === 'ok' && isActive && 'border-emerald-400 bg-emerald-500/25 text-emerald-200 shadow-[0_0_10px_-2px_rgba(34,197,94,0.5)]'
                 )}
               >
-                {manual && <Hand className="h-3 w-3" />}
-                {!manual && st.state === 'scan' && <Loader2 className="h-3 w-3 animate-spin" />}
-                {!manual && st.state === 'ok' && <Check className="h-3 w-3" />}
-                {!manual && st.state === 'fail' && <X className="h-3 w-3" />}
-                <span className="whitespace-nowrap">{server.name}</span>
+                <span className="flex shrink-0 items-center">
+                  {manual && <Hand className="h-3.5 w-3.5 sm:h-3 sm:w-3" />}
+                  {!manual && st.state === 'scan' && <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-3 sm:w-3" />}
+                  {!manual && st.state === 'ok' && <Check className="h-3.5 w-3.5 sm:h-3 sm:w-3" />}
+                  {!manual && st.state === 'fail' && <X className="h-3.5 w-3.5 sm:h-3 sm:w-3" />}
+                  {!manual && st.state === 'wait' && <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate">{server.name}</span>
                 {!manual && st.state === 'ok' && st.ms != null && (
-                  <span className="text-[9px] opacity-70">{st.ms}ms</span>
+                  <span className="shrink-0 text-[9px] tabular-nums opacity-70">{st.ms}ms</span>
                 )}
               </button>
             );
           })}
-        </div>
-
-        {/* Progress count + rescan */}
-        <span className="hidden shrink-0 text-[10px] tabular-nums text-slate-500 sm:block">
-          {doneCount}/{scanTargets.length}
-        </span>
-        <button
-          onClick={() => runScan(true)}
-          disabled={isScanning}
-          aria-label="Rescan servers"
-          title="Rescan servers"
-          className="shrink-0 rounded-full border border-slate-800 bg-slate-900 p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white disabled:opacity-40"
-        >
-          <RefreshCw className={cn('h-3 w-3', isScanning && 'animate-spin')} />
-        </button>
       </div>
+
+      {/* Rescan — full-width on phones, icon button on desktop */}
+      <button
+        onClick={() => runScan(true)}
+        disabled={isScanning}
+        aria-label="Rescan servers"
+        title="Rescan servers"
+        className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/60 py-2 text-[11px] font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-white disabled:opacity-40 sm:mt-0 sm:w-auto sm:justify-start sm:border-0 sm:bg-transparent sm:p-0 sm:text-[11px] sm:hover:bg-transparent sm:hover:text-white"
+      >
+        <RefreshCw className={cn('h-3.5 w-3.5 sm:h-3 sm:w-3', isScanning && 'animate-spin')} />
+        <span className="sm:hidden">{isScanning ? 'Searching…' : 'Rescan servers'}</span>
+      </button>
     </div>
   );
 }

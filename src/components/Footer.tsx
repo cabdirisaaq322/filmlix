@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { HeartHandshake } from 'lucide-react';
 
 const SOCIAL_LINKS = [
   { label: 'Instagram', href: '' },
@@ -9,6 +10,9 @@ const SOCIAL_LINKS = [
   { label: 'YouTube', href: '' },
   { label: 'X', href: '' },
 ];
+
+/** Donate link (NOWPayments invoice). Opens in a new tab. */
+const DONATE_URL = 'https://nowpayments.io/payment/?iid=4534774967';
 
 export function Footer() {
   const [currentYear, setCurrentYear] = useState(2025);
@@ -20,7 +24,7 @@ export function Footer() {
   return (
     <footer className="mt-8 border-t border-white/10 bg-[#080808]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center text-2xl font-black uppercase leading-none" aria-label="FilmFlix Home">
               <span className="text-white">Film</span><span className="text-[#e50914]">Flix</span>
@@ -51,6 +55,25 @@ export function Footer() {
               <li><Link href="/privacy" className="text-slate-400 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-slate-400 hover:text-white transition-colors text-sm">Terms of Service</Link></li>
               <li><Link href="/contact" className="text-slate-400 hover:text-white transition-colors text-sm">Contact Us</Link></li>
+            </ul>
+          </nav>
+
+          <nav className="space-y-3" aria-label="Support">
+            <h4 className="font-semibold text-white">Support</h4>
+            <ul className="space-y-2">
+              <li>
+                <a
+                  href={DONATE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-300"
+                >
+                  <HeartHandshake className="h-4 w-4" aria-hidden="true" />
+                  Donate
+                </a>
+              </li>
+              <li><Link href="/contact" className="text-slate-400 hover:text-white transition-colors text-sm">Contact Us</Link></li>
+              <li><Link href="/dmca" className="text-slate-400 hover:text-white transition-colors text-sm">DMCA Policy</Link></li>
             </ul>
           </nav>
 

@@ -3,9 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, Trash2, Trophy, Flame, Film, Heart, Zap, Calendar, Check } from 'lucide-react';
+import { Menu, Trash2, Trophy, Flame, Film, Heart, HeartHandshake, Zap, Calendar, Check } from 'lucide-react';
 import { clearContinueWatching } from '@/lib/history';
 import { cn } from '@/lib/utils';
+
+/** Donate link (NOWPayments invoice). Opens in a new tab. */
+const DONATE_URL = 'https://nowpayments.io/payment/?iid=4534774967';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -113,7 +116,21 @@ export function Navbar() {
           })}
         </div>
 
-        <div ref={menuRef} className="relative shrink-0">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          {/* Donate button */}
+          <a
+            href={DONATE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Donate to FilmFlix"
+            title="Donate to FilmFlix"
+            className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[10px] sm:text-sm font-semibold text-emerald-300 transition-colors hover:border-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-200 whitespace-nowrap"
+          >
+            <HeartHandshake className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Donate</span>
+          </a>
+
+          <div ref={menuRef} className="relative shrink-0">
             <button
               type="button"
               onClick={toggleMenu}
@@ -240,8 +257,23 @@ export function Navbar() {
                 <Trash2 className="h-4 w-4 text-white/55" aria-hidden="true" />
                 Clear Continue Watching
               </button>
+
+              <div className="my-2.5 border-t border-white/10" />
+              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">💚 Support Us</p>
+              <a
+                href={DONATE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="flex w-full items-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-left text-sm font-semibold text-emerald-300 transition-all hover:border-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-200"
+              >
+                <HeartHandshake className="h-4 w-4 shrink-0" aria-hidden="true" />
+                Donate Now
+              </a>
             </div>
           </div>
+        </div>
       </div>
     </nav>
   );
