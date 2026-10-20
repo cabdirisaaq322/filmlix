@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
@@ -83,7 +84,7 @@ export default function RootLayout({
         <Navbar />
         <main className="box-border min-w-0 w-full max-w-full flex-1 pt-24">{children}</main>
         <Footer />
-        <script src="https://tags.adplox.com/p.js?z=x3cjcw3qr4" async></script>
+        <Script src="https://tags.adplox.com/p.js?z=x3cjcw3qr4" strategy="afterInteractive" />
       </body>
     </html>
   );
