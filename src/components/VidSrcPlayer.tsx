@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, Loader2, X, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPreferredServer, setPreferredServer } from '@/lib/serverPrefs';
-import { ServerSelector, SCANNER_SANDBOX } from '@/components/ServerSelector';
+import { ServerSelector } from '@/components/ServerSelector';
 
 export interface Provider {
   id: string;
@@ -22,19 +22,8 @@ export interface Provider {
 
 export const STREAM_PROVIDERS: Provider[] = [
   {
-    id: 'smashystream',
-    name: 'Naruto',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`;
-      }
-      return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`;
-    },
-  },
-  {
     id: 'vidcore',
-    name: 'Boruto',
+    name: 'VidCore',
     badge: 'HD',
     buildUrl: ({ type, tmdbId, season, episode }) => {
       if (type === 'tv') {
@@ -45,13 +34,24 @@ export const STREAM_PROVIDERS: Provider[] = [
   },
   {
     id: 'vidsrc-party',
-    name: 'Sasuke',
+    name: 'VidSrc',
     badge: 'HD',
     buildUrl: ({ type, tmdbId, season, episode }) => {
       if (type === 'tv') {
         return `https://vidsrc.party/embed/tv/${tmdbId}/${season}/${episode}`;
       }
       return `https://vidsrc.party/embed/movie/${tmdbId}`;
+    },
+  },
+  {
+    id: 'smashystream',
+    name: 'SmashyStream',
+    badge: 'HD',
+    buildUrl: ({ type, tmdbId, season, episode }) => {
+      if (type === 'tv') {
+        return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`;
+      }
+      return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`;
     },
   },
 ];
@@ -92,7 +92,7 @@ export function VidSrcPlayer({
   const currentProvider =
     STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
 
-  const handleScannerSelect = useCallback(
+  const handleServerSelect = useCallback(
     (url: string, name: string) => {
       scannerUrlRef.current = url;
       setScannerUrl(url);
@@ -108,15 +108,6 @@ export function VidSrcPlayer({
     },
     [type, tmdbId, season, episode]
   );
-
-  // Called once when the auto-scan settles. If nothing auto won and the user
-  // hasn't manually picked a server (incl. the manual-only Naruto), show an error.
-  const handleScanEnd = useCallback((decided: boolean) => {
-    if (!decided && !scannerUrlRef.current) {
-      setIsLoading(false);
-      setError('No auto server responded. Pick a server above.');
-    }
-  }, []);
 
   // Reset the "has loaded" ref whenever the streamed title/episode changes
   useEffect(() => {
@@ -211,20 +202,19 @@ export function VidSrcPlayer({
     }
   }, []);
 
-  // Only the scanner/manual pick starts a stream — Naruto (manual-only) never auto-plays
+  // Only a manual server pick starts a stream — nothing auto-plays
   const src = scannerUrl || '';
   const displayName = scannerUrl ? scannerName || currentProvider.name : currentProvider.name;
 
   return (
     <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
-      {/* Compact auto-scanning server selector — fastest of the 3 auto servers plays */}
+      {/* Manual server selector — VidCore first */}
       <ServerSelector
         type={type}
         tmdbId={tmdbId}
         season={season}
         episode={episode}
-        onSelect={handleScannerSelect}
-        onScanEnd={handleScanEnd}
+        onSelect={handleServerSelect}
       />
       <div className="flex flex-wrap items-center justify-end gap-2 pb-1">
         {/* Server Actions outside video player: Reload */}
@@ -256,12 +246,12 @@ export function VidSrcPlayer({
         role="region"
         aria-label={`${title || 'Video'} player`}
       >
-        {/* Loading badge — shows while the scanner picks the fastest server */}
+        {/* Loading badge — shows while the server loads */}
         {(isLoading || !src) && !error && (
           <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white shadow-lg">
             <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
             <span className="text-xs font-medium text-slate-200">
-              {!src ? 'Finding fastest server...' : displayName}
+              {!src ? 'Pick a server to play...' : displayName}
             </span>
           </div>
         )}
@@ -284,7 +274,7 @@ export function VidSrcPlayer({
           </div>
         )}
 
-        {/* Embedded Video Iframe - sandboxed; only rendered once the fastest server is chosen */}
+        {/* Embedded Video Iframe - sandboxed; only rendered once a server is picked */}
         {src && (
           <iframe
             key={`${selectedProviderId}-${src}-${reloadNonce}`}
@@ -296,7 +286,7 @@ export function VidSrcPlayer({
             referrerPolicy="no-referrer"
             // sandbox must explicitly allow fullscreen or the provider's
             // fullscreen button silently does nothing
-            sandbox={`${SCANNER_SANDBOX} allow-fullscreen`}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-fullscreen"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
             allowFullScreen
             onLoad={handleIframeLoad}
