@@ -75,7 +75,10 @@ export function VidSrcPlayer({
   autoPlay = false,
   title,
 }: VidSrcPlayerProps) {
-  const [selectedProviderId, setSelectedProviderId] = useState<string>(STREAM_PROVIDERS[0].id);
+  const [selectedProviderId, setSelectedProviderId] = useState<string>(() => {
+    const validIds = STREAM_PROVIDERS.map((p) => p.id);
+    return getPreferredServer(type, tmdbId, season, episode, validIds) ?? STREAM_PROVIDERS[0].id;
+  });
   const [scannerUrl, setScannerUrl] = useState<string | null>(null);
   const [scannerName, setScannerName] = useState<string>('');
   // Auto-play VidCore on load (unless a saved preference says otherwise).
