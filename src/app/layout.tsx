@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   verification: {
-    google: 'google-site-verification-code',
+    google: 'googlee14a5a4666db0580',
   },
   metadataBase: new URL('http://localhost:3000'),
 };
