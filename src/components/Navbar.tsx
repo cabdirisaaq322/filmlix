@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, Trash2, Trophy, Flame, Film, Heart, Zap, Calendar, Check } from 'lucide-react';
+import { Menu, Trash2, Trophy, Flame, Film, Heart, Zap, Calendar, Check, Search } from 'lucide-react';
 import { clearContinueWatching } from '@/lib/history';
 import { cn } from '@/lib/utils';
 
@@ -95,6 +95,7 @@ export function Navbar() {
         <div className="flex items-center gap-1 sm:gap-10 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-w-0 max-w-full">
           {NAV_ITEMS.map(({ href, label }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+            const isSearch = href === '/search';
             return (
               <Link
                 key={href}
@@ -107,7 +108,14 @@ export function Navbar() {
                     : 'text-[#cccccc] hover:text-white'
                 )}
               >
-                <span>{label}</span>
+                {isSearch ? (
+                  <>
+                    <Search className="h-4 w-4 shrink-0 block sm:hidden" aria-hidden="true" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </>
+                ) : (
+                  <span>{label}</span>
+                )}
               </Link>
             );
           })}
@@ -126,6 +134,7 @@ export function Navbar() {
             >
               <Menu className="h-4 w-4" />
             </button>
+
             <div
               role="menu"
               aria-label="Menu"
