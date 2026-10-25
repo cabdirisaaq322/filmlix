@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Send } from 'lucide-react';
 
 const SOCIAL_LINKS = [
   { label: 'Instagram', href: '' },
@@ -57,6 +58,12 @@ export function Footer() {
           <div className="space-y-3" aria-label="Social media">
             <h4 className="font-semibold text-white">Follow</h4>
             <ul className="space-y-2">
+              <li>
+                <a href="https://t.me/filmflix00" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm" aria-label="Telegram">
+                  <Send className="w-4 h-4" />
+                  Telegram
+                </a>
+              </li>
               {SOCIAL_LINKS.filter(({ href }) => href.trim()).map(({ label, href }) => (
                 <li key={label}>
                   <a href={href} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white transition-colors text-sm">
