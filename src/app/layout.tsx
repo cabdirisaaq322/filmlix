@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://filmflix.example.com',
+    url: 'https://filmflix.cc',
     siteName: 'FilmFlix',
     title: 'FilmFlix - Watch Movies & TV Series Free Online',
     description: 'Watch thousands of movies and TV series for free. HD quality streaming with no registration required.',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'googlee14a5a4666db0580',
   },
-  metadataBase: new URL('http://localhost:3000'),
+  metadataBase: new URL('https://filmflix.cc'),
 };
 
 export const viewport: Viewport = {
