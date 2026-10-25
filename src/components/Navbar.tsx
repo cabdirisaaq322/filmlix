@@ -81,18 +81,18 @@ export function Navbar() {
   return (
     <nav
       aria-label="Main navigation"
-      className="fixed left-1/2 top-6 z-50 w-[96%] max-w-[1600px] -translate-x-1/2 rounded-full border border-white/10 bg-[rgba(30,30,30,0.85)] px-2 sm:px-8 py-2 sm:py-3 shadow-xl shadow-black/35 backdrop-blur-[12px]"
+      className="fixed left-1/2 top-3 sm:top-5 md:top-6 z-50 w-[96%] max-w-[1400px] -translate-x-1/2 rounded-full border border-white/10 bg-[rgba(26,26,26,0.88)] px-2.5 sm:px-6 md:px-8 py-1.5 sm:py-2.5 shadow-xl shadow-black/40 backdrop-blur-[14px] transition-all box-border"
     >
-      <div className="flex items-center justify-between gap-2 sm:gap-10">
+      <div className="w-full flex items-center justify-between gap-1.5 sm:gap-4 md:gap-8">
         <Link
           href="/"
           aria-label="FilmFlix home"
-          className="flex shrink-0 border-r border-white/15 pr-2 sm:pr-6 py-1 text-base sm:text-2xl font-black uppercase leading-none tracking-wide sm:tracking-widest text-white whitespace-nowrap"
+          className="flex shrink-0 items-center border-r border-white/15 pr-2.5 sm:pr-4 md:pr-6 py-0.5 text-sm xs:text-base sm:text-xl md:text-2xl font-black uppercase leading-none tracking-wider sm:tracking-widest text-white whitespace-nowrap transition-opacity hover:opacity-90"
         >
           Film<span className="text-[#e50914]">Flix</span>
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-10 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-w-0 max-w-full">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4 lg:gap-6 min-w-0">
           {NAV_ITEMS.map(({ href, label }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
             const isSearch = href === '/search';
@@ -102,15 +102,15 @@ export function Navbar() {
                 href={href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex shrink-0 items-center rounded-full px-2 sm:px-5 py-1 sm:py-2.5 text-[10px] sm:text-base font-medium transition-colors whitespace-nowrap',
+                  'flex shrink-0 items-center rounded-full px-2 sm:px-3.5 md:px-5 py-1 sm:py-1.5 md:py-2 text-[11px] xs:text-xs sm:text-sm md:text-base font-medium transition-all whitespace-nowrap',
                   active
-                    ? 'bg-[#333333] text-white'
-                    : 'text-[#cccccc] hover:text-white'
+                    ? 'bg-[#333333] text-white shadow-sm'
+                    : 'text-[#cccccc] hover:text-white hover:bg-white/10'
                 )}
               >
                 {isSearch ? (
                   <>
-                    <Search className="h-4 w-4 shrink-0 block sm:hidden" aria-hidden="true" />
+                    <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 block sm:hidden" aria-hidden="true" />
                     <span className="hidden sm:inline">{label}</span>
                   </>
                 ) : (
@@ -122,28 +122,30 @@ export function Navbar() {
         </div>
 
         <div ref={menuRef} className="relative shrink-0">
-            <button
-              type="button"
-              onClick={toggleMenu}
-              aria-expanded={menuOpen}
-              aria-haspopup="menu"
-              className={cn(
-                'flex items-center rounded-full px-3 sm:px-5 py-1.5 sm:py-2.5 text-[10px] sm:text-base font-medium transition-colors whitespace-nowrap',
-                menuOpen ? 'bg-[#333333] text-white' : 'text-[#cccccc] hover:text-white'
-              )}
-            >
-              <Menu className="h-4 w-4" />
-            </button>
+          <button
+            type="button"
+            onClick={toggleMenu}
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            className={cn(
+              'flex shrink-0 items-center justify-center rounded-full p-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm md:text-base font-medium transition-all whitespace-nowrap',
+              menuOpen ? 'bg-[#333333] text-white' : 'text-[#cccccc] hover:text-white hover:bg-white/10'
+            )}
+            title="Menu & Filters"
+            aria-label="Menu & Filters"
+          >
+            <Menu className="h-4 w-4 shrink-0" />
+          </button>
 
-            <div
-              role="menu"
-              aria-label="Menu"
-              className={cn(
-                'absolute right-0 top-[calc(100%+0.5rem)] z-[100] w-[min(24rem,calc(100vw-2rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain rounded-xl border border-white/10 bg-[rgba(20,20,20,0.95)] p-3 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-                menuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
-              )}
-              aria-hidden={!menuOpen}
-            >
+          <div
+            role="menu"
+            aria-label="Menu"
+            className={cn(
+              'absolute right-0 top-[calc(100%+0.5rem)] z-[100] w-[min(22rem,calc(100vw-1.5rem))] max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[rgba(20,20,20,0.96)] p-3 sm:p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              menuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
+            )}
+            aria-hidden={!menuOpen}
+          >
               <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">🔥 Top 10 Trending</p>
               <div className="grid grid-cols-2 gap-1.5 mb-1">
                 <Link
