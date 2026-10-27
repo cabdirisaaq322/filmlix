@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { ChevronDown, Download, Share2, Star, Clock, Calendar, Film, Tv, ExternalLink, Info, Play } from 'lucide-react';
+import { ChevronDown, Download, Share2, Star, Clock, Calendar, Film, Tv, ExternalLink, Info, Play, Heart } from 'lucide-react';
+import { toggleFavorite, isFavorite } from '@/lib/favorites';
 import { VidSrcPlayer } from '@/components/VidSrcPlayer';
 import { SeasonEpisodeDrawer } from '@/components/SeasonEpisodeDrawer';
 import { BackButton } from '@/components/BackButton';
@@ -22,6 +23,8 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
   const [selectedEpisode, setSelectedEpisode] = useState(initialEpisode);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [isFav, setIsFav] = useState(false);
+  useEffect(() => { setIsFav(isFavorite(type, tmdbId)); }, [type, tmdbId]);
 
   const title = details.title || details.name || 'Unknown';
   const year = details.release_date?.slice(0, 4) || details.first_air_date?.slice(0, 4) || '—';
@@ -122,6 +125,17 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
                   More Info
                 </button>
               )}
+              <button
+                type="button"
+                onClick={() => {
+                  const next = toggleFavorite({ type, id: tmdbId, title, poster_path: details.poster_path });
+                  setIsFav(next);
+                }}
+                className="flex items-center gap-2 rounded-full bg-white/12 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-white/20"
+              >
+                <Heart className={`h-4 w-4 ${isFav ? 'fill-red-500 text-red-500' : ''}`} />
+                {isFav ? 'Added' : 'My List'}
+              </button>
             </div>
           </div>
           <div className="min-w-0">

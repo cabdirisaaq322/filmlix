@@ -28,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const coreRoutes: MetadataRoute.Sitemap = [
     {
-      url: BASE_URL,
+      url: `${BASE_URL}/`,
       lastModified: currentDate,
       changeFrequency: 'daily',
       priority: 1.0,

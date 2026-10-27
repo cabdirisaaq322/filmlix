@@ -167,6 +167,16 @@ export function Navbar() {
                   <span>Trending</span>
                 </Link>
               </div>
+              <div className="my-2.5 border-t border-white/10" />
+              <Link
+                href="/favorites"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-left text-sm text-white/80 transition-all hover:border-white/25 hover:bg-white/10 hover:text-white mb-1"
+              >
+                <Heart className="h-4 w-4 shrink-0 text-pink-500" aria-hidden="true" />
+                <span>My List</span>
+              </Link>
 
               <div className="my-2.5 border-t border-white/10" />
               <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">🎭 Genre Filter</p>

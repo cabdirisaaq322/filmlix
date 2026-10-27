@@ -85,7 +85,7 @@ export function SeasonEpisodeDrawer({
 
       <aside
         className={cn(
-          'fixed bottom-0 left-0 right-0 lg:relative lg:bottom-auto lg:left-auto lg:right-auto lg:w-80 lg:h-full',
+          'fixed bottom-0 left-0 right-0 lg:relative lg:bottom-auto lg:left-auto lg:right-auto lg:w-full lg:h-full',
           'bg-slate-950 border-t border-slate-800 lg:border-t-0 lg:border-l lg:rounded-l-xl',
           'z-50 flex flex-col transition-transform duration-300 ease-out',
           'lg:translate-x-0',
@@ -117,7 +117,7 @@ export function SeasonEpisodeDrawer({
                 key={season.season_number}
                 className={cn(
                   'bg-slate-900/50 rounded-lg border border-slate-800 overflow-hidden',
-                  isSelected && 'border-indigo-500/50 bg-indigo-500/10'
+                  isSelected && 'border-yellow-500/50 bg-yellow-500/10'
                 )}
               >
                 <button
@@ -128,7 +128,7 @@ export function SeasonEpisodeDrawer({
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       'w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold',
-                      isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-300'
+                      isSelected ? 'bg-yellow-600 text-white' : 'bg-slate-800 text-slate-300'
                     )}>
                       {season.season_number === 0 ? 'S' : season.season_number}
                     </div>
@@ -148,7 +148,7 @@ export function SeasonEpisodeDrawer({
                 </button>
 
                 {isExpanded && (
-                  <div className="border-t border-slate-800 p-3 space-y-2 animate-slide-down">
+                  <div className="border-t border-slate-800 p-3 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2 max-h-64 overflow-y-auto animate-slide-down">
                     {isLoading ? (
                       Array.from({ length: 5 }).map((_, i) => (
                         <div key={i} className="flex items-center gap-3 p-2 animate-pulse">
@@ -168,14 +168,14 @@ export function SeasonEpisodeDrawer({
                             className={cn(
                               'w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left',
                               isCurrentEp
-                                ? 'bg-indigo-500/20 border border-indigo-500/50'
+                                ? 'bg-yellow-500/20 border border-yellow-500/50'
                                 : 'hover:bg-slate-800/50'
                             )}
                             aria-current={isCurrentEp ? 'true' : 'false'}
                           >
                             <div className={cn(
                               'w-8 h-8 rounded flex items-center justify-center text-xs font-bold flex-shrink-0',
-                              isCurrentEp ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'
+                               isCurrentEp ? 'bg-yellow-600 text-white' : 'bg-slate-800 text-slate-400'
                             )}>
                               {isCurrentEp ? (
                                 <CheckCircle className="w-4 h-4" />
@@ -183,17 +183,20 @@ export function SeasonEpisodeDrawer({
                                 <Play className="w-4 h-4 ml-0.5" />
                               )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className={cn(
-                                'text-sm truncate',
-                                isCurrentEp ? 'text-white font-medium' : 'text-slate-300'
-                              )}>
-                                E{ep.episode_number}: {ep.name}
-                              </p>
-                              <p className="text-xs text-slate-500 truncate">
-                                {ep.overview || 'No description'}
-                              </p>
-                            </div>
+                             <div className="flex-1 min-w-0 hidden sm:block">
+                               <p className={cn(
+                                 'text-sm truncate',
+                                 isCurrentEp ? 'text-white font-medium' : 'text-slate-300'
+                               )}>
+                                 E{ep.episode_number}: {ep.name}
+                               </p>
+                               <p className="text-xs text-slate-500 truncate">
+                                 {ep.overview || 'No description'}
+                               </p>
+                             </div>
+                             <span className="text-xs text-slate-300 sm:hidden font-bold">
+                               E{ep.episode_number}
+                             </span>
                             {ep.vote_average > 0 && (
                               <span className="text-xs text-yellow-400 flex items-center gap-1">
                                 {ep.vote_average.toFixed(1)}

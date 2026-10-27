@@ -2,9 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Play, Bookmark, Clock, Star, BadgeCheck } from 'lucide-react';
+import { Play, Bookmark, Clock, Star, BadgeCheck, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPosterUrl } from '@/lib/tmdb';
+import { isFavorite, toggleFavorite } from '@/lib/favorites';
+import { useEffect, useState } from 'react';
 
 interface MediaCardProps {
   id: number;
@@ -36,8 +38,16 @@ export function MediaCard({
   const posterUrl = getPosterUrl(poster_path, 'w342');
   const router = useRouter();
   const href = `/watch/${media_type}/${id}`;
+  const [isFav, setIsFav] = useState(false);
+  useEffect(() => { setIsFav(isFavorite(media_type, id)); }, [media_type, id]);
 
   const openTitle = () => router.push(href);
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = toggleFavorite({ type: media_type, id, title: displayTitle, poster_path });
+    setIsFav(next);
+  };
 
   return (
     <Link
@@ -78,12 +88,12 @@ export function MediaCard({
           </span>
         </div>
 
-        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200 translate-y-2 group-hover:translate-y-0">
+        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between transition-opacity duration-200">
           <button type="button" onClick={openTitle} className="bg-white/90 hover:bg-white text-black p-2 rounded-full transition-colors" aria-label={`Play ${displayTitle}`}>
             <Play className="w-5 h-5 ml-0.5" />
           </button>
-          <button type="button" onClick={openTitle} className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors" aria-label={`Bookmark ${displayTitle}`}>
-            <Bookmark className="w-5 h-5" />
+          <button type="button" onClick={handleFavorite} className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors" aria-label={`Favorite ${displayTitle}`}>
+            <Heart className={cn('w-5 h-5', isFav && 'fill-red-500 text-red-500')} />
           </button>
         </div>
       </div>
