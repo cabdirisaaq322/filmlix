@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { Mail, MessageCircle } from 'lucide-react';
+import { Mail, MessageCircle, Send } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Contact Us',
@@ -22,6 +22,20 @@ export default function Contact() {
           <section className="mb-8 p-6 bg-slate-900/50 border border-slate-800 rounded-xl">
             <h2 className="text-xl font-semibold text-white mb-4">Contact Information</h2>
             <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Send className="w-5 h-5 text-indigo-400" />
+                <div>
+                  <p className="text-slate-300 font-medium">Telegram</p>
+                  <a
+                    href="https://t.me/deidrasom1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-400 hover:text-indigo-300 text-sm"
+                  >
+                    @deidrasom1
+                  </a>
+                </div>
+              </div>
               <div className="flex items-center gap-3">
                 <MessageCircle className="w-5 h-5 text-indigo-400" />
                 <div>
