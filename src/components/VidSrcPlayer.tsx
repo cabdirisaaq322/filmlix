@@ -65,6 +65,17 @@ export const STREAM_PROVIDERS: Provider[] = [
       return `https://vidsrc.party/embed/movie/${tmdbId}`;
     },
   },
+  {
+    id: 'smashystream',
+    name: 'SmashyStream',
+    badge: 'HD',
+    buildUrl: ({ type, tmdbId, season, episode }) => {
+      if (type === 'tv') {
+        return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`;
+      }
+      return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`;
+    },
+  },
 ];
 
 interface VidSrcPlayerProps {

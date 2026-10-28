@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { ChevronDown, Download, Share2, Star, Clock, Calendar, Film, Tv, ExternalLink, Info, Play, Heart } from 'lucide-react';
+import Link from 'next/link';
 import { toggleFavorite, isFavorite } from '@/lib/favorites';
 import { VidSrcPlayer } from '@/components/VidSrcPlayer';
 import { SeasonEpisodeDrawer } from '@/components/SeasonEpisodeDrawer';
@@ -82,7 +83,22 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
         <div className="grid items-center gap-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12">
           <div className="min-w-0 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-white/65">
-              {genres.length > 0 ? genres.join('  •  ') : type === 'movie' ? 'Movie' : 'Series'}
+              {genres.length > 0
+                ? genres.map((genre, idx) => {
+                    const genreId = details.genres?.find((g) => g.name === genre)?.id;
+                    return (
+                      <span key={genre}>
+                        <Link
+                          href={`/${type === 'movie' ? 'movies' : 'tv'}${genreId ? `?genre=${genreId}` : ''}`}
+                          className="hover:text-white transition-colors"
+                        >
+                          {genre}
+                        </Link>
+                        {idx < genres.length - 1 && <span className="mx-2">•</span>}
+                      </span>
+                    );
+                  })
+                : type === 'movie' ? 'Movie' : 'Series'}
             </p>
             <h1 className="text-4xl font-black leading-[1.05] text-white sm:text-5xl md:text-6xl">
               {title}
@@ -204,9 +220,13 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
 
                 <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-800">
                   {genres.map((genre) => (
-                    <span key={genre} className="px-3 py-1 bg-indigo-500/20 text-indigo-300 text-sm font-medium rounded-full border border-indigo-500/30">
+                    <Link
+                      key={genre}
+                      href={`/${type === 'movie' ? 'movies' : 'tv'}?genre=${details.genres?.find((g) => g.name === genre)?.id || ''}`}
+                      className="px-3 py-1 bg-indigo-500/20 text-indigo-300 text-sm font-medium rounded-full border border-indigo-500/30 hover:bg-indigo-500/40 transition-colors"
+                    >
                       {genre}
-                    </span>
+                    </Link>
                   ))}
                   <span className="px-3 py-1 bg-slate-800/50 text-slate-300 text-sm font-medium rounded-full border border-slate-700">
                     {year}
