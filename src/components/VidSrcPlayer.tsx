@@ -22,6 +22,28 @@ export interface Provider {
 
 export const STREAM_PROVIDERS: Provider[] = [
   {
+    id: 'moviesapi',
+    name: 'MoviesAPI',
+    badge: 'HD',
+    buildUrl: ({ type, tmdbId, season, episode }) => {
+      if (type === 'tv') {
+        return `https://moviesapi.to/tv/${tmdbId}/${season}/${episode}`;
+      }
+      return `https://moviesapi.to/movie/${tmdbId}`;
+    },
+  },
+  {
+    id: 'vidsrc-pm',
+    name: 'VidSrc.pm',
+    badge: 'HD',
+    buildUrl: ({ type, tmdbId, season, episode }) => {
+      if (type === 'tv') {
+        return `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}`;
+      }
+      return `https://vidsrc.pm/embed/movie/${tmdbId}`;
+    },
+  },
+  {
     id: 'vidcore',
     name: 'VidCore',
     badge: 'HD',
@@ -41,17 +63,6 @@ export const STREAM_PROVIDERS: Provider[] = [
         return `https://vidsrc.party/embed/tv/${tmdbId}/${season}/${episode}`;
       }
       return `https://vidsrc.party/embed/movie/${tmdbId}`;
-    },
-  },
-  {
-    id: 'smashystream',
-    name: 'SmashyStream',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`;
-      }
-      return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`;
     },
   },
 ];

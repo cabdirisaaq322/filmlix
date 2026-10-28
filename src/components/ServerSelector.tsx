@@ -19,6 +19,20 @@ interface ServerDef {
 
 const DEFAULT_SERVERS: ServerDef[] = [
   {
+    name: 'MoviesAPI',
+    getUrl: (ctx) =>
+      ctx.type === 'movie'
+        ? `https://moviesapi.to/movie/${ctx.id}`
+        : `https://moviesapi.to/tv/${ctx.id}/${ctx.season || 1}/${ctx.episode || 1}`,
+  },
+  {
+    name: 'VidSrc.pm',
+    getUrl: (ctx) =>
+      ctx.type === 'movie'
+        ? `https://vidsrc.pm/embed/movie/${ctx.id}`
+        : `https://vidsrc.pm/embed/tv/${ctx.id}/${ctx.season || 1}/${ctx.episode || 1}`,
+  },
+  {
     name: 'VidCore',
     getUrl: (ctx) =>
       ctx.type === 'movie'
@@ -31,13 +45,6 @@ const DEFAULT_SERVERS: ServerDef[] = [
       ctx.type === 'movie'
         ? `https://vidsrc.party/embed/movie/${ctx.id}`
         : `https://vidsrc.party/embed/tv/${ctx.id}/${ctx.season || 1}/${ctx.episode || 1}`,
-  },
-  {
-    name: 'SmashyStream',
-    getUrl: (ctx) =>
-      ctx.type === 'movie'
-        ? `https://embed.smashystream.com/playere.php?tmdb=${ctx.id}`
-        : `https://embed.smashystream.com/playere.php?tmdb=${ctx.id}&s=${ctx.season || 1}&e=${ctx.episode || 1}`,
   },
   {
     name: 'Trailer',
