@@ -59,7 +59,7 @@ export function Footer() {
             <h4 className="font-semibold text-white">Follow</h4>
             <ul className="space-y-2">
               <li>
-                <a href="https://t.me/filmflix00" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm" aria-label="Telegram">
+                <a href="https://t.me/deidrasom3" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm" aria-label="Telegram">
                   <Send className="w-4 h-4" />
                   Telegram
                 </a>
