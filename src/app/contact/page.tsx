@@ -27,12 +27,12 @@ export default function Contact() {
                 <div>
                   <p className="text-slate-300 font-medium">Telegram</p>
                   <a
-                    href="https://t.me/deidrasom1"
+                    href="https://t.me/deidrasom3"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-400 hover:text-indigo-300 text-sm"
                   >
-                    @deidrasom1
+                    @deidrasom3
                   </a>
                 </div>
               </div>
