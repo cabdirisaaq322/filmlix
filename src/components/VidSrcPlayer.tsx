@@ -30,7 +30,7 @@ interface Server {
 const SERVERS: Server[] = [
   {
     id: 'nxsha',
-    name: 'NXSHA (Citadel)',
+    name: 'Naruto',
     build: ({ type, tmdbId, season, episode }) =>
       type === 'tv'
         ? `https://nxsha.space/embed/tv/${tmdbId}/${season}/${episode}?server=Citadel`
@@ -38,7 +38,7 @@ const SERVERS: Server[] = [
   },
   {
     id: 'moviesapi',
-    name: 'MoviesAPI',
+    name: 'Boruto',
     build: ({ type, tmdbId, season, episode }) =>
       type === 'tv'
         ? `https://moviesapi.to/tv/${tmdbId}/${season}/${episode}`
@@ -46,7 +46,7 @@ const SERVERS: Server[] = [
   },
   {
     id: 'vidsrc-pm',
-    name: 'VidSrc.pm',
+    name: 'Sasuke',
     build: ({ type, tmdbId, season, episode }) =>
       type === 'tv'
         ? `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}`
@@ -54,7 +54,7 @@ const SERVERS: Server[] = [
   },
   {
     id: 'vidcore',
-    name: 'VidCore',
+    name: 'Hinata',
     build: ({ type, tmdbId, season, episode }) =>
       type === 'tv'
         ? `https://vidcore.org/embed/tv/${tmdbId}/${season}/${episode}`
@@ -62,7 +62,7 @@ const SERVERS: Server[] = [
   },
   {
     id: 'vidsrc-party',
-    name: 'VidSrc',
+    name: 'Sarada',
     build: ({ type, tmdbId, season, episode }) =>
       type === 'tv'
         ? `https://vidsrc.party/embed/tv/${tmdbId}/${season}/${episode}`
@@ -70,7 +70,7 @@ const SERVERS: Server[] = [
   },
   {
     id: 'smashystream',
-    name: 'SmashyStream',
+    name: 'Sakura',
     build: ({ type, tmdbId, season, episode }) =>
       type === 'tv'
         ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`
