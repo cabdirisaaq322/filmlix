@@ -69,6 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
+        <meta name="bitmedia-site-verification" content="e736e36c3ee422e63ffd1d59f89a3f5b" />
         <link rel="preconnect" href="https://image.tmdb.org" />
         <link rel="preconnect" href="https://vidsrc.me" />
         <link rel="preconnect" href="https://www.2embed.cc" />
