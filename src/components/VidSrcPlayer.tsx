@@ -1,82 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, Loader2, X, Maximize2, Minimize2 } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { Loader2, X, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getPreferredServer, setPreferredServer } from '@/lib/serverPrefs';
-import { ServerSelector } from '@/components/ServerSelector';
-
-export interface Provider {
-  id: string;
-  name: string;
-  badge?: string;
-  buildUrl: (params: {
-    type: 'movie' | 'tv';
-    tmdbId: number;
-    imdbId?: string | null;
-    season: number;
-    episode: number;
-    domain?: string;
-  }) => string;
-}
-
-export const STREAM_PROVIDERS: Provider[] = [
-  {
-    id: 'moviesapi',
-    name: 'MoviesAPI',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://moviesapi.to/tv/${tmdbId}/${season}/${episode}`;
-      }
-      return `https://moviesapi.to/movie/${tmdbId}`;
-    },
-  },
-  {
-    id: 'vidsrc-pm',
-    name: 'VidSrc.pm',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}`;
-      }
-      return `https://vidsrc.pm/embed/movie/${tmdbId}`;
-    },
-  },
-  {
-    id: 'vidcore',
-    name: 'VidCore',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://vidcore.org/embed/tv/${tmdbId}/${season}/${episode}`;
-      }
-      return `https://vidcore.org/embed/movie/${tmdbId}`;
-    },
-  },
-  {
-    id: 'vidsrc-party',
-    name: 'VidSrc',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://vidsrc.party/embed/tv/${tmdbId}/${season}/${episode}`;
-      }
-      return `https://vidsrc.party/embed/movie/${tmdbId}`;
-    },
-  },
-  {
-    id: 'smashystream',
-    name: 'SmashyStream',
-    badge: 'HD',
-    buildUrl: ({ type, tmdbId, season, episode }) => {
-      if (type === 'tv') {
-        return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`;
-      }
-      return `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`;
-    },
-  },
-];
 
 interface VidSrcPlayerProps {
   type: 'movie' | 'tv';
@@ -88,6 +14,70 @@ interface VidSrcPlayerProps {
   title?: string;
 }
 
+interface Server {
+  id: string;
+  name: string;
+  build: (ctx: {
+    type: 'movie' | 'tv';
+    tmdbId: number;
+    imdbId?: string | null;
+    season: number;
+    episode: number;
+  }) => string;
+}
+
+// nxsha is primary (default). The rest are fallbacks.
+const SERVERS: Server[] = [
+  {
+    id: 'nxsha',
+    name: 'NXSHA (Citadel)',
+    build: ({ type, tmdbId, season, episode }) =>
+      type === 'tv'
+        ? `https://nxsha.space/embed/tv/${tmdbId}/${season}/${episode}?server=Citadel`
+        : `https://nxsha.space/embed/movie/${tmdbId}?server=Citadel`,
+  },
+  {
+    id: 'moviesapi',
+    name: 'MoviesAPI',
+    build: ({ type, tmdbId, season, episode }) =>
+      type === 'tv'
+        ? `https://moviesapi.to/tv/${tmdbId}/${season}/${episode}`
+        : `https://moviesapi.to/movie/${tmdbId}`,
+  },
+  {
+    id: 'vidsrc-pm',
+    name: 'VidSrc.pm',
+    build: ({ type, tmdbId, season, episode }) =>
+      type === 'tv'
+        ? `https://vidsrc.pm/embed/tv/${tmdbId}/${season}/${episode}`
+        : `https://vidsrc.pm/embed/movie/${tmdbId}`,
+  },
+  {
+    id: 'vidcore',
+    name: 'VidCore',
+    build: ({ type, tmdbId, season, episode }) =>
+      type === 'tv'
+        ? `https://vidcore.org/embed/tv/${tmdbId}/${season}/${episode}`
+        : `https://vidcore.org/embed/movie/${tmdbId}`,
+  },
+  {
+    id: 'vidsrc-party',
+    name: 'VidSrc',
+    build: ({ type, tmdbId, season, episode }) =>
+      type === 'tv'
+        ? `https://vidsrc.party/embed/tv/${tmdbId}/${season}/${episode}`
+        : `https://vidsrc.party/embed/movie/${tmdbId}`,
+  },
+  {
+    id: 'smashystream',
+    name: 'SmashyStream',
+    build: ({ type, tmdbId, season, episode }) =>
+      type === 'tv'
+        ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&s=${season}&e=${episode}`
+        : `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`,
+  },
+];
+
 export function VidSrcPlayer({
   type,
   tmdbId,
@@ -97,64 +87,26 @@ export function VidSrcPlayer({
   autoPlay = false,
   title,
 }: VidSrcPlayerProps) {
-  const [selectedProviderId, setSelectedProviderId] = useState<string>(() => {
-    const validIds = STREAM_PROVIDERS.map((p) => p.id);
-    return getPreferredServer(type, tmdbId, season, episode, validIds) ?? STREAM_PROVIDERS[0].id;
-  });
-  const [scannerUrl, setScannerUrl] = useState<string | null>(null);
-  const [scannerName, setScannerName] = useState<string>('');
-  // Auto-play VidCore on load (unless a saved preference says otherwise).
-  // localStorage is only available client-side after mount; reading it during
-  // render would cause a hydration mismatch with the server-rendered markup.
-  useEffect(() => {
-    const validIds = STREAM_PROVIDERS.map((p) => p.id);
-    const preferred = getPreferredServer(type, tmdbId, season, episode, validIds);
-    const startId = preferred ?? STREAM_PROVIDERS[0].id;
-    const startProvider = STREAM_PROVIDERS.find((p) => p.id === startId) ?? STREAM_PROVIDERS[0];
-    const startUrl = startProvider.buildUrl({ type, tmdbId, imdbId, season, episode });
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from localStorage (external store) on mount
-    setSelectedProviderId(startId);
-    setScannerUrl(startUrl);
-    setScannerName(startProvider.name);
-  }, [type, tmdbId, imdbId, season, episode]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadNonce, setReloadNonce] = useState(0);
+  const [selectedServerId, setSelectedServerId] = useState('nxsha');
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
 
-  const currentProvider =
-    STREAM_PROVIDERS.find((p) => p.id === selectedProviderId) || STREAM_PROVIDERS[0];
+  const selectedServer = SERVERS.find((s) => s.id === selectedServerId) ?? SERVERS[0];
+  const src = selectedServer.build({ type, tmdbId, imdbId, season, episode });
 
-  const handleServerSelect = useCallback(
-    (url: string, name: string) => {
-      setScannerUrl(url);
-      setScannerName(name);
-      loadedRef.current = false;
-      setIsLoading(true);
-      setError(null);
-      const match = STREAM_PROVIDERS.find((p) => p.name.toLowerCase() === name.toLowerCase());
-      if (match) {
-        setSelectedProviderId(match.id);
-        setPreferredServer(type, tmdbId, season, episode, match.id);
-      }
-    },
-    [type, tmdbId, season, episode]
-  );
-
-  // Reset the "has loaded" ref whenever the streamed title/episode changes
-  useEffect(() => {
+  const handleSelectServer = useCallback((id: string) => {
+    setSelectedServerId(id);
     loadedRef.current = false;
-  }, [type, tmdbId, imdbId, season, episode]);
-
-  // Drop the loading badge quickly if the iframe silently finishes (some embeds suppress onLoad)
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, [selectedProviderId, type, tmdbId, imdbId, season, episode, reloadNonce]);
+    setIsLoading(true);
+    setError(null);
+    setReloadNonce((n) => n + 1);
+  }, []);
 
   const handleReload = useCallback(() => {
     loadedRef.current = false;
@@ -162,18 +114,6 @@ export function VidSrcPlayer({
     setError(null);
     setReloadNonce((n) => n + 1);
   }, []);
-
-  const buildSrc = useCallback(() => {
-    const url = new URL(currentProvider.buildUrl({
-      type,
-      tmdbId,
-      imdbId,
-      season,
-      episode,
-    }));
-    if (autoPlay) url.searchParams.set('autoplay', '1');
-    return url.toString();
-  }, [currentProvider, type, tmdbId, imdbId, season, episode, autoPlay]);
 
   const handleIframeLoad = () => {
     loadedRef.current = true;
@@ -184,27 +124,8 @@ export function VidSrcPlayer({
   const handleIframeError = () => {
     loadedRef.current = true;
     setIsLoading(false);
-    setError(`Failed to load stream from ${currentProvider.name}. Try switching provider.`);
+    setError('Failed to load stream. Try reloading or switching server.');
   };
-
-  const switchProvider = useCallback((direction: 'next' | 'prev' | string) => {
-    let nextId = direction;
-    if (direction === 'next' || direction === 'prev') {
-      const currentIndex = STREAM_PROVIDERS.findIndex((p) => p.id === selectedProviderId);
-      const nextIndex =
-        direction === 'next'
-          ? (currentIndex + 1) % STREAM_PROVIDERS.length
-          : (currentIndex - 1 + STREAM_PROVIDERS.length) % STREAM_PROVIDERS.length;
-      nextId = STREAM_PROVIDERS[nextIndex].id;
-    }
-    setSelectedProviderId(nextId);
-    loadedRef.current = false;
-    setIsLoading(true);
-    setError(null);
-    // A deliberate manual server change is the trustworthy signal that the
-    // previous server didn't work — remember this one for this title/episode.
-    setPreferredServer(type, tmdbId, season, episode, nextId);
-  }, [selectedProviderId, type, tmdbId, season, episode]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -214,8 +135,6 @@ export function VidSrcPlayer({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // Our own fullscreen — fullscreens OUR container (not the provider's internal
-  // player), so it works even when the provider's own button is blocked.
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) {
       document.exitFullscreen();
@@ -224,23 +143,37 @@ export function VidSrcPlayer({
     }
   }, []);
 
-  // Only a manual server pick starts a stream — nothing auto-plays
-  const src = scannerUrl || '';
-  const displayName = scannerUrl ? scannerName || currentProvider.name : currentProvider.name;
-
   return (
     <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
-      {/* Manual server selector — VidCore first, auto-plays on load */}
-      <ServerSelector
-        type={type}
-        tmdbId={tmdbId}
-        season={season}
-        episode={episode}
-        activeName={scannerName}
-        onSelect={handleServerSelect}
-      />
+      {/* Server selector — inline buttons like before, nxsha primary */}
+      <div className="mb-2 flex items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          Server
+        </span>
+        <div className="flex flex-wrap gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
+          {SERVERS.map((server) => {
+            const isActive = selectedServerId === server.id;
+            return (
+              <button
+                key={server.id}
+                onClick={() => handleSelectServer(server.id)}
+                title={`Play on ${server.name}`}
+                className={cn(
+                  'flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all sm:px-3 sm:py-1 sm:text-xs',
+                  isActive
+                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/50'
+                )}
+              >
+                {server.name}
+                {isActive && <span className="ml-1 text-[10px] font-medium text-emerald-200">primary</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="flex flex-wrap items-center justify-end gap-2 pb-1">
-        {/* Server Actions outside video player: Reload */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={toggleFullscreen}
@@ -256,12 +189,11 @@ export function VidSrcPlayer({
             aria-label="Reload stream"
             title="Reload stream"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <Loader2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Main Video Frame — responsive 16:9 container, auto-scales with parent width */}
       <div
         ref={playerContainerRef}
         className={cn('relative bg-black rounded-xl overflow-hidden w-full shadow-2xl border border-slate-800')}
@@ -269,13 +201,10 @@ export function VidSrcPlayer({
         role="region"
         aria-label={`${title || 'Video'} player`}
       >
-        {/* Loading badge — shows while the server loads */}
         {(isLoading || !src) && !error && (
           <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white shadow-lg">
             <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
-            <span className="text-xs font-medium text-slate-200">
-              {!src ? currentProvider.name : displayName}
-            </span>
+            <span className="text-xs font-medium text-slate-200">Loading stream…</span>
           </div>
         )}
         {error && (
@@ -290,27 +219,25 @@ export function VidSrcPlayer({
                   onClick={handleReload}
                   className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors border border-slate-700 cursor-pointer"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 inline mr-1" /> Reload
+                  Reload
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Embedded Video Iframe - sandboxed; only rendered once a server is picked */}
         {src && (
           <iframe
-            key={`${selectedProviderId}-${src}-${reloadNonce}`}
+            key={reloadNonce}
             ref={iframeRef}
             src={src}
-            title={`${title || 'Stream'} - ${type === 'movie' ? 'Movie' : `S${season}E${episode}`}`}
+            title={title || 'Stream'}
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+            className="w-full h-full border-0"
             loading="eager"
             referrerPolicy="no-referrer"
-            // sandbox must explicitly allow fullscreen or the provider's
-            // fullscreen button silently does nothing
-            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-fullscreen"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
             allowFullScreen
             onLoad={handleIframeLoad}
             onError={handleIframeError}
