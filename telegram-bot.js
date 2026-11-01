@@ -1,6 +1,7 @@
+const path = require('path');
 const BOT_TOKEN = '9035746668:AAEjvRFQECoLYt1YHJAIsos2bcNdhBfWbNk';
 const ADMIN_USER_ID = 1911107342;
-const BLOCKLIST_PATH = require('path').join(process.cwd(), 'blocked-movies.json');
+const BLOCKLIST_PATH = path.join(__dirname, 'blocked-movies.json');
 
 let blocked = [];
 
@@ -99,8 +100,24 @@ async function handleUpdate(update) {
 
 async function main() {
   loadBlocklist();
+  
+  // Verify bot token works
+  try {
+    const me = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getMe`);
+    const meData = await me.json();
+    if (meData.ok) {
+      console.log(`Bot connected: @${meData.result.username} (id: ${meData.result.id})`);
+    } else {
+      console.error('Bot token invalid:', meData);
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error('Failed to connect to Telegram:', err.message);
+    process.exit(1);
+  }
+
   let offset = 0;
-  console.log('Admin bot running...');
+  console.log('Admin bot polling...');
   while (true) {
     try {
       const result = await getUpdates(offset);
