@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Loader2, Maximize2, Minimize2, X, RotateCcw } from 'lucide-react';
+import { Loader2, Maximize2, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VidSrcPlayerProps {
@@ -10,7 +10,6 @@ interface VidSrcPlayerProps {
   imdbId?: string | null;
   season?: number;
   episode?: number;
-  autoPlay?: boolean;
   title?: string;
 }
 
@@ -26,10 +25,8 @@ interface Server {
   }) => string;
 }
 
-// Blocklisted movie IDs — iframe/video embeds are completely prevented for these.
 const BLOCKLISTED_MOVIE_IDS = new Set([64689, 5038]);
 
-// nxsha is primary (default). The rest are fallbacks.
 const SERVERS: Server[] = [
   {
     id: 'nxsha',
@@ -87,7 +84,6 @@ export function VidSrcPlayer({
   imdbId,
   season = 1,
   episode = 1,
-  autoPlay = false,
   title,
 }: VidSrcPlayerProps) {
   const isBlocked = BLOCKLISTED_MOVIE_IDS.has(tmdbId);
@@ -132,6 +128,9 @@ export function VidSrcPlayer({
     setError('Failed to load stream. Try reloading or switching server.');
   };
 
+  const closeExpanded = useCallback(() => setIsExpanded(false), []);
+  const toggleExpanded = useCallback(() => setIsExpanded((p) => !p), []);
+
   // Phone back button closes expanded view
   useEffect(() => {
     if (isExpanded) {
@@ -143,14 +142,6 @@ export function VidSrcPlayer({
     window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
-    if (isExpanded) {
-      try {
-        const orientation = screen.orientation as unknown as { lock: (type: string) => Promise<void>; unlock: () => void } | undefined;
-        orientation?.unlock();
-      } catch {
-        // orientation unlock not supported
-      }
-    }
     };
   }, [isExpanded]);
 
@@ -159,118 +150,78 @@ export function VidSrcPlayer({
     if (isExpanded) {
       try {
         const orientation = screen.orientation as unknown as { lock: (type: string) => Promise<void>; unlock: () => void } | undefined;
-        orientation?.lock('landscape');
+        if (orientation?.lock) {
+          orientation.lock('landscape').catch(() => { /* not supported */ });
+        }
       } catch {
-        // orientation lock not supported, layout still works in portrait
+        // not supported
       }
     }
     return () => {
       try {
         const orientation = screen.orientation as unknown as { lock: (type: string) => Promise<void>; unlock: () => void } | undefined;
-        orientation?.unlock();
+        orientation?.unlock?.();
       } catch {
-        // orientation unlock not supported
+        // not supported
       }
     };
   }, [isExpanded]);
 
-  const closeExpanded = useCallback(() => {
-    setIsExpanded(false);
-  }, []);
-
-  const toggleExpanded = useCallback(() => {
-    setIsExpanded((p) => !p);
-  }, []);
-
   return (
     <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
-      {/* Expanded overlay — fixed, covers viewport, never cropped */}
+
+      {/* ── FULLSCREEN OVERLAY ── */}
       {isExpanded && (
-        <div className="fixed inset-0 w-[100vw] h-[100dvh] z-[60] bg-black flex flex-col overflow-hidden">
-          {/* ── Fullscreen top bar ── */}
-          <div className="flex items-center gap-3 px-4 py-2 bg-black/90 backdrop-blur-sm border-b border-white/10 shrink-0">
-            {/* Title */}
-            <span className="flex-1 truncate text-sm font-semibold text-white tracking-wide">
-              {title || 'Now Playing'}
-            </span>
-
-            {/* Reload */}
-            <button
-              onClick={handleReload}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all"
-              aria-label="Reload stream"
-              title="Reload stream"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Reload
-            </button>
-
-            {/* Close */}
-            <button
-              onClick={closeExpanded}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white border border-slate-700 hover:border-red-500 transition-all"
-              aria-label="Exit fullscreen"
-              title="Exit fullscreen"
-            >
-              <X className="w-3.5 h-3.5" />
-              Exit
-            </button>
-          </div>
-
-          {/* ── Video area fills remaining space ── */}
-          <div className="flex-1 relative bg-black min-h-0">
-            {isBlocked && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
-                <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
-                  <div className="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center">
-                    <span className="text-red-400">🚫</span>
-                  </div>
-                  <p className="text-sm text-slate-200">
-                    This title is not available for playback.
-                  </p>
+        <div
+          className="fixed inset-0 w-[100vw] h-[100dvh] z-[60] bg-black overflow-hidden"
+          onClick={closeExpanded}
+        >
+          {isBlocked && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
+                <div className="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center">
+                  <span className="text-red-400">🚫</span>
                 </div>
+                <p className="text-sm text-slate-200">This title is not available for playback.</p>
               </div>
-            )}
-            {!isBlocked && (isLoading || !src) && !error && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
-              </div>
-            )}
-            {!isBlocked && error && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
-                <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
-                  <p className="text-sm text-slate-200">{error}</p>
-                </div>
-              </div>
-            )}
-            {!isBlocked && src && (
-              <iframe
-                key={reloadNonce}
-                ref={iframeRef}
-                src={src}
-                title={title || 'Stream'}
-                className="absolute inset-0 w-full h-full border-0"
-                loading="eager"
-                referrerPolicy="no-referrer"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
-                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                allowFullScreen
-                onLoad={handleIframeLoad}
-                onError={handleIframeError}
-              />
-            )}
-          </div>
+            </div>
+          )}
+          {!isBlocked && (isLoading || !src) && !error && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+            </div>
+          )}
+          {!isBlocked && error && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
+              <p className="text-sm text-slate-200 px-6 text-center">{error}</p>
+            </div>
+          )}
+          {!isBlocked && src && (
+            <iframe
+              key={reloadNonce}
+              ref={iframeRef}
+              src={src}
+              title={title || 'Stream'}
+              className="absolute inset-0 w-full h-full border-0"
+              loading="eager"
+              referrerPolicy="no-referrer"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
+              allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+              allowFullScreen
+              onLoad={handleIframeLoad}
+              onError={handleIframeError}
+            />
+          )}
         </div>
       )}
 
+      {/* ── NORMAL VIEW ── */}
       {!isExpanded && (
         <>
-          {/* Server selector — inline buttons, nxsha primary */}
+          {/* Server selector bar — Reload + Fullscreen buttons beside server chips */}
           <div className="mb-2 flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Server
-            </span>
-            <div className="flex flex-wrap gap-1.5 sm:flex sm:flex-wrap sm:gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Server</span>
+            <div className="flex flex-1 flex-wrap gap-1.5 sm:gap-2">
               {SERVERS.map((server) => {
                 const isActive = selectedServerId === server.id;
                 return (
@@ -291,14 +242,28 @@ export function VidSrcPlayer({
                 );
               })}
             </div>
+            <button
+              onClick={handleReload}
+              className="p-2 rounded-lg bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/50 transition-all active:scale-90"
+              aria-label="Reload stream"
+              title="Reload stream"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={toggleExpanded}
+              className="p-2 rounded-lg bg-slate-800/80 text-slate-300 hover:bg-indigo-600 hover:text-white border border-slate-700/50 hover:border-indigo-500 transition-all active:scale-90"
+              aria-label="Expand player"
+              title="Fullscreen"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
           </div>
 
-
-
-          {/* Normal view player container — keeps aspect-ratio padding */}
+          {/* Player — no overlay controls, clean iframe only */}
           <div
             ref={playerContainerRef}
-            className={cn('relative bg-black rounded-xl overflow-hidden w-full shadow-2xl border border-slate-800')}
+            className="relative bg-black rounded-xl overflow-hidden w-full shadow-2xl border border-slate-800"
             style={{ position: 'relative', paddingTop: '56.25%' }}
             role="region"
             aria-label={`${title || 'Video'} player`}
@@ -309,9 +274,7 @@ export function VidSrcPlayer({
                   <div className="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center">
                     <span className="text-red-400">🚫</span>
                   </div>
-                  <p className="text-sm text-slate-200">
-                    This title is not available for playback.
-                  </p>
+                  <p className="text-sm text-slate-200">This title is not available for playback.</p>
                 </div>
               </div>
             )}
@@ -323,12 +286,9 @@ export function VidSrcPlayer({
             )}
             {!isBlocked && error && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
-                <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
-                  <p className="text-sm text-slate-200">{error}</p>
-                </div>
+                <p className="text-sm text-slate-200 px-6 text-center">{error}</p>
               </div>
             )}
-
             {!isBlocked && src && (
               <iframe
                 key={reloadNonce}
@@ -346,26 +306,6 @@ export function VidSrcPlayer({
                 onError={handleIframeError}
               />
             )}
-
-            {/* ── Overlay controls inside the player (bottom-right) ── */}
-            <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2">
-              <button
-                onClick={handleReload}
-                className="p-1.5 bg-black/60 hover:bg-black/90 rounded-lg text-slate-300 hover:text-white transition-all border border-white/10 backdrop-blur-sm"
-                aria-label="Reload stream"
-                title="Reload stream"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={toggleExpanded}
-                className="p-1.5 bg-black/60 hover:bg-indigo-600 rounded-lg text-slate-300 hover:text-white transition-all border border-white/10 hover:border-indigo-500 backdrop-blur-sm"
-                aria-label="Expand player"
-                title="Expand player"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
           </div>
         </>
       )}

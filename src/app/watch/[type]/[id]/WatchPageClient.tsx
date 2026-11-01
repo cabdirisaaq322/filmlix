@@ -162,7 +162,6 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
                 imdbId={details.external_ids?.imdb_id}
                 season={selectedSeason}
                 episode={selectedEpisode}
-                autoPlay
                 title={title}
               />
             ) : (
