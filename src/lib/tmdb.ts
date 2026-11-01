@@ -2,6 +2,9 @@ export const TMDB_BASE_URL = process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://a
 export const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
 export const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
+// Blocklisted movie IDs — never shown in search or playable.
+export const BLOCKLISTED_MOVIE_IDS: number[] = [64689, 50, 5038];
+
 export interface TMDBMovie {
   id: number;
   title: string;
@@ -365,7 +368,8 @@ export async function searchMulti(query: string): Promise<(TMDBMovie | TMDBTVSho
   const data = await fetchTMDB<TMDBSearchResult>(`/search/multi?query=${encodeURIComponent(query)}`);
   return data.results.filter(
     (item): item is TMDBMovie | TMDBTVShow => 
-      (item as TMDBMovie).media_type === 'movie' || (item as TMDBTVShow).media_type === 'tv'
+      ((item as TMDBMovie).media_type === 'movie' || (item as TMDBTVShow).media_type === 'tv') &&
+      !BLOCKLISTED_MOVIE_IDS.includes(item.id)
   );
 }
 
