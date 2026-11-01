@@ -3,30 +3,7 @@ export const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
 export const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
 // Blocklisted movie IDs — never shown in search or playable.
-// Server-side: read from blocked-movies.json
-// Client-side: use getBlockedMoviesClient() to fetch from /api/blocked-movies
-export async function getBlockedMoviesServer(): Promise<number[]> {
-  if (typeof window !== 'undefined') return [];
-  try {
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const data = await fs.readFile(path.join(process.cwd(), 'blocked-movies.json'), 'utf-8');
-    const ids = JSON.parse(data);
-    return Array.isArray(ids) ? ids : [];
-  } catch {
-    return [];
-  }
-}
-
-export async function getBlockedMoviesClient(): Promise<number[]> {
-  try {
-    const res = await fetch('/api/blocked-movies', { cache: 'no-store' });
-    const data = await res.json();
-    return Array.isArray(data.blocked) ? data.blocked : [];
-  } catch {
-    return [];
-  }
-}
+export const BLOCKLISTED_MOVIE_IDS: number[] = [64689, 5038];
 
 export interface TMDBMovie {
   id: number;
@@ -389,11 +366,10 @@ export function toMediaItems(
 export async function searchMulti(query: string): Promise<(TMDBMovie | TMDBTVShow)[]> {
   if (!query.trim()) return [];
   const data = await fetchTMDB<TMDBSearchResult>(`/search/multi?query=${encodeURIComponent(query)}`);
-  const blocked = await getBlockedMoviesClient();
   return data.results.filter(
     (item): item is TMDBMovie | TMDBTVShow => 
       ((item as TMDBMovie).media_type === 'movie' || (item as TMDBTVShow).media_type === 'tv') &&
-      !blocked.includes(item.id)
+      !BLOCKLISTED_MOVIE_IDS.includes(item.id)
   );
 }
 

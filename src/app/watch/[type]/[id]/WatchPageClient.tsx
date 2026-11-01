@@ -9,7 +9,7 @@ import { SeasonEpisodeDrawer } from '@/components/SeasonEpisodeDrawer';
 import { BackButton } from '@/components/BackButton';
 import { MediaGrid } from '@/components/MediaGrid';
 import { saveContinueWatching } from '@/lib/history';
-import { getBackdropUrl, toMediaItems, TMDBDetails, getBlockedMoviesClient } from '@/lib/tmdb';
+import { getBackdropUrl, toMediaItems, TMDBDetails } from '@/lib/tmdb';
 
 interface WatchPageClientProps {
   type: 'movie' | 'tv';
@@ -25,19 +25,13 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [isFav, setIsFav] = useState(false);
-  const [blockedIds, setBlockedIds] = useState<number[]>([]);
   useEffect(() => { setIsFav(isFavorite(type, tmdbId)); }, [type, tmdbId]);
-  useEffect(() => {
-    getBlockedMoviesClient().then(setBlockedIds);
-  }, []);
 
   const title = details.title || details.name || 'Unknown';
   const year = details.release_date?.slice(0, 4) || details.first_air_date?.slice(0, 4) || '—';
   const genres = details.genres?.slice(0, 3).map((g) => g.name) || [];
   const backdropUrl = getBackdropUrl(details.backdrop_path, 'w1280');
   const runtime = details.runtime || details.episode_run_time?.[0] || 0;
-
-  const isBlocked = blockedIds.includes(tmdbId);
   const cast = details.credits?.cast?.slice(0, 10) || [];
   const seasons = details.seasons?.filter((s) => s.season_number > 0) || [];
   const recommendationSource = details.recommendations?.results?.length
@@ -161,19 +155,7 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
             </div>
           </div>
           <div className="min-w-0">
-            {isBlocked ? (
-              <div className="aspect-video w-full overflow-hidden rounded-xl bg-neutral-900 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-red-400 text-2xl">🚫</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Not Available</h3>
-                  <p className="text-slate-400 max-w-sm mx-auto">
-                    This title is not available for playback.
-                  </p>
-                </div>
-              </div>
-            ) : playing ? (
+            {playing ? (
               <VidSrcPlayer
                 type={type}
                 tmdbId={tmdbId}
