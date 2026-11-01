@@ -9,7 +9,7 @@ import { SeasonEpisodeDrawer } from '@/components/SeasonEpisodeDrawer';
 import { BackButton } from '@/components/BackButton';
 import { MediaGrid } from '@/components/MediaGrid';
 import { saveContinueWatching } from '@/lib/history';
-import { getBackdropUrl, toMediaItems, TMDBDetails, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
+import { getBackdropUrl, toMediaItems, TMDBDetails, getBlockedMoviesClient } from '@/lib/tmdb';
 
 interface WatchPageClientProps {
   type: 'movie' | 'tv';
@@ -25,7 +25,11 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [isFav, setIsFav] = useState(false);
+  const [blockedIds, setBlockedIds] = useState<number[]>([]);
   useEffect(() => { setIsFav(isFavorite(type, tmdbId)); }, [type, tmdbId]);
+  useEffect(() => {
+    getBlockedMoviesClient().then(setBlockedIds);
+  }, []);
 
   const title = details.title || details.name || 'Unknown';
   const year = details.release_date?.slice(0, 4) || details.first_air_date?.slice(0, 4) || '—';
@@ -33,7 +37,7 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
   const backdropUrl = getBackdropUrl(details.backdrop_path, 'w1280');
   const runtime = details.runtime || details.episode_run_time?.[0] || 0;
 
-  const isBlocked = BLOCKLISTED_MOVIE_IDS.includes(tmdbId);
+  const isBlocked = blockedIds.includes(tmdbId);
   const cast = details.credits?.cast?.slice(0, 10) || [];
   const seasons = details.seasons?.filter((s) => s.season_number > 0) || [];
   const recommendationSource = details.recommendations?.results?.length

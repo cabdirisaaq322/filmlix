@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Loader2, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getBlockedMoviesClient } from '@/lib/tmdb';
 
 interface VidSrcPlayerProps {
   type: 'movie' | 'tv';
@@ -25,9 +26,6 @@ interface Server {
     episode: number;
   }) => string;
 }
-
-// Blocklisted movie IDs — iframe/video embeds are completely prevented for these.
-const BLOCKLISTED_MOVIE_IDS = new Set([64689, 5038]);
 
 // nxsha is primary (default). The rest are fallbacks.
 const SERVERS: Server[] = [
@@ -90,8 +88,7 @@ export function VidSrcPlayer({
   autoPlay = false,
   title,
 }: VidSrcPlayerProps) {
-  const isBlocked = BLOCKLISTED_MOVIE_IDS.has(tmdbId);
-
+  const [blockedIds, setBlockedIds] = useState<number[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +98,12 @@ export function VidSrcPlayer({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
+
+  const isBlocked = blockedIds.includes(tmdbId);
+
+  useEffect(() => {
+    getBlockedMoviesClient().then(setBlockedIds);
+  }, []);
 
   const selectedServer = SERVERS.find((s) => s.id === selectedServerId) ?? SERVERS[0];
   const src = selectedServer.build({ type, tmdbId, imdbId, season, episode });

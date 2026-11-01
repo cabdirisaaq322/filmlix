@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getMovieDetails, getTVDetails, TMDBDetails, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
+import { getMovieDetails, getTVDetails, TMDBDetails, getBlockedMoviesServer } from '@/lib/tmdb';
 import { WatchPageClient } from './WatchPageClient';
 
 interface WatchPageProps {
@@ -57,7 +57,8 @@ export default async function WatchPage({ params, searchParams }: WatchPageProps
     notFound();
   }
 
-  if (BLOCKLISTED_MOVIE_IDS.includes(tmdbId)) {
+  const blocked = await getBlockedMoviesServer();
+  if (blocked.includes(tmdbId)) {
     notFound();
   }
 
