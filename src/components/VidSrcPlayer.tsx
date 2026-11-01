@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Loader2, Maximize2 } from 'lucide-react';
+import { Loader2, Maximize2, Minimize2, X, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VidSrcPlayerProps {
@@ -186,15 +186,39 @@ export function VidSrcPlayer({
     <div id="video-player" className="w-full min-w-0 scroll-mt-36 space-y-3 md:scroll-mt-24">
       {/* Expanded overlay — fixed, covers viewport, never cropped */}
       {isExpanded && (
-        <div
-          className="fixed inset-0 w-[100vw] h-[100dvh] z-[60] bg-black overflow-clip"
-          onClick={closeExpanded}
-        >
-          {/* Video fills the overlay */}
-          <div
-            className="w-full h-full relative bg-black"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 w-[100vw] h-[100dvh] z-[60] bg-black flex flex-col overflow-hidden">
+          {/* ── Fullscreen top bar ── */}
+          <div className="flex items-center gap-3 px-4 py-2 bg-black/90 backdrop-blur-sm border-b border-white/10 shrink-0">
+            {/* Title */}
+            <span className="flex-1 truncate text-sm font-semibold text-white tracking-wide">
+              {title || 'Now Playing'}
+            </span>
+
+            {/* Reload */}
+            <button
+              onClick={handleReload}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all"
+              aria-label="Reload stream"
+              title="Reload stream"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reload
+            </button>
+
+            {/* Close */}
+            <button
+              onClick={closeExpanded}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white border border-slate-700 hover:border-red-500 transition-all"
+              aria-label="Exit fullscreen"
+              title="Exit fullscreen"
+            >
+              <X className="w-3.5 h-3.5" />
+              Exit
+            </button>
+          </div>
+
+          {/* ── Video area fills remaining space ── */}
+          <div className="flex-1 relative bg-black min-h-0">
             {isBlocked && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
                 <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
@@ -219,14 +243,13 @@ export function VidSrcPlayer({
                 </div>
               </div>
             )}
-
             {!isBlocked && src && (
               <iframe
                 key={reloadNonce}
                 ref={iframeRef}
                 src={src}
                 title={title || 'Stream'}
-                className="w-full h-full object-contain block"
+                className="absolute inset-0 w-full h-full border-0"
                 loading="eager"
                 referrerPolicy="no-referrer"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
@@ -270,27 +293,7 @@ export function VidSrcPlayer({
             </div>
           </div>
 
-          {/* Actions — expand beside reload, keep icons off the video */}
-          <div className="flex flex-wrap items-center justify-end gap-3 pb-1">
-            <div className="flex items-center gap-3 shrink-0">
-              <button
-                onClick={toggleExpanded}
-                className="p-1.5 bg-slate-900/80 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors border border-slate-800 cursor-pointer"
-                aria-label="Expand player"
-                title="Expand player"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={handleReload}
-                className="p-1.5 bg-slate-900/80 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors border border-slate-800 cursor-pointer"
-                aria-label="Reload stream"
-                title="Reload stream"
-              >
-                <Loader2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
+
 
           {/* Normal view player container — keeps aspect-ratio padding */}
           <div
@@ -343,6 +346,26 @@ export function VidSrcPlayer({
                 onError={handleIframeError}
               />
             )}
+
+            {/* ── Overlay controls inside the player (bottom-right) ── */}
+            <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2">
+              <button
+                onClick={handleReload}
+                className="p-1.5 bg-black/60 hover:bg-black/90 rounded-lg text-slate-300 hover:text-white transition-all border border-white/10 backdrop-blur-sm"
+                aria-label="Reload stream"
+                title="Reload stream"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={toggleExpanded}
+                className="p-1.5 bg-black/60 hover:bg-indigo-600 rounded-lg text-slate-300 hover:text-white transition-all border border-white/10 hover:border-indigo-500 backdrop-blur-sm"
+                aria-label="Expand player"
+                title="Expand player"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </>
       )}
