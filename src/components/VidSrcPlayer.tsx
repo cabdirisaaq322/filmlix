@@ -27,7 +27,7 @@ interface Server {
 }
 
 // Blocklisted movie IDs — iframe/video embeds are completely prevented for these.
-const BLOCKLISTED_MOVIE_IDS = new Set([64689, 50, 5038]);
+const BLOCKLISTED_MOVIE_IDS = new Set([64689, 5038]);
 
 // nxsha is primary (default). The rest are fallbacks.
 const SERVERS: Server[] = [
