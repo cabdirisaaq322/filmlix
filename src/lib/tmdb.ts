@@ -186,7 +186,7 @@ export interface TMDBPaginatedResult {
 
 export interface DiscoverOptions {
   page?: number;
-  genre?: number | null;
+  genre?: string | number | null;
   sort?: string;
   year?: number | null;
   query?: string;

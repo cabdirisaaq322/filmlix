@@ -31,7 +31,7 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
 
   const page = Math.min(Math.max(parseInt(read('page') || '1', 10) || 1, 1), 500);
   const genreRaw = read('genre');
-  const genre = genreRaw && /^\d+$/.test(genreRaw) ? Number(genreRaw) : null;
+  const genre = genreRaw && /^(?:\d+)(?:,\d+)*$/.test(genreRaw) ? genreRaw : null;
   const sortRaw = read('sort');
   const sort = MOVIE_SORTS.some((s) => s.value === sortRaw) ? (sortRaw as string) : 'popularity.desc';
   const yearRaw = read('year');
@@ -42,7 +42,7 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
     data = await discoverMovies({ page, genre, sort, year }).catch(() => EMPTY);
   }
 
-  const activeGenre = genre ? String(genre) : '';
+  const activeGenre = genre ?? '';
   const activeYear = year ? String(year) : '';
 
   return (

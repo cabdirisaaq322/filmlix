@@ -48,8 +48,6 @@ export async function generateMetadata({ params }: GenrePageProps): Promise<Meta
   };
 }
 
-
-
 interface PageResponse {
   results?: (TMDBMovie | TMDBTVShow)[];
 }

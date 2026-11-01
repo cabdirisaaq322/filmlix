@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, Trash2, Trophy, Flame, Film, Heart, Zap, Calendar, Check, Search } from 'lucide-react';
+import { Menu, Trash2, Trophy, Flame, Film, Heart, Search } from 'lucide-react';
 import { clearContinueWatching } from '@/lib/history';
 import { cn } from '@/lib/utils';
 
@@ -14,46 +14,31 @@ const NAV_ITEMS = [
   { href: '/search', label: 'Search' },
 ] as const;
 
-const FILTER_GENRES = [
-  { id: '28', label: 'Action', icon: Zap },
-  { id: '35', label: 'Comedy', icon: Film },
-  { id: '18', label: 'Drama', icon: Heart },
-  { id: '27', label: 'Horror', icon: Flame },
-  { id: '878', label: 'Sci-Fi', icon: Film },
-  { id: '10749', label: 'Romance', icon: Heart },
-  { id: '53', label: 'Thriller', icon: Zap },
-] as const;
-
-const FILTER_YEARS = Array.from({ length: 12 }, (_, i) => new Date().getFullYear() - i);
-
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeGenre, setActiveGenre] = useState('');
-  const [activeYear, setActiveYear] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
-    if (!menuOpen) {
-      const qs = new URLSearchParams(window.location.search);
-      setActiveGenre(qs.get('genre') || '');
-      setActiveYear(qs.get('year') || '');
-    }
     setMenuOpen((open) => !open);
   };
 
-  const applyFilter = (key: 'genre' | 'year', value: string) => {
+  const handleGenre = () => {
     const base = pathname === '/movies' || pathname === '/tv' ? pathname : '/movies';
     const qs = new URLSearchParams(window.location.search);
-    if (value) qs.set(key, value);
-    else qs.delete(key);
+    qs.delete('genre');
     qs.delete('page');
     const query = qs.toString();
-    if (key === 'genre') setActiveGenre(value);
-    else setActiveYear(value);
     setMenuOpen(false);
     router.push(query ? `${base}?${query}` : base);
+  };
+
+  const handleClearHistory = () => {
+    if (window.confirm('Clear your Continue Watching list?')) {
+      clearContinueWatching();
+      setMenuOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -70,13 +55,6 @@ export function Navbar() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-
-  const handleClearHistory = () => {
-    if (window.confirm('Clear your Continue Watching list?')) {
-      clearContinueWatching();
-      setMenuOpen(false);
-    }
-  };
 
   return (
     <nav
@@ -179,76 +157,16 @@ export function Navbar() {
               </Link>
 
               <div className="my-2.5 border-t border-white/10" />
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">🎭 Genre Filter</p>
-              <div className="grid grid-cols-3 gap-1.5 mb-1">
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => applyFilter('genre', '')}
-                  className={cn(
-                    'flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2.5 text-xs font-medium transition-all',
-                    activeGenre
-                      ? 'border-white/10 bg-white/5 text-white/60 hover:border-white/25 hover:bg-white/10 hover:text-white'
-                      : 'border-red-600/50 bg-red-600/15 text-white'
-                  )}
-                >
-                  {!activeGenre && <Check className="h-3 w-3" aria-hidden="true" />}
-                  All Genres
-                </button>
-                {FILTER_GENRES.map(({ id, label, icon: Icon }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => applyFilter('genre', id)}
-                    className={cn(
-                      'flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2.5 text-xs font-medium transition-all',
-                      activeGenre === id
-                        ? 'border-red-600/50 bg-red-600/15 text-white'
-                        : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5 shrink-0 text-white/50" aria-hidden="true" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="my-2.5 border-t border-white/10" />
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">📅 Year Filter</p>
-              <div className="grid grid-cols-4 gap-1.5 mb-1">
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => applyFilter('year', '')}
-                  className={cn(
-                    'flex items-center justify-center gap-1 rounded-lg border px-1 py-2 text-xs font-medium transition-all',
-                    activeYear
-                      ? 'border-white/10 bg-white/5 text-white/60 hover:border-white/25 hover:bg-white/10 hover:text-white'
-                      : 'border-red-600/50 bg-red-600/15 text-white'
-                  )}
-                >
-                  {!activeYear && <Check className="h-3 w-3" aria-hidden="true" />}
-                  Any
-                </button>
-                {FILTER_YEARS.map((year) => (
-                  <button
-                    key={year}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => applyFilter('year', String(year))}
-                    className={cn(
-                      'flex items-center justify-center gap-1 rounded-lg border px-1 py-2 text-xs font-medium transition-all',
-                      activeYear === String(year)
-                        ? 'border-red-600/50 bg-red-600/15 text-white'
-                        : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
-                    )}
-                  >
-                    <Calendar className="h-3 w-3 shrink-0 text-white/40" aria-hidden="true" />
-                    {year}
-                  </button>
-                ))}
-              </div>
+              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">🎭 Genner</p>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleGenre}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-red-600/50 bg-red-600/15 px-3 py-2.5 text-xs font-medium text-white transition-all hover:border-white/25 hover:bg-white/10 hover:text-white w-full"
+              >
+                <Film className="h-3.5 w-3.5 shrink-0 text-white/50" aria-hidden="true" />
+                Genre
+              </button>
 
               <div className="my-2.5 border-t border-white/10" />
               <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">⚙️ Settings</p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { SlidersHorizontal, X } from 'lucide-react';
 import type { GenreOption, SortOption } from '@/lib/tmdb';
@@ -17,9 +17,18 @@ interface FilterBarProps {
 const selectClass =
   'bg-neutral-900/85 border border-white/10 rounded-full px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent cursor-pointer hover:border-white/25 transition-colors';
 
+const genreButtonClass = (active: boolean) =>
+  `rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+    active
+      ? 'border-red-600/50 bg-red-600/15 text-white'
+      : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
+  }`;
+
 export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activeYear }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
+
+  const selectedGenreIds = useMemo(() => new Set(activeGenre.split(',').filter(Boolean)), [activeGenre]);
 
   const applyParams = useCallback(
     (updates: Record<string, string>) => {
@@ -35,6 +44,14 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
     [router, pathname]
   );
 
+  const toggleGenre = (id: string) => {
+    const next = new Set(selectedGenreIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    const value = [...next].join(',');
+    applyParams({ genre: value || '' });
+  };
+
   const hasFilters = Boolean(activeGenre || activeYear || (activeSort && activeSort !== 'popularity.desc'));
 
   return (
@@ -43,19 +60,33 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
         <SlidersHorizontal className="w-4 h-4" /> Filters
       </span>
 
-      <select
-        value={activeGenre}
-        onChange={(e) => applyParams({ genre: e.target.value })}
-        className={selectClass}
-        aria-label="Filter by genre"
-      >
-        <option value="">All Genres</option>
-        {genres.map((g) => (
-          <option key={g.id} value={g.id}>
-            {g.name}
-          </option>
-        ))}
-      </select>
+      {/* Multi-select genre chips */}
+      <div className="flex flex-wrap gap-1.5 min-w-[120px]">
+        <button
+          type="button"
+          onClick={() => applyParams({ genre: '' })}
+          className={genreButtonClass(!activeGenre)}
+          aria-pressed={!activeGenre}
+          aria-label="All Genres"
+        >
+          All Genres
+        </button>
+        {genres.map((g) => {
+          const active = selectedGenreIds.has(String(g.id));
+          return (
+            <button
+              key={g.id}
+              type="button"
+              onClick={() => toggleGenre(String(g.id))}
+              className={genreButtonClass(active)}
+              aria-pressed={active}
+              aria-label={g.name}
+            >
+              {g.name}
+            </button>
+          );
+        })}
+      </div>
 
       <select
         value={activeSort}
