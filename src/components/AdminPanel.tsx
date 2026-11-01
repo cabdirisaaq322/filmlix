@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Trash2, Plus, List, AlertTriangle, ShieldAlert, LogOut } from 'lucide-react';
-import { signOut, isAdmin, onAuthStateChange, getCurrentUser } from '@/lib/auth';
+import { useState, useCallback } from 'react';
+import { Trash2, Plus, List, AlertTriangle, ShieldAlert } from 'lucide-react';
 import {
   getBlockedMovies,
   addBlockedMovie,
@@ -11,7 +10,6 @@ import {
 } from '@/lib/blocklist';
 
 export function AdminPanel() {
-  const [user, setUser] = useState(getCurrentUser());
   const [movies, setMovies] = useState<BlockedMovie[]>([]);
   const [loading, setLoading] = useState(true);
   const [newTmdbId, setNewTmdbId] = useState('');
@@ -33,19 +31,6 @@ export function AdminPanel() {
       setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    const unsub = onAuthStateChange((u) => {
-      setUser(u);
-      if (!u || !isAdmin(u)) {
-        setMovies([]);
-        setLoading(false);
-        return;
-      }
-      void loadMovies();
-    });
-    return () => unsub();
-  }, [loadMovies]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,24 +70,14 @@ export function AdminPanel() {
     }
   };
 
-  if (!user || !isAdmin(user)) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-[#080808] text-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tighter">Admin Panel</h1>
             <p className="text-sm text-slate-400">Manage blocked titles</p>
           </div>
-          <button
-            onClick={() => signOut()}
-            className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-          >
-            <LogOut className="h-4 w-4" /> Sign out ({user.email})
-          </button>
         </div>
 
         {error && (
