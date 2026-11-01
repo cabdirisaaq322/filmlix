@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, Trash2, Trophy, Flame, Film, Heart, Search, ShieldAlert } from 'lucide-react';
+import { Menu, Trash2, Trophy, Flame, Film, Heart, Search } from 'lucide-react';
 import { clearContinueWatching } from '@/lib/history';
 import { cn } from '@/lib/utils';
 
@@ -179,15 +179,6 @@ export function Navbar() {
                 <Trash2 className="h-4 w-4 text-white/55" aria-hidden="true" />
                 Clear Continue Watching
               </button>
-              <Link
-                href="/admin"
-                role="menuitem"
-                onClick={() => setMenuOpen(false)}
-                className="flex w-full items-center gap-3 rounded-lg border border-red-600/50 bg-red-600/15 px-3 py-2.5 text-left text-sm text-white font-medium transition-all hover:border-white/25 hover:bg-white/10 hover:text-white"
-              >
-                <ShieldAlert className="h-4 w-4 shrink-0 text-red-400" aria-hidden="true" />
-                Admin Panel
-              </Link>
             </div>
           </div>
       </div>
