@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Loader2, Maximize2, RotateCcw } from 'lucide-react';
+import { Loader2, Maximize2, ArrowLeft, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VidSrcPlayerProps {
@@ -174,7 +174,6 @@ export function VidSrcPlayer({
       {isExpanded && (
         <div
           className="fixed inset-0 w-[100vw] h-[100dvh] z-[60] bg-black overflow-hidden"
-          onClick={closeExpanded}
         >
           {isBlocked && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
@@ -212,6 +211,14 @@ export function VidSrcPlayer({
               onError={handleIframeError}
             />
           )}
+          {/* Back button — top-left corner */}
+          <button
+            onClick={(e) => { e.stopPropagation(); closeExpanded(); }}
+            className="absolute top-4 left-4 z-30 p-2 rounded-lg bg-black/60 text-white border border-white/20 backdrop-blur-sm transition-all hover:bg-black/80"
+            aria-label="Exit fullscreen"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
         </div>
       )}
 
