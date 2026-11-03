@@ -2,6 +2,10 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { MediaGrid } from '@/components/MediaGrid';
 import { TMDB_BASE_URL, TMDB_API_KEY, toMediaItems, type MediaItem, type TMDBMovie, type TMDBTVShow, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
+import { getBlockedMovieIdsServer } from '@/lib/server-blocklist';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const GENRE_MAP: Record<string, number> = {
   action: 28,
@@ -69,9 +73,10 @@ async function getGenreData(genreId: number): Promise<{ movies: MediaItem[]; tv:
     fetchPage(`${endpoint}/discover/movie?${auth}&with_genres=${genreId}`),
     fetchPage(`${endpoint}/discover/tv?${auth}&with_genres=${genreId}`),
   ]);
+  const serverBlocked = await getBlockedMovieIdsServer().catch(() => [] as number[]);
   return {
-    movies: toMediaItems(movies.results || [], 'movie').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)).slice(0, 20),
-    tv: toMediaItems(tv.results || [], 'tv').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)).slice(0, 20),
+    movies: toMediaItems(movies.results || [], 'movie').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !serverBlocked.includes(item.id)).slice(0, 20),
+    tv: toMediaItems(tv.results || [], 'tv').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !serverBlocked.includes(item.id)).slice(0, 20),
   };
 }
 

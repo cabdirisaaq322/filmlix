@@ -2,6 +2,10 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getMovieDetails, getTVDetails, TMDBDetails, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 import { WatchPageClient } from './WatchPageClient';
+import { getBlockedMovieIdsServer } from '@/lib/server-blocklist';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface WatchPageProps {
   params: any;
@@ -9,17 +13,28 @@ interface WatchPageProps {
 }
 
 export async function generateMetadata({ params, searchParams }: WatchPageProps): Promise<Metadata> {
-  const p = await params; const type = p?.type; const id = p?.id;
+  const p = await params;
+  const type = p?.type;
+  const id = p?.id;
   const tmdbId = parseInt(id, 10);
-  
+
+  if (isNaN(tmdbId) || BLOCKLISTED_MOVIE_IDS.includes(tmdbId)) {
+    return { title: 'Not Found', description: 'This title is not available.' };
+  }
+
+  const blockedIds = await getBlockedMovieIdsServer();
+  if (blockedIds.includes(tmdbId)) {
+    return { title: 'Not Found', description: 'This title is not available.' };
+  }
+
   try {
     const details = type === 'movie' 
       ? await getMovieDetails(tmdbId)
       : await getTVDetails(tmdbId);
-    
+
     const title = details.title || details.name || 'Watch';
     const year = details.release_date?.slice(0, 4) || details.first_air_date?.slice(0, 4) || '';
-    
+
     return {
       title: `${title} ${year}`.trim(),
       description: details.overview || `Watch ${title} online for free in HD.`,
@@ -49,15 +64,26 @@ export async function generateMetadata({ params, searchParams }: WatchPageProps)
 }
 
 export default async function WatchPage({ params, searchParams }: WatchPageProps) {
-  const p = await params; const type = p?.type; const id = p?.id;
-  const sp = await searchParams; const season = sp?.season; const episode = sp?.episode;
+  const p = await params;
+  const type = p?.type;
+  const id = p?.id;
+  const sp = await searchParams;
+  const season = sp?.season;
+  const episode = sp?.episode;
   const tmdbId = parseInt(id, 10);
 
   if (!['movie', 'tv'].includes(type) || isNaN(tmdbId)) {
     notFound();
   }
 
+  // Check static blocklist
   if (BLOCKLISTED_MOVIE_IDS.includes(tmdbId)) {
+    notFound();
+  }
+
+  // Check server blocklist
+  const blockedIds = await getBlockedMovieIdsServer();
+  if (blockedIds.includes(tmdbId)) {
     notFound();
   }
 

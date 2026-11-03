@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X, Loader2, Flame } from 'lucide-react';
 import { searchMulti, getTrendingMovies, getTrendingTVShows, TMDBMovie, TMDBTVShow, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 import { MediaCard } from '@/components/MediaCard';
+import { useBlockedMovieIds } from '@/lib/blocklist-client';
 
 const POPULAR_SEARCHES = ['Avengers', 'Batman', 'Breaking Bad', 'Stranger Things', 'Spider-Man', 'Wednesday', 'John Wick', 'Avatar'];
 
@@ -15,6 +16,7 @@ export default function SearchPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [trending, setTrending] = useState<Array<TMDBMovie | TMDBTVShow>>([]);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const blockedIds = useBlockedMovieIds();
 
   // Show trending titles so the page is never an empty void
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function SearchPage() {
           getTrendingMovies().catch(() => []),
           getTrendingTVShows().catch(() => []),
         ]);
-        if (!cancelled) setTrending([...movies.slice(0, 6), ...tv.slice(0, 6)].filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)));
+        if (!cancelled) setTrending([...movies.slice(0, 6), ...tv.slice(0, 6)].filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !blockedIds.includes(item.id)));
       } catch {
         /* offline — page still renders the form */
       }
@@ -33,7 +35,7 @@ export default function SearchPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [blockedIds]);
 
   const performSearch = useCallback(async (value: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -47,22 +49,33 @@ export default function SearchPage() {
     setError(null);
     debounceRef.current = setTimeout(async () => {
       try {
-        const data = await searchMulti(value);
-        setResults(data);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(value.trim())}`);
+        if (!res.ok) throw new Error('Search failed');
+        const data = await res.json();
+        const items = Array.isArray(data.results) ? data.results : [];
+        setResults(items.filter((item: TMDBMovie | TMDBTVShow) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !blockedIds.includes(item.id)));
       } catch {
-        setError('Failed to search. Please try again.');
-        setResults([]);
+        // Fallback to direct TMDB search with blocklist filtering if API fails
+        try {
+          const directData = await searchMulti(value);
+          setResults(directData.filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !blockedIds.includes(item.id)));
+        } catch {
+          setError('Failed to search. Please try again.');
+          setResults([]);
+        }
       } finally {
         setIsLoading(false);
       }
     }, 300);
-  }, []);
+  }, [blockedIds]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const q = params.get('q') || '';
-    setQuery(q);
-    if (q) performSearch(q);
+    setTimeout(() => {
+      setQuery(q);
+      if (q) performSearch(q);
+    }, 0);
   }, [performSearch]);
 
   const handleSubmit = (e: React.FormEvent) => {

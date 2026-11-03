@@ -9,7 +9,8 @@ import { SeasonEpisodeDrawer } from '@/components/SeasonEpisodeDrawer';
 import { BackButton } from '@/components/BackButton';
 import { MediaGrid } from '@/components/MediaGrid';
 import { saveContinueWatching } from '@/lib/history';
-import { getBackdropUrl, toMediaItems, TMDBDetails } from '@/lib/tmdb';
+import { getBackdropUrl, toMediaItems, TMDBDetails, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
+import { useBlockedMovieIds } from '@/lib/blocklist-client';
 
 interface WatchPageClientProps {
   type: 'movie' | 'tv';
@@ -25,7 +26,61 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [isFav, setIsFav] = useState(false);
-  useEffect(() => { setIsFav(isFavorite(type, tmdbId)); }, [type, tmdbId]);
+
+  const blockedIds = useBlockedMovieIds();
+  const isTitleBlocked = BLOCKLISTED_MOVIE_IDS.includes(tmdbId) || blockedIds.includes(tmdbId);
+
+  useEffect(() => {
+    if (isTitleBlocked) return;
+    setTimeout(() => setIsFav(isFavorite(type, tmdbId)), 0);
+  }, [type, tmdbId, isTitleBlocked]);
+
+  useEffect(() => {
+    if (isTitleBlocked) return;
+    saveContinueWatching({
+      type,
+      id: tmdbId,
+      title: details.title || details.name || 'Unknown',
+      poster_path: details.poster_path,
+      season: selectedSeason,
+      episode: selectedEpisode,
+    });
+  }, [type, tmdbId, details.poster_path, details.title, details.name, selectedSeason, selectedEpisode, isTitleBlocked]);
+
+  const handleEpisodeSelect = useCallback((season: number, episode: number) => {
+    setSelectedSeason(season);
+    setSelectedEpisode(episode);
+    setDrawerOpen(false);
+    const url = `/watch/${type}/${tmdbId}?season=${season}&episode=${episode}`;
+    window.history.pushState({}, '', url);
+  }, [type, tmdbId]);
+
+  const handleWatchNow = useCallback(() => {
+    setPlaying(true);
+    setTimeout(() => {
+      document.getElementById('video-player')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  }, []);
+
+  if (isTitleBlocked) {
+    return (
+      <div className="-mt-36 min-h-screen bg-[#080808] pb-8 md:-mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-20 text-center">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-red-400 text-2xl">🚫</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">This title is not available</h2>
+          <p className="text-slate-400 mb-6">This movie or series has been blocked by the administrator.</p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-2 text-sm font-bold text-black hover:bg-gray-100 transition-colors"
+          >
+            ← Back to browsing
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const title = details.title || details.name || 'Unknown';
   const year = details.release_date?.slice(0, 4) || details.first_air_date?.slice(0, 4) || '—';
@@ -41,34 +96,6 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
     .filter((item) => item.id !== tmdbId)
     .slice(0, 12);
 
-  // Remember what the viewer is watching so the homepage can offer "Continue Watching"
-  useEffect(() => {
-    saveContinueWatching({
-      type,
-      id: tmdbId,
-      title,
-      poster_path: details.poster_path,
-      season: selectedSeason,
-      episode: selectedEpisode,
-    });
-  }, [type, tmdbId, title, details.poster_path, selectedSeason, selectedEpisode]);
-
-  const handleEpisodeSelect = useCallback((season: number, episode: number) => {
-    setSelectedSeason(season);
-    setSelectedEpisode(episode);
-    setDrawerOpen(false);
-    const url = `/watch/${type}/${tmdbId}?season=${season}&episode=${episode}`;
-    window.history.pushState({}, '', url);
-  }, [type, tmdbId]);
-
-  // "Watch Now" starts playback immediately in the on-page player (no external sites)
-  const handleWatchNow = useCallback(() => {
-    setPlaying(true);
-    setTimeout(() => {
-      document.getElementById('video-player')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 80);
-  }, []);
-
   const formatRuntime = (minutes: number) => {
     if (!minutes) return '—';
     const h = Math.floor(minutes / 60);
@@ -78,7 +105,7 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
 
   return (
     <div className="-mt-36 min-h-screen bg-[#080808] pb-8 md:-mt-24">
-      <section className="mx-auto max-w-7xl px-4 pb-10 pt-36 sm:px-6 md:pb-14 md:pt-28 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 pb-8 pt-36 sm:px-6 md:pb-14 md:pt-28 lg:px-8">
         <BackButton label="Back to browsing" className="mb-8" />
         <div className="grid items-center gap-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12">
           <div className="min-w-0 space-y-4">

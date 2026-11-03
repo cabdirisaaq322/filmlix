@@ -10,6 +10,10 @@ import {
   BLOCKLISTED_MOVIE_IDS,
   type TMDBPaginatedResult,
 } from '@/lib/tmdb';
+import { getBlockedMovieIdsServer } from '@/lib/server-blocklist';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Watch TV Series Online Free',
@@ -41,9 +45,10 @@ export default async function TVPage({ searchParams }: TVPageProps) {
   let data: TMDBPaginatedResult = EMPTY;
   if (isTMDBConfigured()) {
     const fetched = await discoverTV({ page, genre, sort, year }).catch(() => EMPTY);
+    const serverBlocked = await getBlockedMovieIdsServer().catch(() => [] as number[]);
     data = {
       ...fetched,
-      results: (fetched.results || []).filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)),
+      results: (fetched.results || []).filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !serverBlocked.includes(item.id)),
     };
   }
 

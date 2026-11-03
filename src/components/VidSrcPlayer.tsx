@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Loader2, Maximize2, ArrowLeft, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBlockedMovieIds } from '@/lib/blocklist-client';
 
 interface VidSrcPlayerProps {
   type: 'movie' | 'tv';
@@ -86,7 +87,8 @@ export function VidSrcPlayer({
   episode = 1,
   title,
 }: VidSrcPlayerProps) {
-  const isBlocked = BLOCKLISTED_MOVIE_IDS.has(tmdbId);
+  const firestoreBlockedIds = useBlockedMovieIds();
+  const isTitleBlocked = BLOCKLISTED_MOVIE_IDS.has(tmdbId) || firestoreBlockedIds.includes(tmdbId);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,7 +101,7 @@ export function VidSrcPlayer({
   const loadedRef = useRef(false);
 
   const selectedServer = SERVERS.find((s) => s.id === selectedServerId) ?? SERVERS[0];
-  const src = selectedServer.build({ type, tmdbId, imdbId, season, episode });
+  const src = isTitleBlocked ? null : selectedServer.build({ type, tmdbId, imdbId, season, episode });
 
   const handleSelectServer = useCallback((id: string) => {
     setSelectedServerId(id);
@@ -175,7 +177,7 @@ export function VidSrcPlayer({
         <div
           className="fixed inset-0 w-[100vw] h-[100dvh] z-[60] bg-black overflow-hidden"
         >
-          {isBlocked && (
+          {isTitleBlocked && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
                 <div className="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center">
@@ -185,17 +187,17 @@ export function VidSrcPlayer({
               </div>
             </div>
           )}
-          {!isBlocked && (isLoading || !src) && !error && (
+          {!isTitleBlocked && (isLoading || !src) && !error && (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black">
               <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
             </div>
           )}
-          {!isBlocked && error && (
+          {!isTitleBlocked && error && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
               <p className="text-sm text-slate-200 px-6 text-center">{error}</p>
             </div>
           )}
-          {!isBlocked && src && (
+          {!isTitleBlocked && src && (
             <iframe
               key={reloadNonce}
               ref={iframeRef}
@@ -275,7 +277,7 @@ export function VidSrcPlayer({
             role="region"
             aria-label={`${title || 'Video'} player`}
           >
-            {isBlocked && (
+            {isTitleBlocked && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
                 <div className="flex flex-col items-center gap-4 text-white p-6 text-center max-w-sm">
                   <div className="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center">
@@ -285,18 +287,18 @@ export function VidSrcPlayer({
                 </div>
               </div>
             )}
-            {!isBlocked && (isLoading || !src) && !error && (
+            {!isTitleBlocked && (isLoading || !src) && !error && (
               <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white shadow-lg">
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
                 <span className="text-xs font-medium text-slate-200">Loading stream…</span>
               </div>
             )}
-            {!isBlocked && error && (
+            {!isTitleBlocked && error && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
                 <p className="text-sm text-slate-200 px-6 text-center">{error}</p>
               </div>
             )}
-            {!isBlocked && src && (
+            {!isTitleBlocked && src && (
               <iframe
                 key={reloadNonce}
                 ref={iframeRef}

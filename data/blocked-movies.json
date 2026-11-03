@@ -1,0 +1,54 @@
+[
+  {
+    "id": "movie-64689",
+    "tmdbId": 64689,
+    "type": "movie",
+    "title": "A Serbian Film",
+    "poster_path": null,
+    "reason": "Prohibited content",
+    "is_blocked": true,
+    "active": true,
+    "status": "hidden",
+    "createdAt": 1730000000000,
+    "updatedAt": 1730000000000
+  },
+  {
+    "id": "movie-5038",
+    "tmdbId": 5038,
+    "type": "movie",
+    "title": "Waterworld",
+    "poster_path": null,
+    "reason": "Copyright / Licensing",
+    "is_blocked": true,
+    "active": true,
+    "status": "hidden",
+    "createdAt": 1730000000000,
+    "updatedAt": 1730000000000
+  },
+  {
+    "id": "movie-791523",
+    "tmdbId": 791523,
+    "type": "movie",
+    "title": "Wildwood",
+    "poster_path": null,
+    "reason": "DMCA / Blocked",
+    "is_blocked": true,
+    "active": true,
+    "status": "hidden",
+    "createdAt": 1730000000000,
+    "updatedAt": 1730000000000
+  },
+  {
+    "id": "movie-345",
+    "tmdbId": 345,
+    "type": "movie",
+    "title": "Eyes Wide Shut",
+    "poster_path": "/knEIz1eNGl5MQDbrEAVWA7iRqF9.jpg",
+    "reason": "",
+    "is_blocked": false,
+    "active": false,
+    "status": "visible",
+    "createdAt": 1793722858860,
+    "updatedAt": 1793723070423
+  }
+]

@@ -348,7 +348,7 @@ export function toMediaItems(
 ): MediaItem[] {
   if (!results) return [];
   return results
-    .filter((item) => item && typeof item.id === 'number')
+    .filter((item) => item && typeof item.id === 'number' && !BLOCKLISTED_MOVIE_IDS.includes(item.id))
     .map((item) => ({
       id: item.id,
       title: 'title' in item ? item.title : undefined,
