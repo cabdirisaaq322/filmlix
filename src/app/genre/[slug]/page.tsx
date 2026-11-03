@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { MediaGrid } from '@/components/MediaGrid';
-import { TMDB_BASE_URL, TMDB_API_KEY, toMediaItems, type MediaItem, type TMDBMovie, type TMDBTVShow } from '@/lib/tmdb';
+import { TMDB_BASE_URL, TMDB_API_KEY, toMediaItems, type MediaItem, type TMDBMovie, type TMDBTVShow, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 
 const GENRE_MAP: Record<string, number> = {
   action: 28,
@@ -70,8 +70,8 @@ async function getGenreData(genreId: number): Promise<{ movies: MediaItem[]; tv:
     fetchPage(`${endpoint}/discover/tv?${auth}&with_genres=${genreId}`),
   ]);
   return {
-    movies: toMediaItems(movies.results || [], 'movie').slice(0, 20),
-    tv: toMediaItems(tv.results || [], 'tv').slice(0, 20),
+    movies: toMediaItems(movies.results || [], 'movie').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)).slice(0, 20),
+    tv: toMediaItems(tv.results || [], 'tv').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)).slice(0, 20),
   };
 }
 

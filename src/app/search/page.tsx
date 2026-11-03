@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X, Loader2, Flame } from 'lucide-react';
-import { searchMulti, getTrendingMovies, getTrendingTVShows, TMDBMovie, TMDBTVShow } from '@/lib/tmdb';
+import { searchMulti, getTrendingMovies, getTrendingTVShows, TMDBMovie, TMDBTVShow, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 import { MediaCard } from '@/components/MediaCard';
 
 const POPULAR_SEARCHES = ['Avengers', 'Batman', 'Breaking Bad', 'Stranger Things', 'Spider-Man', 'Wednesday', 'John Wick', 'Avatar'];
@@ -25,7 +25,7 @@ export default function SearchPage() {
           getTrendingMovies().catch(() => []),
           getTrendingTVShows().catch(() => []),
         ]);
-        if (!cancelled) setTrending([...movies.slice(0, 6), ...tv.slice(0, 6)]);
+        if (!cancelled) setTrending([...movies.slice(0, 6), ...tv.slice(0, 6)].filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)));
       } catch {
         /* offline — page still renders the form */
       }

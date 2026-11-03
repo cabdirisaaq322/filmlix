@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getMovieDetails, getTVDetails, TMDBDetails } from '@/lib/tmdb';
+import { getMovieDetails, getTVDetails, TMDBDetails, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 import { WatchPageClient } from './WatchPageClient';
 
 interface WatchPageProps {
@@ -54,6 +54,10 @@ export default async function WatchPage({ params, searchParams }: WatchPageProps
   const tmdbId = parseInt(id, 10);
 
   if (!['movie', 'tv'].includes(type) || isNaN(tmdbId)) {
+    notFound();
+  }
+
+  if (BLOCKLISTED_MOVIE_IDS.includes(tmdbId)) {
     notFound();
   }
 

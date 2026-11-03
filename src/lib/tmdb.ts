@@ -3,7 +3,7 @@ export const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
 export const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
 // Blocklisted movie IDs — never shown in search or playable.
-export const BLOCKLISTED_MOVIE_IDS: number[] = [64689, 5038];
+export const BLOCKLISTED_MOVIE_IDS: number[] = [64689, 5038, 791523];
 
 export interface TMDBMovie {
   id: number;

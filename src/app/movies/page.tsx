@@ -7,6 +7,7 @@ import {
   MOVIE_SORTS,
   YEAR_OPTIONS,
   toMediaItems,
+  BLOCKLISTED_MOVIE_IDS,
   type TMDBPaginatedResult,
 } from '@/lib/tmdb';
 
@@ -39,7 +40,11 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
 
   let data: TMDBPaginatedResult = EMPTY;
   if (isTMDBConfigured()) {
-    data = await discoverMovies({ page, genre, sort, year }).catch(() => EMPTY);
+    const fetched = await discoverMovies({ page, genre, sort, year }).catch(() => EMPTY);
+    data = {
+      ...fetched,
+      results: (fetched.results || []).filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id)),
+    };
   }
 
   const activeGenre = genre ?? '';
