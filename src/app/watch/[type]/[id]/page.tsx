@@ -94,13 +94,16 @@ export default async function WatchPage({ params, searchParams }: WatchPageProps
 
     if (!details) notFound();
 
+  const parsedSeason = season ? parseInt(season, 10) : 1;
+  const parsedEpisode = episode ? parseInt(episode, 10) : 1;
+
     return (
       <WatchPageClient
         type={type as 'movie' | 'tv'}
         tmdbId={tmdbId}
         details={details}
-        initialSeason={season ? parseInt(season, 10) : 1}
-        initialEpisode={episode ? parseInt(episode, 10) : 1}
+        initialSeason={isNaN(parsedSeason) || parsedSeason < 1 ? 1 : parsedSeason}
+        initialEpisode={isNaN(parsedEpisode) || parsedEpisode < 1 ? 1 : parsedEpisode}
       />
     );
   } catch {

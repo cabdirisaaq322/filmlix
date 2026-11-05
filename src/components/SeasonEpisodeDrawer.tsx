@@ -117,7 +117,7 @@ export function SeasonEpisodeDrawer({
                 key={season.season_number}
                 className={cn(
                   'bg-slate-900/50 rounded-lg border border-slate-800 overflow-hidden',
-                  isSelected && 'border-yellow-500/50 bg-yellow-500/10'
+                  isSelected && 'border-indigo-600/50 bg-indigo-600/10'
                 )}
               >
                 <button
@@ -128,7 +128,7 @@ export function SeasonEpisodeDrawer({
                   <div className="flex items-center gap-3">
                     <div className={cn(
                       'w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold',
-                      isSelected ? 'bg-yellow-600 text-white' : 'bg-slate-800 text-slate-300'
+                      isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-300'
                     )}>
                       {season.season_number === 0 ? 'S' : season.season_number}
                     </div>
@@ -168,14 +168,14 @@ export function SeasonEpisodeDrawer({
                             className={cn(
                               'w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left',
                               isCurrentEp
-                                ? 'bg-yellow-500/20 border border-yellow-500/50'
+                                ? 'bg-indigo-600/20 border border-indigo-500/50'
                                 : 'hover:bg-slate-800/50'
                             )}
                             aria-current={isCurrentEp ? 'true' : 'false'}
                           >
                             <div className={cn(
-                              'w-8 h-8 rounded flex items-center justify-center text-xs font-bold flex-shrink-0',
-                               isCurrentEp ? 'bg-yellow-600 text-white' : 'bg-slate-800 text-slate-400'
+                               'w-8 h-8 rounded flex items-center justify-center text-xs font-bold flex-shrink-0',
+                                isCurrentEp ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'
                             )}>
                               {isCurrentEp ? (
                                 <CheckCircle className="w-4 h-4" />
@@ -183,25 +183,17 @@ export function SeasonEpisodeDrawer({
                                 <Play className="w-4 h-4 ml-0.5" />
                               )}
                             </div>
-                             <div className="flex-1 min-w-0 hidden sm:block">
-                               <p className={cn(
-                                 'text-sm truncate',
-                                 isCurrentEp ? 'text-white font-medium' : 'text-slate-300'
-                               )}>
-                                 E{ep.episode_number}: {ep.name}
-                               </p>
-                               <p className="text-xs text-slate-500 truncate">
-                                 {ep.overview || 'No description'}
-                               </p>
-                             </div>
-                             <span className="text-xs text-slate-300 sm:hidden font-bold">
-                               E{ep.episode_number}
-                             </span>
-                            {ep.vote_average > 0 && (
-                              <span className="text-xs text-yellow-400 flex items-center gap-1">
-                                {ep.vote_average.toFixed(1)}
+                              <div className="flex-1 min-w-0 hidden sm:block">
+                                <p className={cn(
+                                  'text-sm truncate font-bold',
+                                  isCurrentEp ? 'text-white' : 'text-slate-300'
+                                )}>
+                                  E{ep.episode_number}
+                                </p>
+                              </div>
+                              <span className="text-xs text-slate-300 sm:hidden font-bold">
+                                E{ep.episode_number}
                               </span>
-                            )}
                           </button>
                         );
                       })
