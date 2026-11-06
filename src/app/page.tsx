@@ -173,7 +173,7 @@ export default function HomePage() {
               <a
                 key={slug}
                 href={`/genre/${slug}`}
-                className="rounded-[4px] border border-white/20 bg-[#232323] px-3.5 py-2 text-[12px] font-medium text-[#e5e5e5] transition-colors hover:border-white hover:bg-white hover:text-black"
+                className="rounded-full border border-white/20 bg-[#232323] px-4 py-2 text-[12px] font-medium text-[#e5e5e5] transition-colors hover:border-white hover:bg-white hover:text-black"
               >
                 {slug.charAt(0).toUpperCase() + slug.slice(1)}
               </a>

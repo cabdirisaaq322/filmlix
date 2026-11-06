@@ -18,7 +18,7 @@ const selectClass =
   'bg-[#232323] border border-white/25 rounded-[4px] px-3 py-2 text-[13px] text-white focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 cursor-pointer hover:border-white/50 transition-colors';
 
 const genreButtonClass = (active: boolean) =>
-  `rounded-[4px] border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+  `rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-colors ${
     active
       ? 'border-white bg-white text-black'
       : 'border-white/20 bg-[#232323] text-[#e5e5e5] hover:border-white/50 hover:text-white'
@@ -118,7 +118,7 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
       {hasFilters && (
         <button
           onClick={() => applyParams({ genre: '', sort: '', year: '' })}
-          className="flex items-center gap-1.5 rounded-full border border-red-600/30 bg-red-600/10 px-4 py-2.5 text-sm font-medium text-red-300 transition-colors hover:bg-red-600/20"
+          className="flex items-center gap-1.5 rounded-full border border-white/30 bg-transparent px-4 py-1.5 text-[12px] font-medium text-[#e5e5e5] transition-colors hover:border-white hover:text-white"
         >
           <X className="w-4 h-4" /> Clear
         </button>
