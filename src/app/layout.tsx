@@ -74,6 +74,7 @@ export default function RootLayout({
         <main className="box-border min-w-0 w-full max-w-full flex-1 pt-[54px] md:pt-[68px]">{children}</main>
         <Footer />
         <Script src="https://tags.adplox.com/p.js?z=x3cjcw3qr4" strategy="afterInteractive" />
+        <Script src="https://tags.adplox.com/p.js?z=62w3n4m4v3" strategy="afterInteractive" />
       </body>
     </html>
   );
