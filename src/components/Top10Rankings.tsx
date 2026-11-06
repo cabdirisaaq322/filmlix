@@ -71,7 +71,7 @@ export function Top10Rankings({
   return (
     <section className="relative mb-8" aria-label="Top 10 Most Watched">
       <div className="nf-row-pad mb-2.5 flex flex-wrap items-center gap-x-3 gap-y-2 md:mb-3">
-        <h2 className="text-[clamp(15px,1.4vw,26px)] font-bold leading-tight text-[#e5e5e5]">{title}</h2>
+        <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold leading-tight tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
 
         <span className="rounded-[2px] border border-white/25 px-1.5 py-[1px] text-[10px] font-medium uppercase tracking-wide text-white/70">
           Live
@@ -189,15 +189,17 @@ export function Top10Rankings({
                     {/* title permanently over the poster */}
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2 pb-2 pt-9">
                       <p
-                        className="line-clamp-2 text-[13px] font-bold leading-snug text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] md:text-[14px]"
+                        className="line-clamp-2 text-[13.5px] font-bold leading-[1.18] tracking-[-0.01em] text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.95)] md:text-[14.5px]"
                         title={displayTitle}
                       >
                         {displayTitle}
                       </p>
-                      <p className="mt-0.5 text-[11px] leading-tight text-white/75">
-                        {year && <span>{year} · </span>}
-                        <span className="text-[#46d369]">{item.vote_average.toFixed(1)} ★</span>
-                      </p>
+                      <div className="mt-1 flex items-center gap-1.5 text-[10.5px] leading-none">
+                        <span className="font-semibold text-[#46d369]">
+                          {item.vote_average > 0 ? `${Math.round(item.vote_average * 10)}% Match` : 'New'}
+                        </span>
+                        {year && <span className="text-white/70">{year}</span>}
+                      </div>
                     </div>
                   </div>
                 </Link>

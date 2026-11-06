@@ -87,17 +87,21 @@ export function MediaCard({
         {/* title permanently over the poster, on a bottom scrim */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2 pb-2 pt-10">
           <h3
-            className="line-clamp-2 text-[14px] font-bold leading-snug text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] md:text-[15px]"
+            className="line-clamp-2 text-[14.5px] font-bold leading-[1.18] tracking-[-0.01em] text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.95)] md:text-[16px]"
             title={displayTitle}
           >
             {displayTitle}
           </h3>
 
-          <p className="mt-0.5 flex items-center gap-1 text-[11.5px] leading-tight text-white/75 group-hover/card:hidden">
-            {year && <span>{year}</span>}
-            {year && <span className="text-white/40">•</span>}
-            <span>{media_type === 'movie' ? 'Film' : 'Series'}</span>
-          </p>
+          <div className="mt-1 flex items-center gap-1.5 text-[11px] leading-none group-hover/card:hidden">
+            <span className="font-semibold text-[#46d369]">
+              {vote_average > 0 ? `${Math.round(vote_average * 10)}% Match` : 'New'}
+            </span>
+            {year && <span className="text-white/70">{year}</span>}
+            <span className="rounded-[2px] border border-white/40 px-1 py-[1px] text-[9px] font-medium uppercase text-white/80">
+              HD
+            </span>
+          </div>
 
           {/* actions appear in place of the meta line on hover / focus */}
           <div className="pointer-events-auto mt-1.5 hidden items-center gap-1.5 group-hover/card:flex group-focus-visible/card:flex">
@@ -122,7 +126,6 @@ export function MediaCard({
               {isFav ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
             </button>
             <span className="ml-auto flex items-center gap-1 text-[10.5px] font-medium text-white/85">
-              <span className="text-[#46d369]">{Math.round(vote_average * 10)}%</span>
               <Star className="h-3 w-3 fill-current text-[#f5c518]" aria-hidden="true" />
               {vote_average.toFixed(1)}
             </span>

@@ -45,7 +45,7 @@ export function ContinueWatchingRow() {
   return (
     <section className="group/row relative mb-8" aria-label="Continue Watching">
       <div className="nf-row-pad mb-2.5 flex items-baseline md:mb-3">
-        <h2 className="text-[clamp(15px,1.4vw,26px)] font-bold leading-tight text-[#e5e5e5]">Continue Watching</h2>
+        <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold leading-tight tracking-[-0.015em] text-[#e5e5e5]">Continue Watching</h2>
       </div>
 
       <div className="relative">

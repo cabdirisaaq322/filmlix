@@ -58,7 +58,7 @@ export function MediaRow({
 
   const header = (
     <div className="nf-row-pad group/head mb-2.5 flex items-baseline gap-2 md:mb-3">
-      <h2 className="text-[clamp(15px,1.4vw,26px)] font-bold leading-tight text-[#e5e5e5] transition-colors hover:text-white">
+      <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold leading-tight tracking-[-0.015em] text-[#e5e5e5] transition-colors hover:text-white">
         {title}
       </h2>
       {href && (

@@ -167,7 +167,7 @@ export default function HomePage() {
         {configured && <Suspense fallback={<MediaRow title="Airing Today" isLoading />}><AiringTodayContent /></Suspense>}
 
         <section className="nf-row-pad mb-10" aria-label="Browse by genre">
-          <h2 className="mb-3 text-[clamp(15px,1.4vw,26px)] font-bold text-[#e5e5e5]">Browse by Genre</h2>
+          <h2 className="mb-3 text-[clamp(16px,1.35vw,24px)] font-bold tracking-[-0.015em] text-[#e5e5e5]">Browse by Genre</h2>
           <div className="flex flex-wrap gap-2">
             {genreSlugs.map((slug) => (
               <a

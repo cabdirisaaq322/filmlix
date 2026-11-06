@@ -25,7 +25,7 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
     return (
       <section className="space-y-4" aria-label={`${title} (loading)`}>
         <div className="flex items-center justify-between">
-          <h2 className="text-[clamp(16px,1.3vw,24px)] font-bold text-[#e5e5e5]">{title}</h2>
+          <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
           {href && (
             <a href={href} className="text-[12px] font-semibold text-[#54b9c5] hover:opacity-80 transition-opacity">
               View All →
@@ -45,7 +45,7 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
     return (
       <section className="space-y-4" aria-label={title}>
         <div className="flex items-center justify-between">
-          <h2 className="text-[clamp(16px,1.3vw,24px)] font-bold text-[#e5e5e5]">{title}</h2>
+          <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
         </div>
         <div className="text-center py-12 text-[#8c8c8c]">
           No content available
@@ -57,7 +57,7 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
   return (
     <section className="space-y-4" aria-label={title}>
       <div className="flex items-center justify-between">
-        <h2 className="text-[clamp(16px,1.3vw,24px)] font-bold text-[#e5e5e5]">{title}</h2>
+        <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
         {href && (
           <a href={href} className="text-[12px] font-semibold text-[#54b9c5] hover:opacity-80 transition-opacity">
             View All →
