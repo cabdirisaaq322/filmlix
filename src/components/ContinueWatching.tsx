@@ -36,36 +36,37 @@ export function ContinueWatchingRow() {
   const scrollBy = useCallback((direction: 'left' | 'right') => {
     const el = scrollerRef.current;
     if (!el) return;
-    el.scrollBy({ left: direction === 'left' ? -el.clientWidth * 0.85 : el.clientWidth * 0.85, behavior: 'smooth' });
+    const page = el.clientWidth * 0.92;
+    el.scrollBy({ left: direction === 'left' ? -page : page, behavior: 'smooth' });
   }, []);
 
   if (items.length === 0) return null;
 
   return (
-    <section className="group/row relative" aria-label="Continue Watching">
-      <div className="flex items-center justify-between mb-3 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-lg sm:text-xl font-bold text-white">Continue Watching</h2>
+    <section className="group/row relative mb-8" aria-label="Continue Watching">
+      <div className="nf-row-pad mb-2.5 flex items-baseline md:mb-3">
+        <h2 className="text-[clamp(15px,1.4vw,26px)] font-bold leading-tight text-[#e5e5e5]">Continue Watching</h2>
       </div>
 
       <div className="relative">
         <button
           onClick={() => scrollBy('left')}
           disabled={!canScroll.left}
+          tabIndex={-1}
           className={cn(
-            'hidden md:flex absolute left-0 top-0 bottom-8 z-20 w-12 items-center justify-center',
-            'bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent text-white',
-            'opacity-0 group-hover/row:opacity-100 transition-opacity duration-200',
-            'disabled:opacity-0 disabled:cursor-default'
+            'absolute bottom-0 left-0 top-0 z-30 hidden w-[4%] min-w-[40px] items-center justify-center bg-black/60 text-white md:flex',
+            'opacity-0 transition-opacity duration-200 group-hover/row:opacity-100 hover:bg-black/80',
+            'disabled:pointer-events-none disabled:opacity-0'
           )}
           aria-label="Scroll continue watching left"
         >
-          <ChevronLeft className="w-8 h-8" />
+          <ChevronLeft className="h-8 w-8" aria-hidden="true" />
         </button>
 
         <div
           ref={scrollerRef}
           onScroll={updateScrollState}
-          className="flex gap-3 overflow-x-auto scroll-smooth px-4 sm:px-6 lg:px-8 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="no-scrollbar nf-row-pad flex gap-[6px] overflow-x-auto scroll-smooth pb-1"
         >
           {items.map((item) => (
             <Link
@@ -75,26 +76,29 @@ export function ContinueWatchingRow() {
                   ? `/watch/tv/${item.id}?season=${item.season || 1}&episode=${item.episode || 1}`
                   : `/watch/movie/${item.id}`
               }
-              className="group/card w-[140px] sm:w-[170px] lg:w-[190px] shrink-0 relative rounded-xl overflow-hidden border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition-all"
+              className="nf-focus group/card relative w-[38vw] min-w-[120px] max-w-[290px] shrink-0"
+              aria-label={`Resume ${item.title}`}
             >
-              <div className="relative aspect-[2/3] overflow-hidden">
+              <div className="nf-card relative aspect-[2/3] overflow-hidden rounded-[4px] bg-[#232323]">
                 <img
                   src={getPosterUrl(item.poster_path, 'w342')}
                   alt={`${item.title} poster`}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                  className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity">
-                  <span className="bg-white/90 text-black p-3 rounded-full">
-                    <Play className="w-6 h-6 ml-0.5" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover/card:opacity-100">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-black">
+                    <Play className="ml-0.5 h-6 w-6 fill-current" aria-hidden="true" />
                   </span>
                 </div>
-                <div className="absolute bottom-2 left-2 right-2">
-                  <p className="text-xs font-semibold text-white truncate">{item.title}</p>
+
+                <div className="absolute inset-x-0 bottom-0 p-2.5">
+                  <p className="line-clamp-1 text-[14px] font-bold text-white drop-shadow">{item.title}</p>
                   {item.type === 'tv' && (
-                    <p className="text-[10px] text-slate-300">
-                      S{item.season || 1} • E{item.episode || 1}
+                    <p className="mt-0.5 text-[11px] text-[#b3b3b3]">
+                      Series · S{item.season || 1}:E{item.episode || 1}
                     </p>
                   )}
                 </div>
@@ -106,15 +110,15 @@ export function ContinueWatchingRow() {
         <button
           onClick={() => scrollBy('right')}
           disabled={!canScroll.right}
+          tabIndex={-1}
           className={cn(
-            'hidden md:flex absolute right-0 top-0 bottom-8 z-20 w-12 items-center justify-center',
-            'bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent text-white',
-            'opacity-0 group-hover/row:opacity-100 transition-opacity duration-200',
-            'disabled:opacity-0 disabled:cursor-default'
+            'absolute bottom-0 right-0 top-0 z-30 hidden w-[4%] min-w-[40px] items-center justify-center bg-black/60 text-white md:flex',
+            'opacity-0 transition-opacity duration-200 group-hover/row:opacity-100 hover:bg-black/80',
+            'disabled:pointer-events-none disabled:opacity-0'
           )}
           aria-label="Scroll continue watching right"
         >
-          <ChevronRight className="w-8 h-8" />
+          <ChevronRight className="h-8 w-8" aria-hidden="true" />
         </button>
       </div>
     </section>

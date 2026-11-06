@@ -64,8 +64,8 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
 
   if (isTitleBlocked) {
     return (
-      <div className="-mt-36 min-h-screen bg-[#080808] pb-8 md:-mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-20 text-center">
+      <div className="-mt-[54px] min-h-screen bg-[#141414] pb-8 md:-mt-[68px]">
+        <div className="nf-row-pad w-full py-28 text-center">
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-red-400 text-2xl">🚫</span>
           </div>
@@ -104,8 +104,8 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
   };
 
   return (
-    <div className="-mt-36 min-h-screen bg-[#080808] pb-8 md:-mt-24">
-      <section className="mx-auto max-w-7xl px-4 pb-8 pt-36 sm:px-6 md:pb-14 md:pt-28 lg:px-8">
+    <div className="-mt-[54px] min-h-screen bg-[#141414] pb-8 md:-mt-[68px]">
+      <section className="nf-row-pad w-full pb-8 pt-[84px] md:pb-14 md:pt-[96px]">
         <BackButton label="Back to browsing" className="mb-8" />
         <div className="grid items-center gap-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12">
           <div className="min-w-0 space-y-4">
@@ -211,17 +211,17 @@ export function WatchPageClient({ type, tmdbId, details, initialSeason, initialE
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 pb-8 pt-8 sm:px-6 lg:px-8">
+      <div className="nf-row-pad w-full pb-8 pt-8">
         <div className="min-w-0 space-y-6">
             {type === 'tv' && seasons.length > 0 && (
               <div className="mt-6">
                 <button
                   onClick={() => setDrawerOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white hover:bg-slate-800/50 transition-colors"
+                  className="nf-focus inline-flex items-center gap-2 rounded-[4px] border border-white/40 bg-[#232323] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:border-white hover:bg-[#2d2d2d]"
                 >
-                  <ChevronDown className="w-5 h-5" />
-                  <span className="font-medium">
-                    Season {selectedSeason} • Episode {selectedEpisode}
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                  <span>
+                    Season {selectedSeason} · Episode {selectedEpisode}
                   </span>
                 </button>
 

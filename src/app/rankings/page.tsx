@@ -49,18 +49,18 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
   return (
     <div className="min-h-screen pb-20">
       {/* Header Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-red-950/40 via-black to-black border-b border-neutral-800/80 pt-12 pb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden border-b border-white/10 bg-[#141414] pb-6 pt-8">
+        <div className="nf-row-pad w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-3">
+              <div className="inline-flex items-center gap-2 rounded-[2px] border border-white/25 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/70 mb-3">
                 <Trophy className="w-3.5 h-3.5" />
                 <span>OFFICIAL TOP 10 CHARTS</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+              <h1 className="text-[clamp(1.75rem,3.2vw,3rem)] font-bold leading-tight text-white">
                 Top 10 Most Watched
               </h1>
-              <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
+              <p className="mt-2 max-w-2xl text-[13px] text-[#b3b3b3] sm:text-[14px]">
                 {currentPeriodInfo?.description}. Ranked live by global audience engagement, daily streaming counts, and viewership momentum.
               </p>
             </div>
@@ -68,15 +68,15 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
             {/* Timeframe & Category Selectors */}
             <div className="flex flex-col sm:flex-row gap-3">
               {/* Timeframe Pills */}
-              <div className="inline-flex bg-slate-900 border border-slate-800 rounded-xl p-1 shadow-lg">
+              <div className="inline-flex rounded-[4px] border border-white/15 bg-[#232323] p-0.5">
                 {PERIODS.map((p) => (
                   <Link
                     key={p.key}
                     href={`/rankings?period=${p.key}&media=${media}`}
                     className={cn(
-                      'px-4 py-2 rounded-lg text-xs font-bold transition-all',
+                      'nf-focus rounded-[2px] px-3 py-1.5 text-[12px] font-medium transition-colors',
                       p.key === period
-                        ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
+                        ? 'bg-white text-black'
                         : 'text-slate-400 hover:text-white'
                     )}
                   >
@@ -86,15 +86,15 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
               </div>
 
               {/* Media Pills */}
-              <div className="inline-flex bg-slate-900 border border-slate-800 rounded-xl p-1 shadow-lg">
+              <div className="inline-flex rounded-[4px] border border-white/15 bg-[#232323] p-0.5">
                 {MEDIA_TYPES.map((m) => (
                   <Link
                     key={m.key}
                     href={`/rankings?period=${period}&media=${m.key}`}
                     className={cn(
-                      'px-3.5 py-2 rounded-lg text-xs font-semibold transition-all',
+                      'nf-focus rounded-[2px] px-3 py-1.5 text-[12px] font-medium transition-colors',
                       m.key === media
-                        ? 'bg-neutral-800 text-red-400 border border-neutral-700'
+                        ? 'bg-white text-black'
                         : 'text-slate-400 hover:text-white'
                     )}
                   >
@@ -108,8 +108,8 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
       </section>
 
       {/* Leaderboard List */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="space-y-4">
+      <main className="nf-row-pad w-full mt-8">
+        <div className="space-y-2.5">
           {items.map((item, index) => {
             const rank = item.rank || index + 1;
             const title = item.title || item.name || 'Unknown';
@@ -120,23 +120,16 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
 
             // Podium rankings
             const isTop3 = rank <= 3;
-            const rankBadgeColor =
-              rank === 1
-                ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-yellow-300'
-                : rank === 2
-                ? 'bg-gradient-to-r from-slate-200 to-slate-400 text-black border-slate-200'
-                : rank === 3
-                ? 'bg-gradient-to-r from-amber-600 to-orange-500 text-white border-orange-400'
-                : 'bg-slate-800 text-slate-300 border-slate-700';
+            const rankBadgeColor = "bg-white/10 text-white/80 border-white/20";
 
             return (
               <article
                 key={item.id}
                 className={cn(
-                  'group relative overflow-hidden rounded-2xl border transition-all duration-300',
+                  'group relative overflow-hidden rounded-[4px] border transition-colors duration-200',
                   isTop3
-                    ? 'bg-neutral-900/70 border-neutral-700/80 hover:border-red-600/80 hover:shadow-2xl hover:shadow-red-600/10'
-                    : 'bg-slate-900/40 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/60'
+                    ? 'bg-[#232323] border-white/10 hover:border-white/30'
+                    : 'bg-[#1c1c1c] border-white/10 hover:border-white/25 hover:bg-[#232323]'
                 )}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-6 gap-6">
@@ -144,20 +137,7 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
                   <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
                     {/* Rank Number Badge */}
                     <div className="flex-shrink-0 flex items-center justify-center w-14 sm:w-16">
-                      <span
-                        className={cn(
-                          'text-4xl sm:text-5xl font-black italic tracking-tighter select-none font-sans',
-                          rank === 1
-                            ? 'text-amber-400'
-                            : rank === 2
-                            ? 'text-slate-300'
-                            : rank === 3
-                            ? 'text-orange-400'
-                            : 'text-slate-600'
-                        )}
-                      >
-                        #{rank}
-                      </span>
+                      <span className="nf-top10-num text-[clamp(36px,3.2vw,58px)]">{rank}</span>
                     </div>
 
                     {/* Poster Thumbnail */}
@@ -185,26 +165,26 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
                             rankBadgeColor
                           )}
                         >
-                          {rank === 1 ? '🥇 #1 Trending' : rank === 2 ? '🥈 #2 Trending' : rank === 3 ? '🥉 #3 Trending' : `Rank #${rank}`}
+                          Trending #{rank}
                         </span>
 
-                        <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold uppercase text-[10px]">
+                        <span className="text-xs px-1.5 py-0.5 rounded-[2px] bg-white/10 text-white/75 font-medium uppercase text-[10px] tracking-wider">
                           {item.media_type === 'movie' ? 'Movie' : 'TV Series'}
                         </span>
 
-                        <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+                        <span className="flex items-center gap-1 text-[11px] font-normal text-[#8c8c8c]">
                           <Calendar className="w-3.5 h-3.5 text-slate-500" />
                           {year}
                         </span>
                       </div>
 
                       <Link href={`/watch/${item.media_type}/${item.id}`}>
-                        <h2 className="text-lg sm:text-xl font-bold text-white group-hover:text-red-400 transition-colors truncate">
+                        <h2 className="text-[15px] sm:text-[17px] font-semibold text-white transition-colors truncate">
                           {title}
                         </h2>
                       </Link>
 
-                      <p className="text-xs sm:text-sm text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                      <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-[#b3b3b3] sm:text-[13px]">
                         {item.overview || 'Stream this title in high definition with fast servers.'}
                       </p>
 
@@ -215,7 +195,7 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
                           <span>{item.vote_average.toFixed(1)} Rating</span>
                         </div>
 
-                        <div className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                        <div className="flex items-center gap-1.5 text-[#b3b3b3] font-normal">
                           <TrendingUp className="w-4 h-4" />
                           <span>{item.popularity} Popularity Score</span>
                         </div>
@@ -224,10 +204,10 @@ export default async function RankingsPage({ searchParams }: RankingsPageProps) 
                   </div>
 
                   {/* Right: Watch Action Button */}
-                  <div className="flex-shrink-0 flex items-center md:flex-col justify-end gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+                  <div className="flex-shrink-0 flex items-center md:flex-col justify-end gap-2 pt-2 md:pt-0 border-t border-white/10 md:border-t-0">
                     <Link
                       href={`/watch/${item.media_type}/${item.id}`}
-                      className="w-full md:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-600/30 transition-all hover:scale-105 cursor-pointer"
+                      className="nf-focus flex w-full items-center justify-center gap-2 rounded-[4px] bg-white px-5 py-2 text-[14px] font-medium text-black transition-colors hover:bg-white/80 md:w-auto cursor-pointer"
                     >
                       <Play className="w-4 h-4 fill-current" />
                       <span>Watch Now</span>

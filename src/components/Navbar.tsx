@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, Trash2, Trophy, Flame, Film, Heart, Search, Send } from 'lucide-react';
+import { Search, Trash2, Trophy, Film, Send, Menu, X } from 'lucide-react';
 import { clearContinueWatching } from '@/lib/history';
 import { cn } from '@/lib/utils';
 
@@ -11,18 +11,19 @@ const NAV_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/movies', label: 'Movies' },
   { href: '/tv', label: 'TV Shows' },
-  { href: '/search', label: 'Search' },
+  { href: '/trending', label: 'New & Popular' },
+  { href: '/favorites', label: 'My List' },
 ] as const;
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [scrolled, setScrolled] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  const toggleMenu = () => {
-    setMenuOpen((open) => !open);
-  };
+  const toggleMenu = () => setMenuOpen((open) => !open);
+  const closeMenu = () => setMenuOpen(false);
 
   const handleGenre = () => {
     const base = pathname === '/movies' || pathname === '/tv' ? pathname : '/movies';
@@ -30,169 +31,231 @@ export function Navbar() {
     qs.delete('genre');
     qs.delete('page');
     const query = qs.toString();
-    setMenuOpen(false);
+    closeMenu();
     router.push(query ? `${base}?${query}` : base);
   };
 
   const handleClearHistory = () => {
     if (window.confirm('Clear your Continue Watching list?')) {
       clearContinueWatching();
-      setMenuOpen(false);
+      closeMenu();
     }
   };
 
+  // Netflix header: transparent over the billboard, solid #141414 once scrolled.
   useEffect(() => {
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false);
-    };
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  return (
-    <nav
-      aria-label="Main navigation"
-      className="fixed left-1/2 top-3 sm:top-5 md:top-6 z-50 w-[96%] max-w-[1400px] -translate-x-1/2 rounded-full border border-white/10 bg-[rgba(26,26,26,0.88)] px-2.5 sm:px-6 md:px-8 py-1.5 sm:py-2.5 shadow-xl shadow-black/40 backdrop-blur-[14px] transition-all box-border"
-    >
-      <div className="w-full flex items-center justify-between gap-1.5 sm:gap-4 md:gap-8">
-        <Link
-          href="/"
-          aria-label="FilmFlix home"
-          className="flex shrink-0 items-center border-r border-white/15 pr-2.5 sm:pr-4 md:pr-6 py-0.5 text-sm xs:text-base sm:text-xl md:text-2xl font-black uppercase leading-none tracking-wider sm:tracking-widest text-white whitespace-nowrap transition-opacity hover:opacity-90"
-        >
-          Film<span className="text-[#e50914]">Flix</span>
-        </Link>
+  // Drawer behaviour: Escape closes, body scroll locks while open.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
 
-        <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4 lg:gap-6 min-w-0">
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  return (
+    <>
+      <header
+        data-scrolled={scrolled}
+        className="nf-header fixed inset-x-0 top-0 z-50"
+        aria-label="Main navigation"
+      >
+        <div className="nf-row-pad flex h-[54px] items-center justify-between gap-2 md:h-[68px] md:gap-4">
+          {/* left cluster: wordmark + primary nav (shown on mobile too, scrolls if tight) */}
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 md:gap-6 lg:gap-8">
+            <Link
+              href="/"
+              aria-label="FilmFlix home"
+              className="nf-focus shrink-0 select-none whitespace-nowrap text-[15px] font-black uppercase leading-none tracking-[-0.02em] text-white transition-opacity hover:opacity-80 min-[360px]:text-[17px] sm:text-[20px] md:text-[25px]"
+            >
+              Film<span className="text-[#e50914]">Flix</span>
+            </Link>
+
+            <nav
+              className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto min-[360px]:gap-3 md:gap-4 lg:gap-5"
+              aria-label="Primary"
+            >
+              {NAV_ITEMS.map(({ href, label }, index) => {
+                const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    aria-current={active ? 'page' : undefined}
+                    className={cn(
+                      'nf-focus whitespace-nowrap text-[10px] font-normal transition-colors min-[360px]:text-[11.5px] md:text-[13px] lg:text-[14px]',
+                      index >= 3 && 'hidden md:inline',
+                      active ? 'font-medium text-white' : 'text-[#e5e5e5] hover:text-[#b3b3b3]'
+                    )}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* right cluster: search + hamburger */}
+          <div className="flex shrink-0 items-center gap-0.5 md:gap-4">
+            <Link
+              href="/search"
+              aria-label="Search titles"
+              className="nf-focus flex h-8 w-8 items-center justify-center text-white transition-colors hover:text-[#b3b3b3] min-[360px]:h-9 min-[360px]:w-9 md:h-10 md:w-10"
+            >
+              <Search className="h-[20px] w-[20px] md:h-[22px] md:w-[22px]" aria-hidden="true" strokeWidth={1.8} />
+            </Link>
+
+            <button
+              type="button"
+              onClick={toggleMenu}
+              aria-expanded={menuOpen}
+              aria-controls="nf-menu"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              className="nf-focus flex h-8 w-8 items-center justify-center rounded-[4px] text-white transition-colors hover:bg-white/10 min-[360px]:h-9 min-[360px]:w-9 md:h-10 md:w-10"
+            >
+              {menuOpen ? (
+                <X className="h-6 w-6" aria-hidden="true" strokeWidth={2} />
+              ) : (
+                <Menu className="h-6 w-6" aria-hidden="true" strokeWidth={2} />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* backdrop */}
+      <div
+        onClick={closeMenu}
+        aria-hidden="true"
+        className={cn(
+          'fixed inset-0 z-[60] bg-black/60 transition-opacity duration-300',
+          menuOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+        )}
+      />
+
+      {/* hamburger drawer */}
+      <aside
+        id="nf-menu"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        className={cn(
+          'fixed inset-y-0 right-0 z-[70] flex w-[min(360px,88vw)] flex-col overflow-y-auto bg-[#0b0b0b] shadow-2xl',
+          'transition-transform duration-300 ease-out',
+          menuOpen ? 'translate-x-0' : 'translate-x-full'
+        )}
+        aria-hidden={!menuOpen}
+      >
+        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <span className="text-[15px] font-medium text-white">Browse</span>
+          <button
+            type="button"
+            onClick={closeMenu}
+            aria-label="Close menu"
+            className="nf-focus flex h-9 w-9 items-center justify-center rounded-[4px] text-white transition-colors hover:bg-white/10"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+
+        <nav className="flex flex-col py-2" aria-label="Main menu">
           {NAV_ITEMS.map(({ href, label }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
-            const isSearch = href === '/search';
             return (
               <Link
                 key={href}
                 href={href}
+                onClick={closeMenu}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex shrink-0 items-center rounded-full px-2 sm:px-3.5 md:px-5 py-1 sm:py-1.5 md:py-2 text-[11px] xs:text-xs sm:text-sm md:text-base font-medium transition-all whitespace-nowrap',
-                  active
-                    ? 'bg-[#333333] text-white shadow-sm'
-                    : 'text-[#cccccc] hover:text-white hover:bg-white/10'
+                  'nf-focus flex items-center justify-between px-5 py-3 text-[15px] transition-colors',
+                  active ? 'font-medium text-white' : 'text-[#e5e5e5] hover:bg-white/5 hover:text-white'
                 )}
               >
-                {isSearch ? (
-                  <>
-                    <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 block sm:hidden" aria-hidden="true" />
-                    <span className="hidden sm:inline">{label}</span>
-                  </>
-                ) : (
-                  <span>{label}</span>
-                )}
+                {label}
+                {active && <span className="h-1.5 w-1.5 rounded-full bg-[#e50914]" aria-hidden="true" />}
               </Link>
             );
           })}
-        </div>
+          <Link
+            href="/search"
+            onClick={closeMenu}
+            className="nf-focus flex items-center gap-3 px-5 py-3 text-[15px] text-[#e5e5e5] transition-colors hover:bg-white/5 hover:text-white"
+          >
+            <Search className="h-[18px] w-[18px]" aria-hidden="true" />
+            Search
+          </Link>
+        </nav>
 
-        <div ref={menuRef} className="relative shrink-0">
+        <div className="mx-5 border-t border-white/10" />
+
+        <div className="flex flex-col py-2">
+          <Link
+            href="/rankings"
+            onClick={closeMenu}
+            className="nf-focus flex items-center gap-3 px-5 py-3 text-[15px] text-[#e5e5e5] transition-colors hover:bg-white/5 hover:text-white"
+          >
+            <Trophy className="h-[18px] w-[18px]" aria-hidden="true" />
+            Top 10 Leaderboard
+          </Link>
           <button
             type="button"
-            onClick={toggleMenu}
-            aria-expanded={menuOpen}
-            aria-haspopup="menu"
-            className={cn(
-              'flex shrink-0 items-center justify-center rounded-full p-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm md:text-base font-medium transition-all whitespace-nowrap',
-              menuOpen ? 'bg-[#333333] text-white' : 'text-[#cccccc] hover:text-white hover:bg-white/10'
-            )}
-            title="Menu & Filters"
-            aria-label="Menu & Filters"
+            onClick={handleGenre}
+            className="nf-focus flex w-full items-center gap-3 px-5 py-3 text-left text-[15px] text-[#e5e5e5] transition-colors hover:bg-white/5 hover:text-white"
           >
-            <Menu className="h-4 w-4 shrink-0" />
+            <Film className="h-[18px] w-[18px]" aria-hidden="true" />
+            Manage Genres
           </button>
+        </div>
 
-          <div
-            role="menu"
-            aria-label="Menu"
-            className={cn(
-              'absolute right-0 top-[calc(100%+0.5rem)] z-[100] w-[min(22rem,calc(100vw-1.5rem))] max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[rgba(20,20,20,0.96)] p-3 sm:p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-              menuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
-            )}
-            aria-hidden={!menuOpen}
+        <div className="mx-5 border-t border-white/10" />
+
+        <div className="flex flex-col py-2">
+          <button
+            type="button"
+            onClick={handleClearHistory}
+            className="nf-focus flex w-full items-center gap-3 px-5 py-3 text-left text-[15px] text-[#e5e5e5] transition-colors hover:bg-white/5 hover:text-white"
           >
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">🔥 Top 10 Trending</p>
-              <div className="grid grid-cols-2 gap-1.5 mb-1">
-                <Link
-                  href="/rankings"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-left text-sm text-white/80 transition-all hover:border-white/25 hover:bg-white/10 hover:text-white"
-                >
-                  <Trophy className="h-4 w-4 shrink-0 text-yellow-500" aria-hidden="true" />
-                  <span>Top 10</span>
-                </Link>
-                <Link
-                  href="/trending"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-left text-sm text-white/80 transition-all hover:border-white/25 hover:bg-white/10 hover:text-white"
-                >
-                  <Flame className="h-4 w-4 shrink-0 text-red-500" aria-hidden="true" />
-                  <span>Trending</span>
-                </Link>
-              </div>
-              <div className="my-2.5 border-t border-white/10" />
-              <Link
-                href="/favorites"
-                role="menuitem"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-left text-sm text-white/80 transition-all hover:border-white/25 hover:bg-white/10 hover:text-white mb-1"
-              >
-                <Heart className="h-4 w-4 shrink-0 text-pink-500" aria-hidden="true" />
-                <span>My List</span>
-              </Link>
+            <Trash2 className="h-[18px] w-[18px]" aria-hidden="true" />
+            Clear Continue Watching
+          </button>
+          <a
+            href="https://t.me/deidrasom3"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={closeMenu}
+            className="nf-focus flex w-full items-center gap-3 px-5 py-3 text-[15px] text-[#e5e5e5] transition-colors hover:bg-white/5 hover:text-white"
+          >
+            <Send className="h-[18px] w-[18px]" aria-hidden="true" />
+            Telegram Channel
+          </a>
+        </div>
 
-              <div className="my-2.5 border-t border-white/10" />
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">🎭 Genner</p>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleGenre}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-red-600/50 bg-red-600/15 px-3 py-2.5 text-xs font-medium text-white transition-all hover:border-white/25 hover:bg-white/10 hover:text-white w-full"
-              >
-                <Film className="h-3.5 w-3.5 shrink-0 text-white/50" aria-hidden="true" />
-                Genre
-              </button>
-
-              <div className="my-2.5 border-t border-white/10" />
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-white/45">⚙️ Settings</p>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleClearHistory}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-white/80 transition-all hover:bg-white/10 hover:text-white"
-              >
-                <Trash2 className="h-4 w-4 text-white/55" aria-hidden="true" />
-                Clear Continue Watching
-              </button>
-                <a
-                href="https://t.me/deidrasom3"
-                target="_blank"
-                rel="noopener noreferrer"
-                role="menuitem"
-                onClick={() => setMenuOpen(false)}
-                className="flex w-full items-center gap-3 rounded-lg border border-blue-600/50 bg-blue-600/15 px-3 py-2.5 text-left text-sm text-white font-medium transition-all hover:border-white/25 hover:bg-white/10 hover:text-white"
-              >
-                <Send className="h-4 w-4 shrink-0 text-blue-400" aria-hidden="true" />
-                Telegram Channel
-              </a>
-            </div>
-          </div>
-      </div>
-    </nav>
+        <p className="mt-auto px-5 py-5 text-[11px] leading-relaxed text-[#6d6d6d]">
+          <span className="text-[13px] font-black uppercase tracking-[-0.02em] text-white">
+            Film<span className="text-[#e50914]">Flix</span>
+          </span>
+          <br />
+          Movies and series, all in one place.
+        </p>
+      </aside>
+    </>
   );
 }

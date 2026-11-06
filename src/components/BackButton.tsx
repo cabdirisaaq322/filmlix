@@ -27,7 +27,7 @@ export function BackButton({ fallback = '/', label = 'Back', className }: BackBu
     <button
       onClick={handleBack}
       className={cn(
-        'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium',
+        'inline-flex items-center gap-2 rounded-[4px] px-3.5 py-2 text-[13px] font-medium',
         'bg-black/60 backdrop-blur-sm border border-white/15 text-white',
         'hover:bg-black/80 hover:border-white/30 transition-colors',
         className

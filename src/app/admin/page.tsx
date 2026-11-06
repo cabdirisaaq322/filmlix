@@ -20,7 +20,7 @@ export default function AdminPage() {
 
   if (!user || !isAdmin(user)) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
         <AdminLogin
           onSuccess={() => {
             router.replace(pathname);

@@ -100,11 +100,11 @@ async function AiringTodayContent() {
 
 function TopRankingsSkeleton() {
   return (
-    <section className="px-4 py-4 sm:px-6 lg:px-8" aria-label="Top 10 Most Watched (loading)">
-      <div className="mb-5 h-7 w-56 animate-pulse rounded bg-slate-800" />
+    <section className="nf-row-pad mb-8 py-2" aria-label="Top 10 Most Watched (loading)">
+      <div className="mb-4 h-6 w-56 animate-pulse rounded-[2px] bg-[#232323]" />
       <div className="flex gap-4 overflow-hidden">
         {Array.from({ length: 5 }, (_, index) => (
-          <div key={index} className="h-64 w-40 shrink-0 animate-pulse rounded-lg bg-slate-800" />
+          <div key={index} className="h-56 w-36 shrink-0 animate-pulse rounded-[4px] bg-[#232323]" />
         ))}
       </div>
     </section>
@@ -138,7 +138,7 @@ export default function HomePage() {
   const genreSlugs = Array.from(new Set([...MOVIE_GENRES, ...TV_GENRES].map((g) => g.slug)));
 
   return (
-    <div className="-mt-36 pb-16 md:-mt-24">
+    <div className="-mt-[54px] pb-16 md:-mt-[68px]">
       {!configured && <HomeSetupNotice />}
 
       {configured && (
@@ -147,7 +147,7 @@ export default function HomePage() {
         </Suspense>
       )}
 
-      <div className="mt-8 space-y-10">
+      <div className="relative z-10 space-y-0">
         <ContinueWatchingRow />
 
         {configured && (
@@ -166,14 +166,14 @@ export default function HomePage() {
         {configured && <Suspense fallback={<MediaRow title="Coming Soon" isLoading />}><UpcomingContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Airing Today" isLoading />}><AiringTodayContent /></Suspense>}
 
-        <section className="px-4 sm:px-6 lg:px-8" aria-label="Browse by genre">
-          <h2 className="text-lg sm:text-xl font-bold text-white mb-4">Browse by Genre</h2>
+        <section className="nf-row-pad mb-10" aria-label="Browse by genre">
+          <h2 className="mb-3 text-[clamp(15px,1.4vw,26px)] font-bold text-[#e5e5e5]">Browse by Genre</h2>
           <div className="flex flex-wrap gap-2">
             {genreSlugs.map((slug) => (
               <a
                 key={slug}
                 href={`/genre/${slug}`}
-                className="px-4 py-2 rounded-full text-sm font-medium bg-slate-900/70 border border-slate-800 text-slate-300 hover:bg-indigo-600 hover:border-indigo-500 hover:text-white transition-colors"
+                className="rounded-[4px] border border-white/20 bg-[#232323] px-3.5 py-2 text-[12px] font-medium text-[#e5e5e5] transition-colors hover:border-white hover:bg-white hover:text-black"
               >
                 {slug.charAt(0).toUpperCase() + slug.slice(1)}
               </a>

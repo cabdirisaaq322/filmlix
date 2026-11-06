@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Play, Bookmark, Clock, Star, BadgeCheck, Heart } from 'lucide-react';
+import { Play, Plus, Check, Star, BadgeCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPosterUrl } from '@/lib/tmdb';
 import { isFavorite, toggleFavorite } from '@/lib/favorites';
@@ -17,8 +17,9 @@ interface MediaCardProps {
   release_date?: string;
   first_air_date?: string;
   media_type: 'movie' | 'tv';
-  quality?: 'HD' | '4K' | 'CAM';
   className?: string;
+  /** Netflix Top-10 style outlined numeral rendered over the poster. */
+  rank?: number;
 }
 
 export function MediaCard({
@@ -30,116 +31,112 @@ export function MediaCard({
   release_date,
   first_air_date,
   media_type,
-  quality = 'HD',
   className,
+  rank,
 }: MediaCardProps) {
   const displayTitle = title || name || 'Unknown';
-  const year = release_date?.slice(0, 4) || first_air_date?.slice(0, 4) || '—';
+  const year = release_date?.slice(0, 4) || first_air_date?.slice(0, 4) || '';
   const posterUrl = getPosterUrl(poster_path, 'w342');
   const router = useRouter();
   const href = `/watch/${media_type}/${id}`;
   const [isFav, setIsFav] = useState(false);
-  useEffect(() => { setIsFav(isFavorite(media_type, id)); }, [media_type, id]);
+  useEffect(() => {
+    setIsFav(isFavorite(media_type, id));
+  }, [media_type, id]);
 
-  const openTitle = () => router.push(href);
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const next = toggleFavorite({ type: media_type, id, title: displayTitle, poster_path });
-    setIsFav(next);
+    setIsFav(toggleFavorite({ type: media_type, id, title: displayTitle, poster_path }));
   };
 
   return (
-    <Link
-      href={href}
-      className={cn(
-        'group relative block bg-transparent rounded-md overflow-hidden',
-        'hover:shadow-xl hover:shadow-black/50',
-        'transition-all duration-300 cursor-pointer will-change-transform',
-        className
-      )}
-      aria-label={`Watch ${displayTitle} (${year})`}
-    >
-      <div className="relative aspect-[2/3] overflow-hidden rounded-md bg-neutral-900">
+    <div className={cn('group/card relative', className)}>
+      <Link
+        href={href}
+        className={cn(
+          'nf-card nf-focus relative block aspect-[2/3] overflow-hidden rounded-[4px] bg-[#232323]',
+          'cursor-pointer will-change-transform'
+        )}
+        aria-label={`Watch ${displayTitle}${year ? ` (${year})` : ''}`}
+      >
         {poster_path ? (
           <img
             src={posterUrl}
             alt={`${displayTitle} poster`}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover"
             loading="lazy"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 640px) 34vw, (max-width: 1024px) 20vw, 16vw"
           />
         ) : (
-          <div className="w-full h-full bg-slate-800 flex items-center justify-center">
-            <BadgeCheck className="w-12 h-12 text-slate-600" />
+          <div className="flex h-full w-full items-center justify-center bg-[#2d2d2d]">
+            <BadgeCheck className="h-10 w-10 text-[#4d4d4d]" aria-hidden="true" />
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Netflix Top-10 numeral */}
+        {typeof rank === 'number' && (
+          <span
+            className="nf-top10-num pointer-events-none absolute bottom-[52px] left-1 z-10 text-[clamp(48px,5vw,80px)]"
+            aria-hidden="true"
+          >
+            {rank}
+          </span>
+        )}
 
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <span className={cn(
-            'px-2 py-1 text-[10px] font-bold uppercase rounded-sm shadow-md',
-            quality === '4K' ? 'bg-white text-black' :
-            quality === 'HD' ? 'bg-[#e50914] text-white' :
-            'bg-neutral-800 text-white'
-          )}>
-            {quality}
-          </span>
-        </div>
+        {/* title permanently over the poster, on a bottom scrim */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2 pb-2 pt-10">
+          <h3
+            className="line-clamp-2 text-[14px] font-bold leading-snug text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] md:text-[15px]"
+            title={displayTitle}
+          >
+            {displayTitle}
+          </h3>
 
-        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between transition-opacity duration-200">
-          <button type="button" onClick={openTitle} className="bg-white/90 hover:bg-white text-black p-2 rounded-full transition-colors" aria-label={`Play ${displayTitle}`}>
-            <Play className="w-5 h-5 ml-0.5" />
-          </button>
-          <button type="button" onClick={handleFavorite} className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors" aria-label={`Favorite ${displayTitle}`}>
-            <Heart className={cn('w-5 h-5', isFav && 'fill-red-500 text-red-500')} />
-          </button>
-        </div>
-      </div>
+          <p className="mt-0.5 flex items-center gap-1 text-[11.5px] leading-tight text-white/75 group-hover/card:hidden">
+            {year && <span>{year}</span>}
+            {year && <span className="text-white/40">•</span>}
+            <span>{media_type === 'movie' ? 'Film' : 'Series'}</span>
+          </p>
 
-      <div className="px-0.5 pt-2.5 pb-1">
-        <h3 className="font-semibold text-[13px] sm:text-sm text-white truncate group-hover:text-white transition-colors" title={displayTitle}>
-          {displayTitle}
-        </h3>
-        <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-400">
-          <span className="flex items-center gap-1">
-            <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-            {vote_average.toFixed(1)}
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            {year}
-          </span>
-          <span className={cn(
-            'font-medium uppercase text-[10px]',
-            media_type === 'movie' ? 'text-red-400' : 'text-slate-300'
-          )}>
-            {media_type === 'movie' ? 'Movie' : 'Series'}
-          </span>
+          {/* actions appear in place of the meta line on hover / focus */}
+          <div className="pointer-events-auto mt-1.5 hidden items-center gap-1.5 group-hover/card:flex group-focus-visible/card:flex">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push(href);
+              }}
+              className="nf-focus flex h-7 w-7 items-center justify-center rounded-full bg-white text-black transition-colors hover:bg-white/80"
+              aria-label={`Play ${displayTitle}`}
+            >
+              <Play className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={handleFavorite}
+              className="nf-focus flex h-7 w-7 items-center justify-center rounded-full border border-white/50 bg-black/40 text-white transition-colors hover:border-white"
+              aria-label={isFav ? `Remove ${displayTitle} from My List` : `Add ${displayTitle} to My List`}
+            >
+              {isFav ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
+            </button>
+            <span className="ml-auto flex items-center gap-1 text-[10.5px] font-medium text-white/85">
+              <span className="text-[#46d369]">{Math.round(vote_average * 10)}%</span>
+              <Star className="h-3 w-3 fill-current text-[#f5c518]" aria-hidden="true" />
+              {vote_average.toFixed(1)}
+            </span>
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
-interface MediaCardSkeletonProps {
-  className?: string;
-}
-
-export function MediaCardSkeleton({ className }: MediaCardSkeletonProps) {
+export function MediaCardSkeleton({ className }: { className?: string }) {
   return (
-    <article className={cn('bg-transparent rounded-md overflow-hidden animate-pulse', className)}>
-      <div className="aspect-[2/3] bg-slate-800" />
-      <div className="p-3 space-y-2">
-        <div className="h-4 bg-slate-800 rounded w-3/4" />
-        <div className="h-3 bg-slate-800 rounded w-1/2" />
-        <div className="flex gap-2">
-          <div className="h-3 bg-slate-800 rounded w-20" />
-          <div className="h-3 bg-slate-800 rounded w-16" />
-          <div className="h-3 bg-slate-800 rounded w-16" />
-        </div>
-      </div>
-    </article>
+    <div className={cn('animate-pulse', className)} aria-hidden="true">
+      <div className="aspect-[2/3] rounded-[4px] bg-[#232323]" />
+    </div>
   );
 }

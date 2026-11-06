@@ -40,7 +40,7 @@ export function BrowseShell({
   const hasFilters = showFilters && genres && sorts && years && active;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+    <div className="nf-row-pad w-full space-y-8 py-8">
       <div>
         <BackButton className="mb-4" />
         <header>

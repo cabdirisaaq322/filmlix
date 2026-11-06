@@ -23,7 +23,7 @@ export function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#080808] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#141414] px-4">
       <div className="w-full max-w-md">
         <div className="bg-[#0a0a0a]/80 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
           <div className="mb-6 flex items-center gap-2">

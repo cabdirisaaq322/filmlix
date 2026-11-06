@@ -25,14 +25,14 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
     return (
       <section className="space-y-4" aria-label={`${title} (loading)`}>
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">{title}</h2>
+          <h2 className="text-[clamp(16px,1.3vw,24px)] font-bold text-[#e5e5e5]">{title}</h2>
           {href && (
-            <a href={href} className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+            <a href={href} className="text-[12px] font-semibold text-[#54b9c5] hover:opacity-80 transition-opacity">
               View All →
             </a>
           )}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-x-[6px] gap-y-4">
           {Array.from({ length: skeletonCount }).map((_, i) => (
             <MediaCardSkeleton key={i} />
           ))}
@@ -45,9 +45,9 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
     return (
       <section className="space-y-4" aria-label={title}>
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">{title}</h2>
+          <h2 className="text-[clamp(16px,1.3vw,24px)] font-bold text-[#e5e5e5]">{title}</h2>
         </div>
-        <div className="text-center py-12 text-slate-500">
+        <div className="text-center py-12 text-[#8c8c8c]">
           No content available
         </div>
       </section>
@@ -57,14 +57,14 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
   return (
     <section className="space-y-4" aria-label={title}>
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">{title}</h2>
+        <h2 className="text-[clamp(16px,1.3vw,24px)] font-bold text-[#e5e5e5]">{title}</h2>
         {href && (
-          <a href={href} className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+          <a href={href} className="text-[12px] font-semibold text-[#54b9c5] hover:opacity-80 transition-opacity">
             View All →
           </a>
         )}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-x-[6px] gap-y-4">
         {items.map((item) => (
           <MediaCard
             key={`${item.media_type}-${item.id}`}

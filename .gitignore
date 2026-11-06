@@ -44,3 +44,9 @@ next-env.d.ts
 
 # local helper script
 /update.bat
+
+# design reverse-engineering artifacts (local only - large)
+/.rea-netflix/
+/.shots/
+/scripts/nf-capture.mjs
+/scripts/shot.mjs

@@ -104,7 +104,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="nf-row-pad w-full py-8 space-y-8">
       <header className="mb-4">
         <h1 className="text-3xl font-bold text-white mb-2">Search</h1>
         <p className="text-slate-400">Find movies and TV series</p>
@@ -118,7 +118,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for movies, TV series..."
-            className="w-full rounded-full border border-white/15 bg-neutral-900/80 py-4 pl-12 pr-12 text-base text-white placeholder-neutral-500 transition-all focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-red-600 sm:text-lg"
+            className="w-full rounded-[4px] border border-white/40 bg-[rgba(22,22,22,0.7)] py-3.5 pl-12 pr-12 text-[15px] text-white placeholder-white/50 transition-colors hover:border-white/70 focus:border-white focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
             autoFocus
             aria-label="Search"
           />
@@ -135,7 +135,7 @@ export default function SearchPage() {
         </div>
         <button
           type="submit"
-          className="mt-4 w-full rounded-full bg-red-600 px-8 py-3 font-semibold text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-black sm:w-auto"
+          className="mt-4 w-full rounded-[4px] bg-[#e50914] px-8 py-3 text-[15px] font-medium text-white transition-colors hover:bg-[#f6121d] sm:w-auto"
           disabled={isLoading || !query.trim()}
         >
           {isLoading ? (
@@ -182,7 +182,7 @@ export default function SearchPage() {
                   key={term}
                   type="button"
                   onClick={() => runPopularSearch(term)}
-                  className="px-4 py-2 rounded-full text-sm font-medium bg-slate-900/70 border border-slate-800 text-slate-300 hover:bg-red-600 hover:border-red-500 hover:text-white transition-colors cursor-pointer"
+                  className="rounded-[4px] border border-white/20 bg-[#232323] px-3.5 py-2 text-[12px] font-medium text-[#e5e5e5] transition-colors hover:border-white hover:bg-white hover:text-black cursor-pointer"
                 >
                   {term}
                 </button>

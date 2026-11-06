@@ -15,13 +15,13 @@ interface FilterBarProps {
 }
 
 const selectClass =
-  'bg-neutral-900/85 border border-white/10 rounded-full px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent cursor-pointer hover:border-white/25 transition-colors';
+  'bg-[#232323] border border-white/25 rounded-[4px] px-3 py-2 text-[13px] text-white focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 cursor-pointer hover:border-white/50 transition-colors';
 
 const genreButtonClass = (active: boolean) =>
-  `rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+  `rounded-[4px] border px-3 py-1.5 text-[12px] font-medium transition-colors ${
     active
-      ? 'border-red-600/50 bg-red-600/15 text-white'
-      : 'border-white/10 bg-white/5 text-white/70 hover:border-white/25 hover:bg-white/10 hover:text-white'
+      ? 'border-white bg-white text-black'
+      : 'border-white/20 bg-[#232323] text-[#e5e5e5] hover:border-white/50 hover:text-white'
   }`;
 
 export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activeYear }: FilterBarProps) {

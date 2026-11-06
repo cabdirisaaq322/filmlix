@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
     <div className="min-h-[70vh] bg-black text-white px-4 pb-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl pt-8">
+      <div className="nf-row-pad w-full pt-8">
         <div className="mb-8 h-10 w-3/4 animate-pulse rounded-xl bg-slate-800/80" />
 
         <div className="mb-8 h-[320px] w-full animate-pulse rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900" />

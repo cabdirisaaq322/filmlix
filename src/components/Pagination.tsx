@@ -56,10 +56,10 @@ export function Pagination({ page, totalPages, className }: PaginationProps) {
         onClick={() => goTo(page - 1)}
         disabled={page <= 1}
         className={cn(
-          'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+          'flex items-center gap-1 px-3 py-2 rounded-[4px] text-[13px] font-medium transition-colors',
           page <= 1
-            ? 'bg-slate-900/50 text-slate-600 cursor-not-allowed'
-            : 'bg-slate-900 text-slate-300 hover:bg-indigo-600 hover:text-white'
+            ? 'bg-[#232323]/50 text-[#6d6d6d] cursor-not-allowed'
+            : 'bg-[#232323] text-[#e5e5e5] hover:bg-[#2d2d2d] hover:text-white'
         )}
         aria-label="Previous page"
       >
@@ -68,7 +68,7 @@ export function Pagination({ page, totalPages, className }: PaginationProps) {
 
       {items.map((item, i) =>
         item === 'gap' ? (
-          <span key={`gap-${i}`} className="px-1 text-slate-500" aria-hidden="true">
+          <span key={`gap-${i}`} className="px-1 text-[#6d6d6d]" aria-hidden="true">
             …
           </span>
         ) : (
@@ -77,10 +77,10 @@ export function Pagination({ page, totalPages, className }: PaginationProps) {
             onClick={() => goTo(item)}
             aria-current={item === page ? 'page' : undefined}
             className={cn(
-              'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'min-w-[40px] px-3 py-2 rounded-[4px] text-[13px] font-medium transition-colors',
               item === page
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                : 'bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white'
+                ? 'bg-white text-black'
+                : 'bg-[#232323] text-[#e5e5e5] hover:bg-[#2d2d2d] hover:text-white'
             )}
           >
             {item}
@@ -92,10 +92,10 @@ export function Pagination({ page, totalPages, className }: PaginationProps) {
         onClick={() => goTo(page + 1)}
         disabled={page >= totalPages}
         className={cn(
-          'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+          'flex items-center gap-1 px-3 py-2 rounded-[4px] text-[13px] font-medium transition-colors',
           page >= totalPages
-            ? 'bg-slate-900/50 text-slate-600 cursor-not-allowed'
-            : 'bg-slate-900 text-slate-300 hover:bg-indigo-600 hover:text-white'
+            ? 'bg-[#232323]/50 text-[#6d6d6d] cursor-not-allowed'
+            : 'bg-[#232323] text-[#e5e5e5] hover:bg-[#2d2d2d] hover:text-white'
         )}
         aria-label="Next page"
       >

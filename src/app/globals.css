@@ -1,43 +1,104 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   Netflix design tokens
+   Observed from the live Netflix web app (www.netflix.com) via REA + CDP:
+     font stack  "Netflix Sans", "Helvetica Neue", "Segoe UI", Roboto, Ubuntu, sans-serif
+     page bg     #000000 (marketing) / #141414 (browse)
+     accent      rgb(229, 9, 20)   = #E50914
+     surfaces    rgb(35,35,35) #232323, rgb(45,45,45) #2D2D2D, rgba(22,22,22,.7)
+     text        #FFFFFF, rgba(255,255,255,.7), rgb(65,65,65)
+     radii       2px / 4px / 8px / 16px
+     type scale  16 20 24 32 64 (hero) / 120 (Top-10 numeral)
+     weights     400 / 500 / 700
+     breakpoints 400 600 768 960 1280 1600 1920
+   ========================================================================== */
+
 :root {
-  --background: #080808;
-  --foreground: #f5f5f1;
+  --nf-black: #000000;
+  --nf-bg: #141414;
+  --nf-bg-elevated: #181818;
+  --nf-surface-1: #232323;
+  --nf-surface-2: #2d2d2d;
+  --nf-surface-glass: rgba(22, 22, 22, 0.7);
+  --nf-red: #e50914;
+  --nf-red-hover: #f6121d;
+  --nf-red-press: #b20710;
+  --nf-white: #ffffff;
+  --nf-text: #ffffff;
+  --nf-text-dim: rgba(255, 255, 255, 0.7);
+  --nf-text-muted: #b3b3b3;
+  --nf-text-dark: #414141;
+  --nf-border: rgba(128, 128, 128, 0.4);
+  --nf-border-strong: rgba(255, 255, 255, 0.7);
+
+  --nf-radius-xs: 2px;
+  --nf-radius: 4px;
+  --nf-radius-lg: 8px;
+  --nf-radius-xl: 16px;
+
+  --nf-header-h: 68px;
+  --nf-header-h-mobile: 54px;
+
+  --nf-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* legacy variable names kept so existing markup keeps resolving */
+  --background: #141414;
+  --foreground: #ffffff;
   --accent-red: #e50914;
   --accent-red-dark: #b20710;
-  --card-bg: #181818;
-  --card-border: #303030;
+  --card-bg: #232323;
+  --card-border: #2d2d2d;
   --text-light: #ffffff;
-  --text-muted: #a3a3a3;
+  --text-muted: #b3b3b3;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-slate-50: #f5f5f5;
+  --font-sans: "Netflix Sans", "Helvetica Neue", "Segoe UI", Roboto, Ubuntu, sans-serif;
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+
+  --color-nf-red: var(--nf-red);
+  --color-nf-bg: var(--nf-bg);
+  --color-nf-black: var(--nf-black);
+  --color-nf-surface: var(--nf-surface-1);
+  --color-nf-surface-2: var(--nf-surface-2);
+  --color-nf-text-dim: var(--nf-text-dim);
+
+  /* Netflix neutral ramp (remaps Tailwind's slate scale) */
+  --color-slate-50: #f7f7f7;
   --color-slate-100: #e5e5e5;
-  --color-slate-200: #d4d4d4;
+  --color-slate-200: #d2d2d2;
   --color-slate-300: #b3b3b3;
-  --color-slate-400: #a3a3a3;
-  --color-slate-500: #737373;
-  --color-slate-600: #525252;
-  --color-slate-700: #404040;
-  --color-slate-800: #2a2a2a;
-  --color-slate-900: #181818;
-  --color-slate-950: #080808;
-  --color-indigo-300: #fca5a5;
-  --color-indigo-400: #f87171;
-  --color-indigo-500: #ef4444;
+  --color-slate-400: #a0a0a0;
+  --color-slate-500: #8c8c8c;
+  --color-slate-600: #6d6d6d;
+  --color-slate-700: #4d4d4d;
+  --color-slate-800: #333333;
+  --color-slate-900: #232323;
+  --color-slate-950: #141414;
+
+  /* every "accent" hue collapses onto Netflix red */
+  --color-red-400: #f4737a;
+  --color-red-500: #ea3943;
+  --color-red-600: #e50914;
+  --color-red-700: #b20710;
+  --color-red-800: #8f0710;
+  --color-red-900: #6b050b;
+
+  --color-indigo-300: #f4737a;
+  --color-indigo-400: #ea3943;
+  --color-indigo-500: #e50914;
   --color-indigo-600: #e50914;
   --color-indigo-700: #b20710;
   --color-indigo-800: #8f0710;
-  --color-purple-300: #fca5a5;
-  --color-purple-400: #f87171;
-  --color-purple-500: #ef4444;
+  --color-purple-300: #f4737a;
+  --color-purple-400: #ea3943;
+  --color-purple-500: #e50914;
   --color-purple-600: #e50914;
   --color-purple-700: #b20710;
+
   --animate-slide-down: slide-down 0.2s ease-out;
   --animate-fade-up: fade-up 0.6s ease-out forwards;
 }
@@ -52,10 +113,15 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes nf-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 * {
   box-sizing: border-box;
   scrollbar-width: thin;
-  scrollbar-color: #334155 transparent;
+  scrollbar-color: #4d4d4d transparent;
 }
 
 *::-webkit-scrollbar {
@@ -68,12 +134,12 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #525252;
+  background: #4d4d4d;
   border-radius: 4px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: #e50914;
+  background: #6d6d6d;
 }
 
 *::-webkit-scrollbar-corner {
@@ -82,6 +148,8 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--nf-bg);
+  -webkit-text-size-adjust: 100%;
 }
 
 html,
@@ -98,9 +166,13 @@ iframe {
 }
 
 body {
-  background: #080808;
-  color: var(--foreground);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  background: var(--nf-bg);
+  color: var(--nf-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -114,6 +186,195 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------- layout --- */
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Netflix rows bleed to the viewport edge; the first card lines up with the
+   page gutter (4% / 60px on large screens). */
+.nf-row-pad {
+  padding-inline: 4%;
+}
+
+@media (width >= 1400px) {
+  .nf-row-pad {
+    padding-inline: 60px;
+  }
+}
+
+@media (width < 600px) {
+  .nf-row-pad {
+    padding-inline: 16px;
+  }
+}
+
+/* --------------------------------------------------------------- buttons --- */
+
+/* Netflix large CTA: 56px tall, 24px/500 label, 4px radius (observed) */
+.nf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: var(--nf-radius);
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 24px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s var(--nf-ease), opacity 0.2s var(--nf-ease),
+    transform 0.2s var(--nf-ease);
+}
+
+/* Netflix billboard buttons are the compact 40px variant */
+.nf-btn-hero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--nf-radius);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s var(--nf-ease), opacity 0.2s var(--nf-ease);
+}
+
+.nf-btn-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 16px;
+  border: 0;
+  border-radius: var(--nf-radius);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s var(--nf-ease), opacity 0.2s var(--nf-ease);
+}
+
+/* ---------------------------------------------------------------- inputs --- */
+
+.nf-input {
+  width: 100%;
+  min-height: 56px;
+  padding: 24px 16px 8px;
+  border: 1px solid var(--nf-border);
+  border-radius: var(--nf-radius);
+  background-color: var(--nf-surface-glass);
+  color: var(--nf-white);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  transition: border-color 0.2s var(--nf-ease), background-color 0.2s var(--nf-ease);
+  &::placeholder {
+    color: var(--nf-text-dim);
+  }
+  &:focus {
+    outline: 2px solid var(--nf-white);
+    outline-offset: 2px;
+    border-color: var(--nf-border-strong);
+  }
+}
+
+/* ---------------------------------------------------------------- header --- */
+
+.nf-header {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 10%, transparent 100%);
+  transition: background-color 0.4s var(--nf-ease);
+}
+
+.nf-header[data-scrolled="true"] {
+  background-color: var(--nf-bg);
+  background-image: none;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Netflix link/button focus is a white ring, never a browser outline. */
+.nf-focus {
+  outline: none;
+}
+
+.nf-focus:focus-visible {
+  outline: 2px solid var(--nf-white);
+  outline-offset: 2px;
+  border-radius: var(--nf-radius);
+}
+
+/* ---------------------------------------------------------------- scrims --- */
+
+.nf-scrim-left {
+  background: linear-gradient(
+    77deg,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.6) 30%,
+    rgba(0, 0, 0, 0) 65%
+  );
+}
+
+.nf-scrim-bottom {
+  background: linear-gradient(180deg, transparent 0%, rgba(20, 20, 20, 0.35) 55%, #141414 100%);
+}
+
+.nf-scrim-top {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, transparent 40%);
+}
+
+/* ------------------------------------------------------------ card hover --- */
+
+.nf-card {
+  transition: transform 0.3s var(--nf-ease), box-shadow 0.3s var(--nf-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nf-card:hover {
+    transform: scale(1.06);
+    z-index: 20;
+  }
+}
+
+/* ------------------------------------------------- Top-10 outlined numeral --- */
+
+.nf-top10-num {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 0.78;
+  letter-spacing: -0.06em;
+  color: #141414;
+  -webkit-text-stroke: 3px #6d6d6d;
+  paint-order: stroke fill;
+  user-select: none;
+}
+
+@media (width >= 960px) {
+  .nf-top10-num {
+    -webkit-text-stroke-width: 4px;
+  }
+}
+
+/* --------------------------------------------------------------- keepers --- */
 
 .glass {
   background: rgba(18, 18, 18, 0.88);
@@ -157,14 +418,14 @@ body {
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  
+
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
-  
+
   .animate-shimmer {
-    background: linear-gradient(90deg, #171717 25%, #292929 50%, #171717 75%);
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
