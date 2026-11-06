@@ -171,35 +171,35 @@ export function Top10Rankings({
                 >
                   {/* outlined rank numeral, Netflix Top-10 treatment */}
                   <span
-                    className="nf-top10-num pointer-events-none -mr-[0.06em] self-end text-[clamp(84px,9vw,150px)] transition-transform duration-300 group-hover/card:scale-105"
+                    className="nf-top10-num pointer-events-none -mr-[0.06em] self-end pb-[46px] text-[clamp(84px,9vw,150px)] transition-transform duration-300 group-hover/card:scale-105"
                     aria-hidden="true"
                   >
                     {rank}
                   </span>
 
-                  <div className="nf-card relative aspect-[2/3] w-[clamp(92px,10.5vw,166px)] overflow-hidden rounded-[4px] bg-[#232323]">
-                    <img
-                      src={posterUrl}
-                      alt={displayTitle}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                      sizes="(max-width: 640px) 26vw, 11vw"
-                    />
+                  <div className="w-[clamp(92px,10.5vw,166px)]">
+                    <div className="nf-card relative aspect-[2/3] w-full overflow-hidden rounded-[4px] bg-[#232323]">
+                      <img
+                        src={posterUrl}
+                        alt={displayTitle}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        sizes="(max-width: 640px) 26vw, 11vw"
+                      />
+                    </div>
 
-                    {/* title permanently over the poster */}
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2 pb-2 pt-9">
-                      <p
-                        className="line-clamp-2 text-[13.5px] font-bold leading-[1.18] tracking-[-0.01em] text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.95)] md:text-[14.5px]"
-                        title={displayTitle}
-                      >
-                        {displayTitle}
-                      </p>
-                      <div className="mt-1 flex items-center gap-1.5 text-[10.5px] leading-none">
-                        <span className="font-semibold text-[#46d369]">
-                          {item.vote_average > 0 ? `${Math.round(item.vote_average * 10)}% Match` : 'New'}
-                        </span>
-                        {year && <span className="text-white/70">{year}</span>}
-                      </div>
+                    {/* title + meta under the poster */}
+                    <p
+                      className="mt-2 line-clamp-2 text-[12.5px] font-semibold leading-[1.2] tracking-[-0.01em] text-[#e5e5e5] transition-colors group-hover/card:text-white md:text-[13.5px]"
+                      title={displayTitle}
+                    >
+                      {displayTitle}
+                    </p>
+                    <div className="mt-1 flex items-center gap-1.5 text-[10.5px] leading-none">
+                      <span className="font-semibold text-[#46d369]">
+                        {item.vote_average > 0 ? `${Math.round(item.vote_average * 10)}% Match` : 'New'}
+                      </span>
+                      {year && <span className="text-[#b3b3b3]">{year}</span>}
                     </div>
                   </div>
                 </Link>

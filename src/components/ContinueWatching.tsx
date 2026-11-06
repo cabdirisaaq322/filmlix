@@ -86,7 +86,7 @@ export function ContinueWatchingRow() {
                   loading="lazy"
                   className="h-full w-full object-cover"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 transition-opacity duration-200 group-hover/card:opacity-100" />
 
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover/card:opacity-100">
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-black">
@@ -94,14 +94,17 @@ export function ContinueWatchingRow() {
                   </span>
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 p-2.5">
-                  <p className="line-clamp-1 text-[14px] font-bold text-white drop-shadow">{item.title}</p>
-                  {item.type === 'tv' && (
-                    <p className="mt-0.5 text-[11px] text-[#b3b3b3]">
-                      Series · S{item.season || 1}:E{item.episode || 1}
-                    </p>
-                  )}
-                </div>
+              </div>
+
+              <div className="mt-2 px-0.5">
+                <p className="line-clamp-1 text-[13.5px] font-semibold text-[#e5e5e5] transition-colors group-hover/card:text-white md:text-[14.5px]">
+                  {item.title}
+                </p>
+                {item.type === 'tv' && (
+                  <p className="mt-1 text-[11px] leading-none text-[#b3b3b3]">
+                    Series · S{item.season || 1}:E{item.episode || 1}
+                  </p>
+                )}
               </div>
             </Link>
           ))}
