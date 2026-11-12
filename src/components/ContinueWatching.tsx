@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useSyncExternalStore } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { getPosterUrl } from '@/lib/tmdb';
@@ -9,12 +9,9 @@ import {
   subscribeContinueWatching,
   SERVER_CONTINUE_SNAPSHOT,
 } from '@/lib/history';
+import { useSyncExternalStore } from 'react';
 import { cn } from '@/lib/utils';
 
-/**
- * Netflix-style "Continue Watching" row backed by localStorage history.
- * Returns nothing when the viewer has no watch history yet.
- */
 export function ContinueWatchingRow() {
   const items = useSyncExternalStore(
     subscribeContinueWatching,
@@ -36,16 +33,16 @@ export function ContinueWatchingRow() {
   const scrollBy = useCallback((direction: 'left' | 'right') => {
     const el = scrollerRef.current;
     if (!el) return;
-    const page = el.clientWidth * 0.92;
+    const page = el.clientWidth * 0.9;
     el.scrollBy({ left: direction === 'left' ? -page : page, behavior: 'smooth' });
   }, []);
 
   if (items.length === 0) return null;
 
   return (
-    <section className="group/row relative mb-8" aria-label="Continue Watching">
-      <div className="nf-row-pad mb-2.5 flex items-baseline md:mb-3">
-        <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold leading-tight tracking-[-0.015em] text-[#e5e5e5]">Continue Watching</h2>
+    <section className="group/row relative mb-10" aria-label="Continue Watching">
+      <div className="nf-row-pad mb-3 flex items-center md:mb-4">
+        <h2 className="text-[17px] font-bold tracking-tight text-white md:text-[20px]">Continue Watching</h2>
       </div>
 
       <div className="relative">
@@ -54,19 +51,19 @@ export function ContinueWatchingRow() {
           disabled={!canScroll.left}
           tabIndex={-1}
           className={cn(
-            'absolute bottom-0 left-0 top-0 z-30 hidden w-[4%] min-w-[40px] items-center justify-center bg-black/60 text-white md:flex',
-            'opacity-0 transition-opacity duration-200 group-hover/row:opacity-100 hover:bg-black/80',
+            'absolute bottom-0 left-1 top-0 z-30 hidden w-10 items-center justify-center rounded-r-xl text-white md:flex',
+            'bg-gradient-to-r from-black/70 to-transparent opacity-0 transition-opacity duration-200 group-hover/row:opacity-100 hover:from-black/90',
             'disabled:pointer-events-none disabled:opacity-0'
           )}
-          aria-label="Scroll continue watching left"
+          aria-label="Scroll left"
         >
-          <ChevronLeft className="h-8 w-8" aria-hidden="true" />
+          <ChevronLeft className="h-7 w-7" aria-hidden="true" />
         </button>
 
         <div
           ref={scrollerRef}
           onScroll={updateScrollState}
-          className="no-scrollbar nf-row-pad flex gap-[6px] overflow-x-auto scroll-smooth pb-1"
+          className="no-scrollbar nf-row-pad flex gap-3 overflow-x-auto scroll-smooth pb-2"
         >
           {items.map((item) => (
             <Link
@@ -76,33 +73,38 @@ export function ContinueWatchingRow() {
                   ? `/watch/tv/${item.id}?season=${item.season || 1}&episode=${item.episode || 1}`
                   : `/watch/movie/${item.id}`
               }
-              className="nf-focus group/card relative w-[38vw] min-w-[120px] max-w-[290px] shrink-0"
+              className="nf-focus group/card relative w-[38vw] min-w-[130px] max-w-[240px] shrink-0"
               aria-label={`Resume ${item.title}`}
             >
-              <div className="nf-card relative aspect-[2/3] overflow-hidden rounded-[4px] bg-[#232323]">
+              <div className="nf-card relative aspect-[2/3] overflow-hidden rounded-xl bg-[var(--fx-surface)] ring-1 ring-white/5">
                 <img
                   src={getPosterUrl(item.poster_path, 'w342')}
                   alt={`${item.title} poster`}
                   loading="lazy"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-[1.04]"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 transition-opacity duration-200 group-hover/card:opacity-100" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover/card:opacity-100">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-black">
-                    <Play className="ml-0.5 h-6 w-6 fill-current" aria-hidden="true" />
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-black shadow-xl">
+                    <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" />
                   </span>
                 </div>
 
+                <div className="absolute bottom-2 left-2 right-2">
+                  <div className="h-1 overflow-hidden rounded-full bg-white/20">
+                    <div className="h-full w-1/3 rounded-full bg-[#e50914]" />
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-2 px-0.5">
-                <p className="line-clamp-1 text-[13.5px] font-semibold text-[#e5e5e5] transition-colors group-hover/card:text-white md:text-[14.5px]">
+              <div className="mt-2.5 px-0.5">
+                <p className="line-clamp-1 text-[13.5px] font-semibold text-zinc-100 transition-colors group-hover/card:text-white">
                   {item.title}
                 </p>
                 {item.type === 'tv' && (
-                  <p className="mt-1 text-[11px] leading-none text-[#b3b3b3]">
-                    Series · S{item.season || 1}:E{item.episode || 1}
+                  <p className="mt-1 text-[11px] text-zinc-400">
+                    S{item.season || 1} · E{item.episode || 1}
                   </p>
                 )}
               </div>
@@ -115,13 +117,13 @@ export function ContinueWatchingRow() {
           disabled={!canScroll.right}
           tabIndex={-1}
           className={cn(
-            'absolute bottom-0 right-0 top-0 z-30 hidden w-[4%] min-w-[40px] items-center justify-center bg-black/60 text-white md:flex',
-            'opacity-0 transition-opacity duration-200 group-hover/row:opacity-100 hover:bg-black/80',
+            'absolute bottom-0 right-1 top-0 z-30 hidden w-10 items-center justify-center rounded-l-xl text-white md:flex',
+            'bg-gradient-to-l from-black/70 to-transparent opacity-0 transition-opacity duration-200 group-hover/row:opacity-100 hover:from-black/90',
             'disabled:pointer-events-none disabled:opacity-0'
           )}
-          aria-label="Scroll continue watching right"
+          aria-label="Scroll right"
         >
-          <ChevronRight className="h-8 w-8" aria-hidden="true" />
+          <ChevronRight className="h-7 w-7" aria-hidden="true" />
         </button>
       </div>
     </section>

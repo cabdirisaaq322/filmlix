@@ -15,13 +15,13 @@ interface FilterBarProps {
 }
 
 const selectClass =
-  'bg-[#232323] border border-white/25 rounded-[4px] px-3 py-2 text-[13px] text-white focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 cursor-pointer hover:border-white/50 transition-colors';
+  'nf-focus h-10 rounded-full border border-white/10 bg-white/5 px-4 pr-8 text-[13px] text-zinc-200 hover:bg-white/10 transition-colors cursor-pointer appearance-none';
 
 const genreButtonClass = (active: boolean) =>
-  `rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-colors ${
+  `nf-focus rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-all ${
     active
-      ? 'border-white bg-white text-black'
-      : 'border-white/20 bg-[#232323] text-[#e5e5e5] hover:border-white/50 hover:text-white'
+      ? 'border-white/40 bg-white/15 text-white'
+      : 'border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:text-white'
   }`;
 
 export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activeYear }: FilterBarProps) {
@@ -37,7 +37,7 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
         if (!value) qs.delete(key);
         else qs.set(key, value);
       });
-      qs.delete('page'); // reset pagination when filters change
+      qs.delete('page');
       const query = qs.toString();
       router.push(query ? `${pathname}?${query}` : pathname);
     },
@@ -48,26 +48,61 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
     const next = new Set(selectedGenreIds);
     if (next.has(id)) next.delete(id);
     else next.add(id);
-    const value = [...next].join(',');
-    applyParams({ genre: value || '' });
+    applyParams({ genre: [...next].join(',') || '' });
   };
 
   const hasFilters = Boolean(activeGenre || activeYear || (activeSort && activeSort !== 'popularity.desc'));
 
   return (
-    <div id="browse-filters" className="scroll-mt-36 flex flex-wrap items-center gap-3 mb-6">
-      <span className="flex items-center gap-2 text-sm text-slate-400 font-medium">
-        <SlidersHorizontal className="w-4 h-4" /> Filters
-      </span>
+    <div id="browse-filters" className="scroll-mt-36 space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 md:p-5">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="flex items-center gap-2 text-sm font-medium text-zinc-300">
+          <SlidersHorizontal className="h-4 w-4 text-[#e50914]" /> Filters
+        </span>
 
-      {/* Multi-select genre chips */}
-      <div className="flex flex-wrap gap-1.5 min-w-[120px]">
+        <div className="relative">
+          <select
+            value={activeSort}
+            onChange={(e) => applyParams({ sort: e.target.value })}
+            className={selectClass}
+            aria-label="Sort results"
+          >
+            {sorts.map((s) => (
+              <option key={s.value} value={s.value} className="bg-[#0c0c12]">{s.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="relative">
+          <select
+            value={activeYear}
+            onChange={(e) => applyParams({ year: e.target.value })}
+            className={selectClass}
+            aria-label="Filter by year"
+          >
+            <option value="" className="bg-[#0c0c12]">Any Year</option>
+            {years.map((y) => (
+              <option key={y} value={y} className="bg-[#0c0c12]">{y}</option>
+            ))}
+          </select>
+        </div>
+
+        {hasFilters && (
+          <button
+            onClick={() => applyParams({ genre: '', sort: '', year: '' })}
+            className="nf-focus inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-transparent px-3.5 py-2 text-[12px] font-medium text-zinc-300 transition-colors hover:border-white/20 hover:text-white"
+          >
+            <X className="h-3.5 w-3.5" /> Clear
+          </button>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
         <button
           type="button"
           onClick={() => applyParams({ genre: '' })}
           className={genreButtonClass(!activeGenre)}
           aria-pressed={!activeGenre}
-          aria-label="All Genres"
         >
           All Genres
         </button>
@@ -80,49 +115,12 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
               onClick={() => toggleGenre(String(g.id))}
               className={genreButtonClass(active)}
               aria-pressed={active}
-              aria-label={g.name}
             >
               {g.name}
             </button>
           );
         })}
       </div>
-
-      <select
-        value={activeSort}
-        onChange={(e) => applyParams({ sort: e.target.value })}
-        className={selectClass}
-        aria-label="Sort results"
-      >
-        {sorts.map((s) => (
-          <option key={s.value} value={s.value}>
-            {s.label}
-          </option>
-        ))}
-      </select>
-
-      <select
-        value={activeYear}
-        onChange={(e) => applyParams({ year: e.target.value })}
-        className={selectClass}
-        aria-label="Filter by year"
-      >
-        <option value="">Any Year</option>
-        {years.map((y) => (
-          <option key={y} value={y}>
-            {y}
-          </option>
-        ))}
-      </select>
-
-      {hasFilters && (
-        <button
-          onClick={() => applyParams({ genre: '', sort: '', year: '' })}
-          className="flex items-center gap-1.5 rounded-full border border-white/30 bg-transparent px-4 py-1.5 text-[12px] font-medium text-[#e5e5e5] transition-colors hover:border-white hover:text-white"
-        >
-          <X className="w-4 h-4" /> Clear
-        </button>
-      )}
     </div>
   );
 }

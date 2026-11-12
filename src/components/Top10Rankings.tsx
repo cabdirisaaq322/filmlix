@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, ArrowRight, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, Loader2, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RankedMediaItem, RankingPeriod, RankingMedia, getPosterUrl } from '@/lib/tmdb';
 
@@ -12,21 +12,21 @@ interface Top10RankingsProps {
   showViewAll?: boolean;
 }
 
-const PERIODS: { key: RankingPeriod; label: string; sub: string }[] = [
-  { key: 'today', label: 'Today', sub: 'Most watched today' },
-  { key: 'week', label: 'This Week', sub: 'Top this week' },
-  { key: 'month', label: 'This Month', sub: 'Top of the month' },
+const PERIODS: { key: RankingPeriod; label: string }[] = [
+  { key: 'today', label: 'Today' },
+  { key: 'week', label: 'This Week' },
+  { key: 'month', label: 'This Month' },
 ];
 
 const MEDIA_TYPES: { key: RankingMedia; label: string }[] = [
   { key: 'all', label: 'All' },
-  { key: 'movie', label: 'Films' },
+  { key: 'movie', label: 'Movies' },
   { key: 'tv', label: 'Series' },
 ];
 
 export function Top10Rankings({
   initialItems = [],
-  title = 'Top 10 Most Watched',
+  title = 'Top 10 Charts',
   showViewAll = true,
 }: Top10RankingsProps) {
   const [period, setPeriod] = useState<RankingPeriod>('today');
@@ -69,67 +69,59 @@ export function Top10Rankings({
   };
 
   return (
-    <section className="relative mb-8" aria-label="Top 10 Most Watched">
-      <div className="nf-row-pad mb-2.5 flex flex-wrap items-center gap-x-3 gap-y-2 md:mb-3">
-        <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold leading-tight tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
-
-        <span className="rounded-[2px] border border-white/25 px-1.5 py-[1px] text-[10px] font-medium uppercase tracking-wide text-white/70">
-          Live
-        </span>
-
-        {/* period selector */}
-        <div
-          className="ml-auto flex items-center gap-0.5 rounded-[4px] border border-white/15 bg-[#232323] p-0.5"
-          role="tablist"
-          aria-label="Ranking period"
-        >
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              role="tab"
-              aria-selected={period === p.key}
-              onClick={() => handlePeriodChange(p.key)}
-              className={cn(
-                'nf-focus rounded-[2px] px-2 py-1 text-[11px] font-medium transition-colors md:px-2.5 md:text-[12px]',
-                period === p.key ? 'bg-white text-black' : 'text-[#b3b3b3] hover:text-white'
-              )}
-            >
-              {p.label}
-            </button>
-          ))}
+    <section className="relative mb-10" aria-label="Top 10 Charts">
+      <div className="nf-row-pad mb-3 flex flex-wrap items-center gap-3 md:mb-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-[#e50914]">
+            <TrendingUp className="h-4 w-4" />
+          </span>
+          <h2 className="text-[17px] font-bold tracking-tight text-white md:text-[20px]">{title}</h2>
         </div>
 
-        {/* media selector */}
-        <div
-          className="flex items-center gap-0.5 rounded-[4px] border border-white/15 bg-[#232323] p-0.5"
-          role="tablist"
-          aria-label="Media type"
-        >
-          {MEDIA_TYPES.map((m) => (
-            <button
-              key={m.key}
-              role="tab"
-              aria-selected={media === m.key}
-              onClick={() => handleMediaChange(m.key)}
-              className={cn(
-                'nf-focus rounded-[2px] px-2 py-1 text-[11px] font-medium transition-colors md:px-2.5 md:text-[12px]',
-                media === m.key ? 'bg-white text-black' : 'text-[#b3b3b3] hover:text-white'
-              )}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-0.5" role="tablist">
+            {PERIODS.map((p) => (
+              <button
+                key={p.key}
+                role="tab"
+                aria-selected={period === p.key}
+                onClick={() => handlePeriodChange(p.key)}
+                className={cn(
+                  'nf-focus rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors',
+                  period === p.key ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
 
-        {showViewAll && (
-          <Link
-            href={`/rankings?period=${period}&media=${media}`}
-            className="nf-focus hidden items-center gap-0.5 text-[11px] font-semibold text-[#54b9c5] transition-opacity hover:opacity-80 md:flex md:text-[12px]"
-          >
-            Full Leaderboard
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </Link>
-        )}
+          <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-0.5" role="tablist">
+            {MEDIA_TYPES.map((m) => (
+              <button
+                key={m.key}
+                role="tab"
+                aria-selected={media === m.key}
+                onClick={() => handleMediaChange(m.key)}
+                className={cn(
+                  'nf-focus rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors',
+                  media === m.key ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'
+                )}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          {showViewAll && (
+            <Link
+              href={`/rankings?period=${period}&media=${media}`}
+              className="nf-focus hidden items-center gap-1 text-[12px] font-semibold text-[#e50914] hover:text-[#e5e5e5] md:inline-flex"
+            >
+              Full chart <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="group/row relative">
@@ -137,23 +129,23 @@ export function Top10Rankings({
           onClick={() => scroll('left')}
           tabIndex={-1}
           aria-label="Scroll left"
-          className="absolute bottom-0 left-0 top-0 z-30 hidden w-[4%] min-w-[40px] items-center justify-center bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover/row:opacity-100 md:flex"
+          className="absolute bottom-0 left-1 top-0 z-30 hidden w-10 items-center justify-center rounded-r-xl bg-gradient-to-r from-black/70 to-transparent text-white opacity-0 transition-opacity hover:from-black/90 group-hover/row:opacity-100 md:flex"
         >
-          <ChevronLeft className="h-8 w-8" aria-hidden="true" />
+          <ChevronLeft className="h-7 w-7" aria-hidden="true" />
         </button>
 
         <div
           ref={scrollRef}
-          className="no-scrollbar nf-row-pad flex items-end gap-1 overflow-x-auto scroll-smooth pb-1 md:gap-2"
+          className="no-scrollbar nf-row-pad flex items-end gap-2 overflow-x-auto scroll-smooth pb-2"
         >
           {loading ? (
-            <div className="flex h-52 w-full items-center justify-center gap-3 text-[#b3b3b3]">
+            <div className="flex h-52 w-full items-center justify-center gap-3 text-zinc-400">
               <Loader2 className="h-5 w-5 animate-spin text-[#e50914]" aria-hidden="true" />
-              <span className="text-[13px] font-medium">Updating rankings…</span>
+              <span className="text-[13px] font-medium">Updating charts…</span>
             </div>
           ) : items.length === 0 ? (
-            <div className="w-full py-12 text-center text-[13px] text-[#8c8c8c]">
-              No ranked titles available for this category right now.
+            <div className="w-full py-12 text-center text-[13px] text-zinc-500">
+              No ranked titles available right now.
             </div>
           ) : (
             items.map((item, index) => {
@@ -169,37 +161,29 @@ export function Top10Rankings({
                   className="nf-focus group/card flex shrink-0 select-none items-end"
                   aria-label={`Rank ${rank}: ${displayTitle}`}
                 >
-                  {/* outlined rank numeral, Netflix Top-10 treatment */}
                   <span
-                    className="nf-top10-num pointer-events-none -mr-[0.06em] self-end pb-[46px] text-[clamp(84px,9vw,150px)] transition-transform duration-300 group-hover/card:scale-105"
+                    className="nf-top10-num pointer-events-none -mr-2 self-end pb-[52px] text-[clamp(72px,8vw,130px)] transition-transform duration-300 group-hover/card:scale-105"
                     aria-hidden="true"
                   >
                     {rank}
                   </span>
 
-                  <div className="w-[clamp(92px,10.5vw,166px)]">
-                    <div className="nf-card relative aspect-[2/3] w-full overflow-hidden rounded-[4px] bg-[#232323]">
+                  <div className="w-[clamp(96px,11vw,160px)]">
+                    <div className="nf-card relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-[var(--fx-surface)] ring-1 ring-white/5">
                       <img
                         src={posterUrl}
                         alt={displayTitle}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-[1.04]"
                         loading="lazy"
                         sizes="(max-width: 640px) 26vw, 11vw"
                       />
                     </div>
 
-                    {/* title + meta under the poster */}
-                    <p
-                      className="mt-2 line-clamp-2 text-[12.5px] font-semibold leading-[1.2] tracking-[-0.01em] text-[#e5e5e5] transition-colors group-hover/card:text-white md:text-[13.5px]"
-                      title={displayTitle}
-                    >
+                    <p className="mt-2 line-clamp-1 text-[12.5px] font-semibold leading-tight text-zinc-100 transition-colors group-hover/card:text-white" title={displayTitle}>
                       {displayTitle}
                     </p>
-                    <div className="mt-1 flex items-center gap-1.5 text-[10.5px] leading-none">
-                      <span className="font-semibold text-[#46d369]">
-                        {item.vote_average > 0 ? `${Math.round(item.vote_average * 10)}% Match` : 'New'}
-                      </span>
-                      {year && <span className="text-[#b3b3b3]">{year}</span>}
+                    <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-zinc-400">
+                      {year && <span>{year}</span>}
                     </div>
                   </div>
                 </Link>
@@ -212,9 +196,9 @@ export function Top10Rankings({
           onClick={() => scroll('right')}
           tabIndex={-1}
           aria-label="Scroll right"
-          className="absolute bottom-0 right-0 top-0 z-30 hidden w-[4%] min-w-[40px] items-center justify-center bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover/row:opacity-100 md:flex"
+          className="absolute bottom-0 right-1 top-0 z-30 hidden w-10 items-center justify-center rounded-l-xl bg-gradient-to-l from-black/70 to-transparent text-white opacity-0 transition-opacity hover:from-black/90 group-hover/row:opacity-100 md:flex"
         >
-          <ChevronRight className="h-8 w-8" aria-hidden="true" />
+          <ChevronRight className="h-7 w-7" aria-hidden="true" />
         </button>
       </div>
     </section>

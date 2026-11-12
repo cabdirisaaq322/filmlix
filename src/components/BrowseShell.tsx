@@ -40,16 +40,18 @@ export function BrowseShell({
   const hasFilters = showFilters && genres && sorts && years && active;
 
   return (
-    <div className="nf-row-pad w-full space-y-8 py-8">
-      <div>
-        <BackButton className="mb-4" />
-        <header>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-red-400">Explore FilmFlix</p>
-          <h1 className="mb-2 text-3xl font-black tracking-tight text-white sm:text-4xl">{title}</h1>
-          <p className="max-w-3xl text-sm text-slate-400 sm:text-base">
+    <div className="nf-row-pad w-full space-y-8 py-10 pt-28 md:pt-32">
+      <div className="space-y-4">
+        <BackButton className="w-fit" />
+        <header className="space-y-2">
+          <p className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#e5e5e5]">
+            Explore
+          </p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">{title}</h1>
+          <p className="max-w-3xl text-sm text-zinc-400 sm:text-base">
             {description}
             {typeof totalResults === 'number' && totalResults > 0 && (
-              <span className="text-slate-500"> • {totalResults.toLocaleString()} titles</span>
+              <span className="text-zinc-500"> · {totalResults.toLocaleString()} titles</span>
             )}
           </p>
         </header>
@@ -71,12 +73,13 @@ export function BrowseShell({
       {items.length > 0 ? (
         <MediaGrid title={gridTitle || title} items={items} />
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-slate-800 rounded-xl bg-slate-900/30">
-          <SearchX className="w-12 h-12 text-slate-600 mb-4" />
-          <h2 className="text-lg font-semibold text-white mb-1">Nothing here yet</h2>
-          <p className="text-slate-400 text-sm max-w-md">
-            No titles matched your filters. Try changing the genre, sort or year — or check that your TMDB API key is
-            set in <code className="bg-slate-800 px-1.5 py-0.5 rounded">.env.local</code>.
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.02] py-20 text-center">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-zinc-400">
+            <SearchX className="h-7 w-7" />
+          </div>
+          <h2 className="mb-1 text-lg font-semibold text-white">Nothing found</h2>
+          <p className="max-w-md text-sm text-zinc-400">
+            No titles matched your filters. Try adjusting genre, sort, or year.
           </p>
         </div>
       )}

@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 
 const LINK_GROUPS: { href: string; label: string; external?: boolean }[][] = [
   [
-    { href: '/movies', label: 'Films' },
-    { href: '/tv', label: 'Series' },
-    { href: '/trending', label: 'New & Popular' },
+    { href: '/movies', label: 'Movies' },
+    { href: '/tv', label: 'TV Series' },
+    { href: '/trending', label: 'Trending' },
     { href: '/top-rated', label: 'Top Rated' },
   ],
   [
@@ -23,46 +23,54 @@ const LINK_GROUPS: { href: string; label: string; external?: boolean }[][] = [
     { href: '/admin', label: 'Admin' },
   ],
   [
-    { href: '/dmca', label: 'DMCA Policy' },
+    { href: '/dmca', label: 'DMCA' },
     { href: '/privacy', label: 'Privacy' },
-    { href: '/terms', label: 'Terms of Use' },
-    { href: '/contact', label: 'Contact Us' },
+    { href: '/terms', label: 'Terms' },
+    { href: '/contact', label: 'Contact' },
     { href: 'https://t.me/deidrasom3', label: 'Telegram', external: true },
   ],
 ];
 
 export function Footer() {
-  const [currentYear, setCurrentYear] = useState(2025);
+  const [currentYear, setCurrentYear] = useState(2026);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
   }, []);
 
   return (
-    <footer className="mt-6 border-t border-white/[0.08] bg-[#141414]">
-      <div className="nf-row-pad mx-auto max-w-[1000px] py-10 md:py-14">
-        <p className="mb-5 text-[14px] text-[#b3b3b3] md:text-[16px]">
-          Questions? <Link href="/contact" className="nf-focus underline hover:text-white">Contact us</Link>
-        </p>
+    <footer className="mt-12 border-t border-white/10 bg-[var(--fx-bg-raised)]">
+      <div className="nf-row-pad mx-auto max-w-[1200px] py-12 md:py-16">
+        <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xl font-extrabold tracking-tight text-white">
+              Film<span className="text-[#e50914]">Flix</span>
+            </p>
+            <p className="mt-1 text-sm text-zinc-400">Movies and series, beautifully streamed.</p>
+          </div>
+          <p className="text-sm text-zinc-500">
+            Questions? <Link href="/contact" className="nf-focus text-zinc-300 underline decoration-zinc-600 underline-offset-4 hover:text-white">Contact us</Link>
+          </p>
+        </div>
 
-        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">
           {LINK_GROUPS.map((group, i) => (
-            <ul key={i} className="space-y-3">
+            <ul key={i} className="space-y-2.5">
               {group.map(({ href, label, external }) => (
-                <li key={href}>
+                <li key={href + label}>
                   {external ? (
                     <a
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="nf-focus text-[12px] text-[#b3b3b3] transition-colors hover:text-white hover:underline md:text-[13px]"
+                      className="nf-focus text-[13px] text-zinc-400 transition-colors hover:text-white"
                     >
                       {label}
                     </a>
                   ) : (
                     <Link
                       href={href}
-                      className="nf-focus text-[12px] text-[#b3b3b3] transition-colors hover:text-white hover:underline md:text-[13px]"
+                      className="nf-focus text-[13px] text-zinc-400 transition-colors hover:text-white"
                     >
                       {label}
                     </Link>
@@ -73,18 +81,10 @@ export function Footer() {
           ))}
         </nav>
 
-        <p className="mt-8 text-[16px] font-black uppercase leading-none tracking-[-0.02em] text-white md:text-[18px]">
-          Film<span className="text-[#e50914]">Flix</span>
-        </p>
-
-        <p className="mt-2 text-[12px] text-[#8c8c8c] md:text-[13px]">
-          Movies and series, all in one place.
-        </p>
-
-        <p className="mt-1.5 text-[11px] leading-relaxed text-[#6d6d6d] md:text-[12px]">
-          © {currentYear} FilmFlix. All rights reserved. FilmFlix does not host any media files; all streams are
-          provided by third-party services.
-        </p>
+        <div className="mt-10 border-t border-white/10 pt-6 text-[12px] leading-relaxed text-zinc-500">
+          <p>© {currentYear} FilmFlix. All rights reserved.</p>
+          <p className="mt-1">FilmFlix does not host any media files; streams are provided by third-party services.</p>
+        </div>
       </div>
     </footer>
   );

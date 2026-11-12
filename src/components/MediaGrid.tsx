@@ -1,7 +1,6 @@
 'use client';
 
-import { MediaCard } from './MediaCard';
-import { MediaCardSkeleton } from './MediaCard';
+import { MediaCard, MediaCardSkeleton } from './MediaCard';
 
 interface MediaGridProps {
   title: string;
@@ -20,19 +19,14 @@ interface MediaGridProps {
   href?: string;
 }
 
-export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: MediaGridProps) {
+export function MediaGrid({ title, items, isLoading, skeletonCount = 12, href }: MediaGridProps) {
   if (isLoading) {
     return (
       <section className="space-y-4" aria-label={`${title} (loading)`}>
         <div className="flex items-center justify-between">
-          <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
-          {href && (
-            <a href={href} className="text-[12px] font-semibold text-[#54b9c5] hover:opacity-80 transition-opacity">
-              View All →
-            </a>
-          )}
+          <h2 className="text-[17px] font-bold tracking-tight text-white md:text-[20px]">{title}</h2>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-x-[6px] gap-y-4">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
           {Array.from({ length: skeletonCount }).map((_, i) => (
             <MediaCardSkeleton key={i} />
           ))}
@@ -45,9 +39,9 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
     return (
       <section className="space-y-4" aria-label={title}>
         <div className="flex items-center justify-between">
-          <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
+          <h2 className="text-[17px] font-bold tracking-tight text-white md:text-[20px]">{title}</h2>
         </div>
-        <div className="text-center py-12 text-[#8c8c8c]">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] py-16 text-center text-zinc-400">
           No content available
         </div>
       </section>
@@ -57,19 +51,16 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 6, href }: 
   return (
     <section className="space-y-4" aria-label={title}>
       <div className="flex items-center justify-between">
-        <h2 className="text-[clamp(16px,1.35vw,24px)] font-bold tracking-[-0.015em] text-[#e5e5e5]">{title}</h2>
+        <h2 className="text-[17px] font-bold tracking-tight text-white md:text-[20px]">{title}</h2>
         {href && (
-          <a href={href} className="text-[12px] font-semibold text-[#54b9c5] hover:opacity-80 transition-opacity">
+          <a href={href} className="text-[12px] font-semibold text-[#e50914] hover:text-[#e5e5e5] transition-colors">
             View All →
           </a>
         )}
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-x-[6px] gap-y-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
         {items.map((item) => (
-          <MediaCard
-            key={`${item.media_type}-${item.id}`}
-            {...item}
-          />
+          <MediaCard key={`${item.media_type}-${item.id}`} {...item} />
         ))}
       </div>
     </section>

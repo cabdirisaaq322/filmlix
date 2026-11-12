@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: 'FilmFlix - Watch Movies & TV Series Free Online',
     template: '%s | FilmFlix',
   },
-  description: 'Watch thousands of movies and TV series for free. HD quality streaming with no registration required. Powered by TMDB and VidSrc.',
+  description: 'Stream movies and TV series in HD. Discover trending titles, top charts, and new releases on FilmFlix.',
   keywords: ['movies', 'tv series', 'streaming', 'free movies', 'watch online', 'hd movies'],
   authors: [{ name: 'FilmFlix' }],
   creator: 'FilmFlix',
@@ -22,20 +22,20 @@ export const metadata: Metadata = {
     url: 'https://filmflix.cc',
     siteName: 'FilmFlix',
     title: 'FilmFlix - Watch Movies & TV Series Free Online',
-    description: 'Watch thousands of movies and TV series for free. HD quality streaming with no registration required.',
+    description: 'Stream movies and TV series in HD on FilmFlix.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'FilmFlix - Free Movie Streaming',
+        alt: 'FilmFlix',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FilmFlix - Watch Movies & TV Series Free',
-    description: 'Free HD streaming of movies and TV series.',
+    title: 'FilmFlix - Watch Movies & TV Series',
+    description: 'Stream movies and TV series in HD on FilmFlix.',
     images: ['/og-image.png'],
   },
   verification: {

@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import { fetchTrendingPage, isTMDBConfigured, toMediaItems, type TMDBPaginatedResult } from '@/lib/tmdb';
 
 export const metadata: Metadata = {
-  title: 'Trending Titles Today',
-  description: 'See what everyone is watching right now — the hottest trending movies and TV series of the day.',
+  title: 'Trending Titles',
+  description: 'See what everyone is watching right now — trending movies and TV series.',
 };
 
 interface TrendingPageProps {
@@ -18,7 +18,7 @@ const EMPTY: TMDBPaginatedResult = { page: 1, results: [], total_pages: 0, total
 const TABS = [
   { key: 'all', label: 'All' },
   { key: 'movie', label: 'Movies' },
-  { key: 'tv', label: 'TV Series' },
+  { key: 'tv', label: 'Series' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -47,10 +47,10 @@ export default async function TrendingPage({ searchParams }: TrendingPageProps) 
       href={`/trending?tab=${t.key}`}
       aria-current={t.key === tab ? 'page' : undefined}
       className={cn(
-        'px-5 py-2.5 rounded-lg text-sm font-medium transition-colors border',
+        'nf-focus rounded-full px-4 py-2 text-sm font-medium transition-colors border',
         t.key === tab
-          ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30'
-          : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white'
+          ? 'border-white/30 bg-white/15 text-white'
+          : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white'
       )}
     >
       {t.label}

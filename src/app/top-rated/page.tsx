@@ -6,7 +6,7 @@ import { fetchTopRatedPage, isTMDBConfigured, toMediaItems, type TMDBPaginatedRe
 
 export const metadata: Metadata = {
   title: 'Top Rated Movies & Series',
-  description: 'The highest rated movies and TV series of all time, ranked by the community.',
+  description: 'The highest rated movies and TV series of all time.',
 };
 
 interface TopRatedPageProps {
@@ -17,7 +17,7 @@ const EMPTY: TMDBPaginatedResult = { page: 1, results: [], total_pages: 0, total
 
 const TABS = [
   { key: 'movie', label: 'Movies' },
-  { key: 'tv', label: 'TV Series' },
+  { key: 'tv', label: 'Series' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -44,10 +44,10 @@ export default async function TopRatedPage({ searchParams }: TopRatedPageProps) 
       href={`/top-rated?tab=${t.key}`}
       aria-current={t.key === tab ? 'page' : undefined}
       className={cn(
-        'px-5 py-2.5 rounded-lg text-sm font-medium transition-colors border',
+        'nf-focus rounded-full px-4 py-2 text-sm font-medium transition-colors border',
         t.key === tab
-          ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
-          : 'bg-neutral-900 border-neutral-800 text-neutral-300 hover:bg-neutral-800 hover:text-white'
+          ? 'border-white/30 bg-white/15 text-white'
+          : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white'
       )}
     >
       {t.label}
@@ -57,7 +57,7 @@ export default async function TopRatedPage({ searchParams }: TopRatedPageProps) 
   return (
     <BrowseShell
       title="Top Rated"
-      description="The highest rated titles of all time, ranked by the community."
+      description="The highest rated titles of all time."
       items={toMediaItems(data.results, tab)}
       page={data.page || page}
       totalPages={data.total_pages || 0}

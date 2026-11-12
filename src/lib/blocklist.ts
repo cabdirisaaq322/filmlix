@@ -25,18 +25,18 @@ export async function getBlockedMovies(): Promise<BlockedMovie[]> {
   }
 
   const data = await res.json();
-  return (data.items || []).map((r: any) => ({
-    id: r.id,
+  return (data.items || []).map((r: Record<string, unknown>) => ({
+    id: String(r.id),
     tmdbId: Number(r.tmdbId),
-    type: r.type,
-    title: r.title,
-    poster_path: r.poster_path ?? null,
-    reason: r.reason || '',
+    type: r.type as 'movie' | 'tv',
+    title: String(r.title ?? ''),
+    poster_path: (r.poster_path as string | null) ?? null,
+    reason: String(r.reason || ''),
     is_blocked: r.is_blocked !== undefined ? Boolean(r.is_blocked) : Boolean(r.active),
     active: r.active !== undefined ? Boolean(r.active) : Boolean(r.is_blocked),
-    status: r.status || (r.is_blocked ? 'hidden' : 'visible'),
-    createdAt: r.createdAt || Date.now(),
-    updatedAt: r.updatedAt || Date.now(),
+    status: (r.status as 'hidden' | 'visible') || (r.is_blocked ? 'hidden' : 'visible'),
+    createdAt: Number(r.createdAt || Date.now()),
+    updatedAt: Number(r.updatedAt || Date.now()),
   }));
 }
 

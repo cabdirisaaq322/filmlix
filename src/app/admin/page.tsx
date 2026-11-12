@@ -12,20 +12,14 @@ export default function AdminPage() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const unsub = onAuthStateChange((u) => {
-      setUser(u);
-    });
+    const unsub = onAuthStateChange((u) => { setUser(u); });
     return () => unsub();
   }, []);
 
   if (!user || !isAdmin(user)) {
     return (
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
-        <AdminLogin
-          onSuccess={() => {
-            router.replace(pathname);
-          }}
-        />
+      <div className="min-h-screen bg-[var(--fx-bg)]">
+        <AdminLogin onSuccess={() => { router.replace(pathname); }} />
       </div>
     );
   }
