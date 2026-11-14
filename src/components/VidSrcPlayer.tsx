@@ -209,7 +209,9 @@ export function VidSrcPlayer({
 
       {!isExpanded && (
         <>
-          <p className="text-xs text-zinc-400">If a server doesn&apos;t work, try switching to another server.</p>
+          <p className="rounded-md border border-[#e50914]/50 bg-[#e50914]/15 px-3 py-2 text-sm font-medium text-white">
+            If a server doesn&apos;t work, try switching to another server.
+          </p>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Source</span>
             <div className="flex flex-1 flex-wrap gap-1.5">
