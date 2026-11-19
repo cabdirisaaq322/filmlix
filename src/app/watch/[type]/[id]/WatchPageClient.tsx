@@ -194,7 +194,7 @@ export function WatchPageClient({
   return (
     <div className="min-h-screen bg-[#08080c] text-white pb-24">
       {/* 1. TOP SUB-HEADER TAB SWITCHER: STREAM VS OVERVIEW */}
-      <div className="sticky top-[54px] md:top-[68px] z-40 border-b border-white/[0.08] bg-[#08080c]/90 px-4 py-2.5 backdrop-blur-xl sm:px-8">
+      <div className="sticky top-0 left-0 right-0 z-40 border-b border-white/[0.08] bg-[#08080c]/90 px-4 py-2 md:px-6 sm:px-4 max-w-full">
         <div className="nf-row-pad flex items-center justify-between gap-4">
           <Link
             href="/"
