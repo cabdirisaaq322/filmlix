@@ -4,6 +4,7 @@ import { MediaGrid } from '@/components/MediaGrid';
 import { BackButton } from '@/components/BackButton';
 import { TMDB_BASE_URL, TMDB_API_KEY, toMediaItems, type MediaItem, type TMDBMovie, type TMDBTVShow, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 import { getBlockedMovieIdsServer } from '@/lib/server-blocklist';
+import { Compass } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: GenrePageProps): Promise<Meta
   const { slug } = await params;
   const slugStr = slug || '';
   const title = slugStr.charAt(0).toUpperCase() + slugStr.slice(1).replace(/-/g, ' ');
-  return { title: `${title} Movies & Series`, description: `Browse ${title} movies and TV series on FilmFlix.` };
+  return { title: `${title} Movies & Series — FilmFlix`, description: `Browse and stream ${title} movies and TV series online on FilmFlix.` };
 }
 
 interface PageResponse { results?: (TMDBMovie | TMDBTVShow)[]; }
@@ -43,8 +44,8 @@ async function getGenreData(genreId: number): Promise<{ movies: MediaItem[]; tv:
   ]);
   const serverBlocked = await getBlockedMovieIdsServer().catch(() => [] as number[]);
   return {
-    movies: toMediaItems(movies.results || [], 'movie').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !serverBlocked.includes(item.id)).slice(0, 20),
-    tv: toMediaItems(tv.results || [], 'tv').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !serverBlocked.includes(item.id)).slice(0, 20),
+    movies: toMediaItems(movies.results || [], 'movie').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !serverBlocked.includes(item.id)).slice(0, 24),
+    tv: toMediaItems(tv.results || [], 'tv').filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !serverBlocked.includes(item.id)).slice(0, 24),
   };
 }
 
@@ -60,17 +61,27 @@ export default async function GenrePage({ params }: GenrePageProps) {
   const title = slugLower.charAt(0).toUpperCase() + slugLower.slice(1).replace(/-/g, ' ');
 
   return (
-    <div className="nf-row-pad w-full space-y-10 py-10 pt-28 pb-16 md:pt-32">
+    <div className="nf-row-pad w-full space-y-12 py-10 pt-24 pb-20 md:pt-28">
       <div className="space-y-4">
         <BackButton className="w-fit" />
-        <header className="space-y-2">
-          <p className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#e5e5e5]">Genre</p>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">{title}</h1>
-          <p className="text-zinc-400">Browse {title.toLowerCase()} movies and TV series.</p>
+        <header className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red-300 backdrop-blur-md">
+              <Compass className="h-3 w-3 text-red-400" />
+              Genre Spotlight
+            </span>
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">{title}</h1>
+          <p className="text-sm text-slate-400 sm:text-base">
+            Stream popular {title.toLowerCase()} feature films and television series in high definition.
+          </p>
         </header>
       </div>
-      <MediaGrid title={`${title} Movies`} items={movies} />
-      <MediaGrid title={`${title} Series`} items={tv} />
+
+      <div className="space-y-12">
+        <MediaGrid title={`Popular in ${title} (Movies)`} items={movies} />
+        <MediaGrid title={`Popular in ${title} (Series)`} items={tv} />
+      </div>
     </div>
   );
 }

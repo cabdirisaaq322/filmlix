@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import { fetchTopRatedPage, isTMDBConfigured, toMediaItems, type TMDBPaginatedResult } from '@/lib/tmdb';
 
 export const metadata: Metadata = {
-  title: 'Top Rated Movies & Series',
-  description: 'The highest rated movies and TV series of all time.',
+  title: 'Top Rated Movies & Series — FilmFlix',
+  description: 'The highest rated and critically acclaimed movies and TV series of all time.',
 };
 
 interface TopRatedPageProps {
@@ -16,8 +16,8 @@ interface TopRatedPageProps {
 const EMPTY: TMDBPaginatedResult = { page: 1, results: [], total_pages: 0, total_results: 0 };
 
 const TABS = [
-  { key: 'movie', label: 'Movies' },
-  { key: 'tv', label: 'Series' },
+  { key: 'movie', label: 'Top Rated Movies' },
+  { key: 'tv', label: 'Top Rated Series' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -38,32 +38,36 @@ export default async function TopRatedPage({ searchParams }: TopRatedPageProps) 
     data = await fetchTopRatedPage(tab, page).catch(() => EMPTY);
   }
 
-  const tabs = TABS.map((t) => (
-    <Link
-      key={t.key}
-      href={`/top-rated?tab=${t.key}`}
-      aria-current={t.key === tab ? 'page' : undefined}
-      className={cn(
-        'nf-focus rounded-full px-4 py-2 text-sm font-medium transition-colors border',
-        t.key === tab
-          ? 'border-white/30 bg-white/15 text-white'
-          : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white'
-      )}
-    >
-      {t.label}
-    </Link>
-  ));
+  const tabs = (
+    <div className="inline-flex rounded-full border border-white/10 bg-white/[0.04] p-1 backdrop-blur-md">
+      {TABS.map((t) => (
+        <Link
+          key={t.key}
+          href={`/top-rated?tab=${t.key}`}
+          aria-current={t.key === tab ? 'page' : undefined}
+          className={cn(
+            'nf-focus rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200',
+            t.key === tab
+              ? 'bg-gradient-to-r from-[#e50914] to-[#ff2d3b] text-white shadow-md'
+              : 'text-slate-300 hover:text-white'
+          )}
+        >
+          {t.label}
+        </Link>
+      ))}
+    </div>
+  );
 
   return (
     <BrowseShell
-      title="Top Rated"
-      description="The highest rated titles of all time."
+      title="All-Time Critically Acclaimed"
+      description="The highest audience and critical scores in cinema history, streaming without restrictions."
       items={toMediaItems(data.results, tab)}
       page={data.page || page}
       totalPages={data.total_pages || 0}
       totalResults={data.total_results}
       tabs={tabs}
-      gridTitle={tab === 'movie' ? 'Top Rated Movies' : 'Top Rated Series'}
+      gridTitle={tab === 'movie' ? 'All-Time Top Rated Movies' : 'All-Time Top Rated Series'}
       showFilters={false}
     />
   );

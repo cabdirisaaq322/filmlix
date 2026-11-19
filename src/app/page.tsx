@@ -19,6 +19,7 @@ import {
   TV_GENRES,
   toMediaItems,
 } from '@/lib/tmdb';
+import { Compass, AlertTriangle } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'FilmFlix - Watch Movies & TV Series Free Online',
@@ -74,7 +75,7 @@ async function TopTVContent() {
 }
 async function NowPlayingContent() {
   const items = await settled(getNowPlayingMovies());
-  return <MediaRow title="Now Playing" items={toMediaItems(items, 'movie')} href="/movies?sort=primary_release_date.desc" />;
+  return <MediaRow title="Now in Theaters" items={toMediaItems(items, 'movie')} href="/movies?sort=primary_release_date.desc" />;
 }
 async function UpcomingContent() {
   const items = await settled(getUpcomingMovies());
@@ -87,11 +88,11 @@ async function AiringTodayContent() {
 
 function TopRankingsSkeleton() {
   return (
-    <section className="nf-row-pad mb-10 py-2" aria-label="Top 10 loading">
-      <div className="mb-4 h-6 w-48 animate-pulse rounded-lg bg-white/10" />
+    <section className="nf-row-pad mb-12 py-2" aria-label="Top 10 loading">
+      <div className="mb-4 h-7 w-48 animate-pulse rounded-lg bg-white/[0.06]" />
       <div className="flex gap-4 overflow-hidden">
-        {Array.from({ length: 5 }, (_, i) => (
-          <div key={i} className="h-56 w-36 shrink-0 animate-pulse rounded-xl bg-white/10" />
+        {Array.from({ length: 6 }, (_, i) => (
+          <div key={i} className="h-60 w-36 shrink-0 animate-pulse rounded-xl bg-white/[0.06]" />
         ))}
       </div>
     </section>
@@ -101,11 +102,16 @@ function TopRankingsSkeleton() {
 function HomeSetupNotice() {
   return (
     <div className="nf-row-pad pt-28">
-      <div className="mx-auto max-w-3xl rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-5 text-amber-100">
-        <h2 className="mb-1 text-lg font-semibold">Setup needed: TMDB API key</h2>
-        <p className="text-sm text-amber-100/90">
-          Add <code className="rounded bg-black/30 px-1.5 py-0.5">NEXT_PUBLIC_TMDB_API_KEY</code> to <code className="rounded bg-black/30 px-1.5 py-0.5">.env.local</code> and restart the dev server.
-        </p>
+      <div className="mx-auto max-w-3xl rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 text-amber-200 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <AlertTriangle className="h-6 w-6 text-amber-400 shrink-0" />
+          <div>
+            <h2 className="text-base font-bold text-amber-100">Setup Required: TMDB API Key</h2>
+            <p className="mt-1 text-sm text-amber-200/80">
+              Add <code className="rounded bg-black/40 px-2 py-0.5 font-mono text-xs text-amber-300">NEXT_PUBLIC_TMDB_API_KEY</code> to your environment and restart the server.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -116,7 +122,7 @@ export default function HomePage() {
   const genreSlugs = Array.from(new Set([...MOVIE_GENRES, ...TV_GENRES].map((g) => g.slug)));
 
   return (
-    <div className="pb-16">
+    <div className="pb-20">
       {!configured && <HomeSetupNotice />}
 
       {configured && (
@@ -125,7 +131,7 @@ export default function HomePage() {
         </Suspense>
       )}
 
-      <div className="relative z-10 mt-6 space-y-2">
+      <div className="relative z-10 mt-6 space-y-4">
         <ContinueWatchingRow />
 
         {configured && (
@@ -139,22 +145,36 @@ export default function HomePage() {
         {configured && <Suspense fallback={<MediaRow title="Popular Series" isLoading />}><PopularTVContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Top Rated Movies" isLoading />}><TopMoviesContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Top Rated Series" isLoading />}><TopTVContent /></Suspense>}
-        {configured && <Suspense fallback={<MediaRow title="Now Playing" isLoading />}><NowPlayingContent /></Suspense>}
+        {configured && <Suspense fallback={<MediaRow title="Now in Theaters" isLoading />}><NowPlayingContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Coming Soon" isLoading />}><UpcomingContent /></Suspense>}
         {configured && <Suspense fallback={<MediaRow title="Airing Today" isLoading />}><AiringTodayContent /></Suspense>}
 
-        <section className="nf-row-pad mb-10 mt-4" aria-label="Browse by genre">
-          <h2 className="mb-4 text-[17px] font-bold tracking-tight text-white md:text-[20px]">Browse by Genre</h2>
-          <div className="flex flex-wrap gap-2">
-            {genreSlugs.map((slug) => (
-              <a
-                key={slug}
-                href={`/genre/${slug}`}
-                className="nf-focus rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] font-medium text-zinc-300 transition-all hover:border-white/30 hover:bg-white/10 hover:text-white"
-              >
-                {slug.charAt(0).toUpperCase() + slug.slice(1)}
-              </a>
-            ))}
+        {/* Explore Genres Section */}
+        <section className="nf-row-pad mb-14 mt-8" aria-label="Browse by genre">
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 backdrop-blur-md md:p-8">
+            <div className="mb-5 flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-600/15 text-[#e50914] ring-1 ring-red-600/30">
+                <Compass className="h-4 w-4" />
+              </span>
+              <div>
+                <h2 className="text-[18px] font-bold tracking-tight text-white md:text-[21px]">
+                  Explore by Genre
+                </h2>
+                <p className="text-xs text-slate-400">Discover handpicked selections across every cinematic mood</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2.5">
+              {genreSlugs.map((slug) => (
+                <a
+                  key={slug}
+                  href={`/genre/${slug}`}
+                  className="nf-focus rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[12.5px] font-medium text-slate-300 transition-all duration-200 hover:scale-105 hover:border-red-500/40 hover:bg-red-600/15 hover:text-white"
+                >
+                  {slug.charAt(0).toUpperCase() + slug.slice(1)}
+                </a>
+              ))}
+            </div>
           </div>
         </section>
       </div>

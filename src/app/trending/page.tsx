@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { fetchTrendingPage, isTMDBConfigured, toMediaItems, type TMDBPaginatedResult } from '@/lib/tmdb';
 
 export const metadata: Metadata = {
-  title: 'Trending Titles',
+  title: 'Trending Titles — FilmFlix',
   description: 'See what everyone is watching right now — trending movies and TV series.',
 };
 
@@ -16,9 +16,9 @@ interface TrendingPageProps {
 const EMPTY: TMDBPaginatedResult = { page: 1, results: [], total_pages: 0, total_results: 0 };
 
 const TABS = [
-  { key: 'all', label: 'All' },
-  { key: 'movie', label: 'Movies' },
-  { key: 'tv', label: 'Series' },
+  { key: 'all', label: 'All Trending' },
+  { key: 'movie', label: 'Trending Movies' },
+  { key: 'tv', label: 'Trending Series' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -41,26 +41,30 @@ export default async function TrendingPage({ searchParams }: TrendingPageProps) 
 
   const fallback: 'movie' | 'tv' = tab === 'tv' ? 'tv' : 'movie';
 
-  const tabs = TABS.map((t) => (
-    <Link
-      key={t.key}
-      href={`/trending?tab=${t.key}`}
-      aria-current={t.key === tab ? 'page' : undefined}
-      className={cn(
-        'nf-focus rounded-full px-4 py-2 text-sm font-medium transition-colors border',
-        t.key === tab
-          ? 'border-white/30 bg-white/15 text-white'
-          : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white'
-      )}
-    >
-      {t.label}
-    </Link>
-  ));
+  const tabs = (
+    <div className="inline-flex rounded-full border border-white/10 bg-white/[0.04] p-1 backdrop-blur-md">
+      {TABS.map((t) => (
+        <Link
+          key={t.key}
+          href={`/trending?tab=${t.key}`}
+          aria-current={t.key === tab ? 'page' : undefined}
+          className={cn(
+            'nf-focus rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200',
+            t.key === tab
+              ? 'bg-gradient-to-r from-[#e50914] to-[#ff2d3b] text-white shadow-md'
+              : 'text-slate-300 hover:text-white'
+          )}
+        >
+          {t.label}
+        </Link>
+      ))}
+    </div>
+  );
 
   return (
     <BrowseShell
-      title="Trending"
-      description="What everyone is watching right now."
+      title="Trending Right Now"
+      description="The hottest and most watched movies and television series across the world today."
       items={toMediaItems(data.results, fallback)}
       page={data.page || page}
       totalPages={data.total_pages || 0}

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import type { GenreOption, SortOption } from '@/lib/tmdb';
 
 interface FilterBarProps {
@@ -15,13 +15,13 @@ interface FilterBarProps {
 }
 
 const selectClass =
-  'nf-focus h-10 rounded-full border border-white/10 bg-white/5 px-4 pr-8 text-[13px] text-zinc-200 hover:bg-white/10 transition-colors cursor-pointer appearance-none';
+  'nf-focus h-10 appearance-none rounded-xl border border-white/10 bg-[#12131e] px-4 pr-9 text-[13px] font-medium text-slate-200 transition-all hover:border-white/20 hover:bg-[#181a28] cursor-pointer shadow-sm';
 
 const genreButtonClass = (active: boolean) =>
-  `nf-focus rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-all ${
+  `nf-focus rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-all duration-200 cursor-pointer ${
     active
-      ? 'border-white/40 bg-white/15 text-white'
-      : 'border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:text-white'
+      ? 'bg-gradient-to-r from-[#e50914] to-[#ff2d3b] text-white shadow-[0_2px_12px_rgba(229,9,20,0.45)]'
+      : 'border border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white'
   }`;
 
 export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activeYear }: FilterBarProps) {
@@ -54,12 +54,13 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
   const hasFilters = Boolean(activeGenre || activeYear || (activeSort && activeSort !== 'popularity.desc'));
 
   return (
-    <div id="browse-filters" className="scroll-mt-36 space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 md:p-5">
+    <div id="browse-filters" className="scroll-mt-36 space-y-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 backdrop-blur-xl md:p-5">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-          <SlidersHorizontal className="h-4 w-4 text-[#e50914]" /> Filters
+        <span className="flex items-center gap-2 text-sm font-bold text-slate-200">
+          <SlidersHorizontal className="h-4 w-4 text-[#e50914]" /> Filter & Sort
         </span>
 
+        {/* Sort Select */}
         <div className="relative">
           <select
             value={activeSort}
@@ -68,11 +69,15 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
             aria-label="Sort results"
           >
             {sorts.map((s) => (
-              <option key={s.value} value={s.value} className="bg-[#0c0c12]">{s.label}</option>
+              <option key={s.value} value={s.value} className="bg-[#12131e] text-slate-100">
+                {s.label}
+              </option>
             ))}
           </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
         </div>
 
+        {/* Year Select */}
         <div className="relative">
           <select
             value={activeYear}
@@ -80,24 +85,29 @@ export function FilterBar({ genres, sorts, years, activeGenre, activeSort, activ
             className={selectClass}
             aria-label="Filter by year"
           >
-            <option value="" className="bg-[#0c0c12]">Any Year</option>
+            <option value="" className="bg-[#12131e] text-slate-100">Any Year</option>
             {years.map((y) => (
-              <option key={y} value={y} className="bg-[#0c0c12]">{y}</option>
+              <option key={y} value={y} className="bg-[#12131e] text-slate-100">
+                {y}
+              </option>
             ))}
           </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
         </div>
 
+        {/* Reset Filter Button */}
         {hasFilters && (
           <button
             onClick={() => applyParams({ genre: '', sort: '', year: '' })}
-            className="nf-focus inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-transparent px-3.5 py-2 text-[12px] font-medium text-zinc-300 transition-colors hover:border-white/20 hover:text-white"
+            className="nf-focus inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-600/10 px-3.5 py-1.5 text-[12px] font-semibold text-red-300 transition-all hover:bg-red-600/20 hover:text-white"
           >
-            <X className="h-3.5 w-3.5" /> Clear
+            <X className="h-3.5 w-3.5" /> Reset Filters
           </button>
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
+      {/* Genre pills list */}
+      <div className="flex flex-wrap gap-2 pt-1">
         <button
           type="button"
           onClick={() => applyParams({ genre: '' })}

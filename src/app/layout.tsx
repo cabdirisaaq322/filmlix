@@ -45,7 +45,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#b00610',
+  themeColor: '#08080c',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -57,7 +57,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased dark">
       <head>
         <link rel="preconnect" href="https://image.tmdb.org" />
         <link rel="preconnect" href="https://vidsrc.me" />
@@ -69,12 +69,11 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://vidsrc.cc" />
         <link rel="preconnect" href="https://tags.adplox.com" />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#141414] text-white">
+      <body className="min-h-screen flex flex-col bg-[#08080c] text-slate-100 selection:bg-red-600/30 selection:text-white">
         <Navbar />
         <main className="box-border min-w-0 w-full max-w-full flex-1 pt-[54px] md:pt-[68px]">{children}</main>
         <Footer />
         <Script src="https://tags.adplox.com/p.js?z=x3cjcw3qr4" strategy="afterInteractive" />
-        <Script src="https://tags.adplox.com/p.js?z=62w3n4m4v3" strategy="afterInteractive" />
       </body>
     </html>
   );

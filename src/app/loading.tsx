@@ -1,29 +1,30 @@
 export default function Loading() {
   return (
-    <div className="min-h-[70vh] bg-black text-white px-4 pb-16 sm:px-6 lg:px-8">
-      <div className="nf-row-pad w-full pt-8">
-        <div className="mb-8 h-10 w-3/4 animate-pulse rounded-xl bg-slate-800/80" />
+    <div className="min-h-[85vh] bg-[#08080c] text-white px-4 pb-20 sm:px-6 lg:px-8">
+      <div className="nf-row-pad w-full pt-10 space-y-8">
+        {/* Billboard Hero Skeleton */}
+        <div className="relative h-[55vh] min-h-[400px] w-full overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.03] animate-shimmer" />
 
-        <div className="mb-8 h-[320px] w-full animate-pulse rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900" />
-
-        <div className="mb-6 flex gap-3">
+        {/* Tab pills skeleton */}
+        <div className="flex gap-2.5 overflow-hidden">
           {Array.from({ length: 5 }).map((_, index) => (
             <div
               key={index}
-              className="h-9 w-28 animate-pulse rounded-full bg-slate-800/80"
+              className="h-10 w-28 shrink-0 rounded-full border border-white/[0.06] bg-white/[0.03] animate-pulse"
             />
           ))}
         </div>
 
-        <div className="space-y-6">
-          {Array.from({ length: 4 }).map((_, rowIndex) => (
+        {/* Media Rows Skeleton */}
+        <div className="space-y-8">
+          {Array.from({ length: 3 }).map((_, rowIndex) => (
             <div key={rowIndex} className="space-y-4">
-              <div className="h-6 w-40 animate-pulse rounded-lg bg-slate-800/80" />
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+              <div className="h-6 w-44 rounded-md bg-white/[0.05] animate-pulse" />
+              <div className="flex gap-3.5 overflow-hidden">
                 {Array.from({ length: 6 }).map((__, cardIndex) => (
                   <div
                     key={`${rowIndex}-${cardIndex}`}
-                    className="h-56 animate-pulse rounded-2xl bg-slate-800/80"
+                    className="aspect-[2/3] w-[38vw] min-w-[130px] max-w-[220px] shrink-0 rounded-xl border border-white/[0.06] bg-white/[0.03] animate-pulse"
                   />
                 ))}
               </div>

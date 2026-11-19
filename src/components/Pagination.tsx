@@ -49,15 +49,15 @@ export function Pagination({ page, totalPages, className }: PaginationProps) {
   const items = buildPages(page, totalPages);
 
   return (
-    <nav className={cn('flex flex-wrap items-center justify-center gap-2 pt-8', className)} aria-label="Pagination">
+    <nav className={cn('flex flex-wrap items-center justify-center gap-2 pt-10 pb-6', className)} aria-label="Pagination">
       <button
         onClick={() => goTo(page - 1)}
         disabled={page <= 1}
         className={cn(
-          'nf-focus inline-flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium transition-colors',
+          'nf-focus inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-200',
           page <= 1
-            ? 'cursor-not-allowed border border-white/5 bg-white/5 text-zinc-600'
-            : 'border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10 hover:text-white'
+            ? 'cursor-not-allowed border border-white/5 bg-white/[0.02] text-slate-600'
+            : 'border border-white/10 bg-white/[0.04] text-slate-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white cursor-pointer active:scale-95'
         )}
         aria-label="Previous page"
       >
@@ -66,17 +66,17 @@ export function Pagination({ page, totalPages, className }: PaginationProps) {
 
       {items.map((item, i) =>
         item === 'gap' ? (
-          <span key={`gap-${i}`} className="px-1 text-zinc-500" aria-hidden="true">…</span>
+          <span key={`gap-${i}`} className="px-1.5 text-slate-500 font-semibold" aria-hidden="true">…</span>
         ) : (
           <button
             key={item}
             onClick={() => goTo(item)}
             aria-current={item === page ? 'page' : undefined}
             className={cn(
-              'nf-focus min-w-[40px] rounded-full px-3 py-2 text-[13px] font-medium transition-colors',
+              'nf-focus min-w-[42px] h-10 rounded-full px-3 text-[13px] font-semibold transition-all duration-200 cursor-pointer',
               item === page
-                ? 'bg-[#e50914] text-white shadow-lg shadow-red-600/20'
-                : 'border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white'
+                ? 'bg-gradient-to-r from-[#e50914] to-[#ff2d3b] text-white shadow-[0_2px_12px_rgba(229,9,20,0.5)] scale-105'
+                : 'border border-white/10 bg-white/[0.04] text-slate-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-95'
             )}
           >
             {item}
@@ -88,10 +88,10 @@ export function Pagination({ page, totalPages, className }: PaginationProps) {
         onClick={() => goTo(page + 1)}
         disabled={page >= totalPages}
         className={cn(
-          'nf-focus inline-flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-medium transition-colors',
+          'nf-focus inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-200',
           page >= totalPages
-            ? 'cursor-not-allowed border border-white/5 bg-white/5 text-zinc-600'
-            : 'border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10 hover:text-white'
+            ? 'cursor-not-allowed border border-white/5 bg-white/[0.02] text-slate-600'
+            : 'border border-white/10 bg-white/[0.04] text-slate-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white cursor-pointer active:scale-95'
         )}
         aria-label="Next page"
       >

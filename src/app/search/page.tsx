@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, X, Loader2, Sparkles } from 'lucide-react';
+import { Search, X, Loader2, Sparkles, TrendingUp } from 'lucide-react';
 import { searchMulti, getTrendingMovies, getTrendingTVShows, TMDBMovie, TMDBTVShow, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 import { MediaCard } from '@/components/MediaCard';
 import { useBlockedMovieIds } from '@/lib/blocklist-client';
 
-const POPULAR_SEARCHES = ['Avengers', 'Batman', 'Breaking Bad', 'Stranger Things', 'Spider-Man', 'Wednesday', 'John Wick', 'Avatar'];
+const POPULAR_SEARCHES = ['Avengers', 'Batman', 'Breaking Bad', 'Stranger Things', 'Spider-Man', 'Wednesday', 'John Wick', 'Avatar', 'Interstellar', 'Dune'];
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
@@ -54,7 +54,7 @@ export default function SearchPage() {
           const directData = await searchMulti(value);
           setResults(directData.filter((item) => !BLOCKLISTED_MOVIE_IDS.includes(item.id) && !blockedIds.includes(item.id)));
         } catch {
-          setError('Failed to search. Please try again.');
+          setError('Failed to search. Please check your connection and try again.');
           setResults([]);
         }
       } finally {
@@ -95,78 +95,143 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="nf-row-pad w-full space-y-8 py-10 pt-28 md:pt-32">
-      <header className="space-y-2">
-        <p className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#e5e5e5]">Discover</p>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Search</h1>
-        <p className="text-zinc-400">Find movies and TV series instantly.</p>
+    <div className="nf-row-pad w-full space-y-8 py-10 pt-24 md:pt-28">
+      <header className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red-300 backdrop-blur-md">
+            <Sparkles className="h-3 w-3 text-red-400" />
+            Instant Search
+          </span>
+        </div>
+        <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+          Search Titles
+        </h1>
+        <p className="text-sm text-slate-400 sm:text-base">
+          Find movies, television series, and franchises across the entire library.
+        </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="relative max-w-3xl">
+      {/* Search Input Box */}
+      <form onSubmit={handleSubmit} className="relative max-w-3xl space-y-4">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
+          <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search titles, genres, people..."
-            className="nf-input h-14 w-full rounded-2xl pl-12 pr-12 text-[15px]"
+            placeholder="Search by title, genre, actor, or franchise..."
+            className="nf-input h-14 w-full rounded-2xl pl-13 pr-12 text-[15px] font-medium shadow-2xl"
             autoFocus
             aria-label="Search"
           />
           {query && (
-            <button type="button" onClick={clearSearch} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white" aria-label="Clear search">
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
+              aria-label="Clear search"
+            >
               <X className="h-5 w-5" />
             </button>
           )}
         </div>
-        <button type="submit" className="nf-focus fx-btn-primary mt-4 h-11 rounded-full px-6 text-sm font-semibold disabled:opacity-50" disabled={isLoading || !query.trim()}>
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            className="nf-focus fx-btn-primary h-11 rounded-full px-7 text-sm font-bold shadow-lg disabled:opacity-50 cursor-pointer"
+            disabled={isLoading || !query.trim()}
+          >
+            {isLoading ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Searching…</span>
+              </span>
+            ) : (
+              'Search Catalog'
+            )}
+          </button>
+        </div>
       </form>
 
-      {error && <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
+      {error && (
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-300 backdrop-blur-md">
+          {error}
+        </div>
+      )}
 
+      {/* Loading Skeleton Grid */}
       {isLoading && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" aria-label="Loading results">
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" aria-label="Loading search results">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-white/5 animate-pulse">
-              <div className="aspect-[2/3] bg-white/5" />
-              <div className="space-y-2 p-3"><div className="h-3.5 w-3/4 rounded bg-white/10" /><div className="h-3 w-1/2 rounded bg-white/10" /></div>
+            <div key={i} className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.03] animate-pulse">
+              <div className="aspect-[2/3] bg-white/[0.05]" />
+              <div className="space-y-2 p-3">
+                <div className="h-4 w-3/4 rounded bg-white/[0.08]" />
+                <div className="h-3 w-1/2 rounded bg-white/[0.05]" />
+              </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* No Results Fallback */}
       {hasSearched && query && !isLoading && results.length === 0 && !error && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] py-16 text-center text-zinc-400">
-          No results found for &quot;{query}&quot;
+        <div className="rounded-3xl border border-white/[0.08] bg-white/[0.02] py-20 text-center text-slate-400 backdrop-blur-md">
+          <p className="text-lg font-bold text-white">No titles matched &quot;{query}&quot;</p>
+          <p className="mt-1 text-sm text-slate-400">Try checking spelling or searching for a broader keyword.</p>
         </div>
       )}
 
+      {/* Default State: Popular Suggestions & Trending Now */}
       {!hasSearched && !isLoading && results.length === 0 && (
-        <div className="space-y-8">
-          <section aria-label="Popular searches">
-            <h2 className="mb-4 text-lg font-semibold text-white">Popular searches</h2>
+        <div className="space-y-10 pt-2">
+          {/* Quick Suggestions */}
+          <section aria-label="Popular searches" className="space-y-3">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-[#e50914]" />
+              Popular Searches
+            </h2>
             <div className="flex flex-wrap gap-2">
               {POPULAR_SEARCHES.map((term) => (
-                <button key={term} type="button" onClick={() => runPopularSearch(term)} className="nf-focus rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[13px] font-medium text-zinc-300 transition-colors hover:border-white/30 hover:bg-white/10 hover:text-white">
+                <button
+                  key={term}
+                  type="button"
+                  onClick={() => runPopularSearch(term)}
+                  className="nf-focus rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[12.5px] font-semibold text-slate-300 transition-all duration-200 hover:scale-105 hover:border-red-500/40 hover:bg-red-600/15 hover:text-white cursor-pointer"
+                >
                   {term}
                 </button>
               ))}
             </div>
           </section>
 
+          {/* Trending Titles Showcase */}
           {trending.length > 0 && (
-            <section aria-label="Trending titles">
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white"><Sparkles className="h-5 w-5 text-[#e50914]" /> Trending now</h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            <section aria-label="Trending titles" className="space-y-4">
+              <div className="flex items-center gap-2.5">
+                <span className="h-5 w-1 rounded-full bg-gradient-to-b from-[#e50914] to-[#ff4d5a]" aria-hidden="true" />
+                <h2 className="text-[18px] font-bold tracking-tight text-white md:text-[21px]">
+                  Trending Right Now
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {trending.map((item) => {
                   const itemType = (item as { media_type?: string }).media_type;
                   const media_type = itemType === 'tv' ? 'tv' : 'movie';
                   const itemTitle = media_type === 'movie' ? (item as TMDBMovie).title || (item as TMDBTVShow).name : (item as TMDBTVShow).name || (item as TMDBMovie).title;
                   return (
-                    <MediaCard key={`trending-${media_type}-${item.id}`} id={item.id} title={itemTitle} poster_path={item.poster_path} vote_average={item.vote_average} release_date={'release_date' in item ? item.release_date : undefined} first_air_date={'first_air_date' in item ? item.first_air_date : undefined} media_type={media_type} />
+                    <MediaCard
+                      key={`trending-${media_type}-${item.id}`}
+                      id={item.id}
+                      title={itemTitle}
+                      poster_path={item.poster_path}
+                      vote_average={item.vote_average}
+                      release_date={'release_date' in item ? item.release_date : undefined}
+                      first_air_date={'first_air_date' in item ? item.first_air_date : undefined}
+                      media_type={media_type}
+                    />
                   );
                 })}
               </div>
@@ -175,16 +240,32 @@ export default function SearchPage() {
         </div>
       )}
 
+      {/* Active Results Grid */}
       {results.length > 0 && (
-        <section aria-label={`Search results for "${query}"`}>
-          <h2 className="mb-4 text-lg font-semibold text-white">Results for <span className="text-[#e5e5e5]">&quot;{query}&quot;</span> <span className="text-zinc-500">({results.length})</span></h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <section aria-label={`Search results for "${query}"`} className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white md:text-xl">
+              Results for &quot;<span className="text-red-400">{query}</span>&quot;
+              <span className="ml-2 text-sm font-normal text-slate-400">({results.length} found)</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {results.map((item) => {
               const itemType = (item as { media_type?: string }).media_type;
               const media_type = itemType === 'tv' ? 'tv' : 'movie';
               const itemTitle = media_type === 'movie' ? (item as TMDBMovie).title || (item as TMDBTVShow).name : (item as TMDBTVShow).name || (item as TMDBMovie).title;
               return (
-                <MediaCard key={`${media_type}-${item.id}`} id={item.id} title={itemTitle} poster_path={item.poster_path} vote_average={item.vote_average} release_date={'release_date' in item ? item.release_date : undefined} first_air_date={'first_air_date' in item ? item.first_air_date : undefined} media_type={media_type} />
+                <MediaCard
+                  key={`${media_type}-${item.id}`}
+                  id={item.id}
+                  title={itemTitle}
+                  poster_path={item.poster_path}
+                  vote_average={item.vote_average}
+                  release_date={'release_date' in item ? item.release_date : undefined}
+                  first_air_date={'first_air_date' in item ? item.first_air_date : undefined}
+                  media_type={media_type}
+                />
               );
             })}
           </div>
