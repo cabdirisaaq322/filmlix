@@ -192,7 +192,7 @@ export function WatchPageClient({
     : 95;
 
   return (
-    <div className="min-h-screen bg-[#08080c] text-white pb-24">
+    <div className="h-screen bg-[#08080c] text-white overflow-y-auto pb-24">
       {/* 1. TOP SUB-HEADER TAB SWITCHER: STREAM VS OVERVIEW */}
       <div className="sticky top-0 left-0 right-0 z-40 border-b border-white/[0.08] bg-[#08080c]/90 px-4 py-2 md:px-6 sm:px-4 max-w-full">
         <div className="nf-row-pad flex items-center justify-between gap-4">
@@ -255,7 +255,7 @@ export function WatchPageClient({
 
       {/* 2. WATCH STREAM MODE */}
       {activeTab === 'watch' && (
-        <div ref={playerSectionRef} className="nf-row-pad pt-6 space-y-8 animate-fade-up max-w-full md:max-w-2xl lg:max-w-3xl">
+        <div ref={playerSectionRef} className="nf-row-pad pt-6 space-y-8 animate-fade-up max-w-full md:max-w-sm lg:max-w-md">
           {/* Main Cinema Player */}
           <VidSrcPlayer
             type={type}
