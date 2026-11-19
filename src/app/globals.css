@@ -74,6 +74,21 @@
   50% { box-shadow: 0 0 35px rgba(229, 9, 20, 0.75); }
 }
 
+/* Blood filling animation for Telegram link */
+@keyframes blood-fill {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.blood-fill-text {
+  background: linear-gradient(90deg, #e50914 25%, #ff4757 50%, #b20710 75%);
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: blood-fill 3s linear infinite;
+}
+
 @keyframes nf-kenburns {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }

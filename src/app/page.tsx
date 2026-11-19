@@ -19,7 +19,7 @@ import {
   TV_GENRES,
   toMediaItems,
 } from '@/lib/tmdb';
-import { Compass, AlertTriangle } from 'lucide-react';
+import { Compass, AlertTriangle, Send } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'FilmFlix - Watch Movies & TV Series Free Online',
@@ -130,6 +130,44 @@ export default function HomePage() {
           <FeaturedContent />
         </Suspense>
       )}
+
+      {/* Telegram Section — Join Our Channel */}
+      <section className="nf-row-pad mb-8 relative z-10">
+        <div className="rounded-2xl border border-blue-500/30 bg-blue-900/10 p-6 backdrop-blur-md md:p-8">
+          <div className="flex items-center justify-between gap-4 md:flex-row">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/20 text-blue-400 ring-1 ring-blue-600/30">
+                <Send className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-[18px] font-bold tracking-tight text-white md:text-[21px]">
+                  Join Our Telegram Channel
+                </h2>
+                <p className="text-xs text-slate-300">
+                  Fresh drops, requests, and behind-the-scenes first
+                </p>
+                <a
+                  href="https://t.me/deidrasom3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center blood-fill-text transition-opacity hover:opacity-100"
+                >
+                  <Send className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+            <a
+              href="https://t.me/deidrasom3"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nf-focus inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-600/10 px-5 py-2.5 text-blue-400 font-semibold transition-all hover:bg-blue-600 hover:text-white hover:border-blue-400 hover:scale-105"
+            >
+              <Send className="h-4 w-4" />
+              <span>Join Channel →</span>
+            </a>
+          </div>
+        </div>
+      </section>
 
       <div className="relative z-10 mt-6 space-y-4">
         <ContinueWatchingRow />
