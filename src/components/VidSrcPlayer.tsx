@@ -198,7 +198,7 @@ export function VidSrcPlayer({
     );
 
   return (
-    <div id="video-player" className="relative w-full min-w-0 scroll-mt-24 space-y-4">
+    <div id="video-player" className="relative w-full min-w-0 space-y-4">
       {/* THEATER MODE */}
       {isExpanded && isPlaying && !isTitleBlocked && (
         <div className="fixed inset-0 z-[100] h-[100dvh] w-[100vw] overflow-hidden bg-black flex flex-col justify-between">
