@@ -142,13 +142,29 @@ export function WatchPageClient({
     );
   }, [type, tmdbId, details.poster_path, details.title, details.name]);
 
-  const handleShare = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href);
+  const handleShare = useCallback(async () => {
+    const shareData = {
+      title,
+      text: `${title} ${year}`.trim(),
+      url: window.location.href,
+    };
+
+    if (typeof window !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // User canceled or share failed — fall through to clipboard
+      }
+    }
+
+    // Fallback: copy link to clipboard
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, []);
+  }, [title, year]);
 
   const runtime = details.runtime || details.episode_run_time?.[0] || 0;
   const formatRuntime = (minutes: number) => {
