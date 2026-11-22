@@ -189,7 +189,7 @@ export function WatchPageClient({
   }
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white overflow-y-auto pb-32 pt-12 md:pt-16 lg:pt-16">
+    <div className="min-h-screen bg-[#000000] text-white overflow-y-auto pb-32 pt-14 md:pt-16 lg:pt-16">
       {/* STICKY SUB-HEADER */}
       <div className="sticky top-[56px] md:top-[70px] z-40 border-b border-white/[0.08] bg-[#000000]/90 backdrop-blur-md">
         <div className="nf-row-pad flex items-center justify-between gap-3 px-4 sm:px-6 py-2">
