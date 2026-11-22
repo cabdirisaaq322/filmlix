@@ -270,7 +270,7 @@ export function Navbar() {
           </button>
 
           <a
-            href="https://t.me/deidrasom3"
+            href="https://t.me/filmflixoffi"
             target="_blank"
             rel="noopener noreferrer"
             onClick={closeMenu}

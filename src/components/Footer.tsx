@@ -39,7 +39,7 @@ const LINK_GROUPS: { title: string; links: { href: string; label: string; extern
       { href: '/privacy', label: 'Privacy Policy' },
       { href: '/terms', label: 'Terms of Service' },
       { href: '/contact', label: 'Contact Support' },
-      { href: 'https://t.me/deidrasom3', label: 'Telegram Community', external: true },
+      { href: 'https://t.me/filmflixoffi', label: 'Telegram Community', external: true },
     ],
   },
 ];
@@ -67,7 +67,7 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-3 pt-1">
               <a
-                href="https://t.me/deidrasom3"
+                href="https://t.me/filmflixoffi"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="nf-focus inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:border-white/25 hover:bg-white/[0.1] hover:text-white"

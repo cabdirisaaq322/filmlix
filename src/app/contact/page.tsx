@@ -40,12 +40,12 @@ export default function Contact() {
                 <p className="text-sm font-bold text-white">Direct Telegram Channel</p>
                 <p className="text-xs text-slate-400">Join our community for updates and direct support.</p>
                 <a
-                  href="https://t.me/deidrasom3"
+                  href="https://t.me/filmflixoffi"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="nf-focus inline-block pt-1 text-xs font-bold text-sky-400 hover:text-sky-300 transition-colors"
                 >
-                  @deidrasom3 →
+                  @filmflixoffi →
                 </a>
               </div>
             </div>

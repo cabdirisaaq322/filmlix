@@ -134,7 +134,7 @@ export default function HomePage() {
       {/* Telegram Section — Join Our Channel */}
       <section className="nf-row-pad mb-8 relative z-10">
         <a
-          href="https://t.me/deidrasom3"
+          href="https://t.me/filmflixoffi"
           target="_blank"
           rel="noopener noreferrer"
           className="block max-w-[600px] mx-auto mt-4 mb-4 px-[16px] py-[12px] rounded-[12px] border border-[#4a5538] bg-[#0a0a0a] hover:border-[#5a6548] transition-colors"
