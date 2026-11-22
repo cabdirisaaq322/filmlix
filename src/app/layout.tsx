@@ -69,7 +69,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://vidsrc.cc" />
         <link rel="preconnect" href="https://tags.adplox.com" />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#08080c] text-slate-100 selection:bg-red-600/30 selection:text-white">
+      <body suppressHydrationWarning className="min-h-screen flex flex-col bg-[#08080c] text-slate-100">
         <Navbar />
         <main className="box-border min-w-0 w-full max-w-full flex-1 pt-[54px] md:pt-[68px]">{children}</main>
         <Footer />

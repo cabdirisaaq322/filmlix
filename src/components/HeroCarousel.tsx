@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
-import { Play, ChevronLeft, ChevronRight, Info, Star, Sparkles, Send } from 'lucide-react';
+import { Play, ChevronLeft, ChevronRight, Info, Star, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getBackdropUrl } from '@/lib/tmdb';
 
@@ -90,16 +90,6 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
               <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-semibold uppercase text-slate-300">
                 {isSeries ? 'TV Series' : 'Movie'}
               </span>
-              <a
-                href="https://t.me/filmflix"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-slate-300 hover:border-white/25 hover:bg-white/20 transition-colors"
-                aria-label="Join Telegram Channel"
-              >
-                <Send className="h-4 w-4" />
-                <span>Join Telegram</span>
-              </a>
             </div>
 
             {/* Giant Title */}
