@@ -133,40 +133,31 @@ export default function HomePage() {
 
       {/* Telegram Section — Join Our Channel */}
       <section className="nf-row-pad mb-8 relative z-10">
-        <div className="rounded-2xl border border-blue-500/30 bg-blue-900/10 p-6 backdrop-blur-md md:p-8">
-          <div className="flex items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/20 text-blue-400 ring-1 ring-blue-600/30">
-                <Send className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-[18px] font-bold tracking-tight text-white md:text-[21px]">
-                  Join Our Telegram Channel
-                </h2>
-                <p className="text-xs text-slate-300">
-                  Fresh drops, requests, and behind-the-scenes first
-                </p>
-                <a
-                  href="https://t.me/deidrasom3"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center blood-fill-text transition-opacity hover:opacity-100"
-                >
-                  <Send className="h-5 w-5" />
-                </a>
+        <a
+          href="https://t.me/deidrasom3"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block max-w-[600px] mx-auto mt-4 mb-4 px-[16px] py-[12px] rounded-[12px] border border-[#4a5538] bg-[#0a0a0a] hover:border-[#5a6548] transition-colors"
+        >
+          {/* Top Row */}
+          <div className="flex items-start gap-[14px]">
+            {/* Left: Blue badge */}
+            <div className="flex items-center gap-3.5 rounded-[10px] bg-[#1d9bf0] px-[14px] py-[10px] shrink-0">
+              <Send className="h-5 w-5 text-white" />
+              <div className="text-[11px] font-bold text-white uppercase leading-[1.1]">
+                TELEGRAM<br />CHANNEL
               </div>
             </div>
-            <a
-              href="https://t.me/deidrasom3"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nf-focus inline-flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-600/10 px-5 py-2.5 text-blue-400 font-semibold transition-all hover:bg-blue-600 hover:text-white hover:border-blue-400 hover:scale-105"
-            >
-              <Send className="h-4 w-4" />
-              <span>Join Channel →</span>
-            </a>
+            {/* Right: Heading */}
+            <h2 className="flex-1 min-w-0 text-[#ffffff] text-[16px] font-bold leading-[1.25]">
+              Join Our Telegram Channel Now
+            </h2>
           </div>
-        </div>
+          {/* Bottom Row */}
+          <div className="mt-[10px] text-[#4ade80] text-[12.5px] font-medium leading-[1.5]">
+            You can ⭐ Request Movies and Series ⭐ Latest Update and News ⭐ Report Bugs and Errors…
+          </div>
+        </a>
       </section>
 
       <div className="relative z-10 mt-6 space-y-4">
