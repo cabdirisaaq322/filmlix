@@ -97,7 +97,7 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 12, href, m
             <div
               key={`mobile-row-${rowIndex}`}
               aria-label={`${title} row ${rowIndex + 1}`}
-              className="no-scrollbar flex snap-x snap-mandatory gap-3.5 overflow-x-auto overscroll-x-contain pb-3 touch-pan-x md:contents"
+              className="no-scrollbar flex snap-x snap-mandatory gap-3.5 overflow-x-auto overscroll-x-contain pb-3 md:contents"
             >
               {rowItems.map((item) => (
                 <div
