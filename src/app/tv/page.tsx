@@ -68,6 +68,7 @@ export default async function TVPage({ searchParams }: TVPageProps) {
       years={YEAR_OPTIONS}
       active={{ genre: activeGenre, sort, year: activeYear }}
       gridTitle="All Series"
+      showCatalogueLabel={false}
     />
   );
 }

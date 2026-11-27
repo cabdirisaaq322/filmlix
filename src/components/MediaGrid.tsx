@@ -3,6 +3,7 @@
 import { MediaCard, MediaCardSkeleton } from './MediaCard';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface MediaGridProps {
   title: string;
@@ -19,9 +20,10 @@ interface MediaGridProps {
   isLoading?: boolean;
   skeletonCount?: number;
   href?: string;
+  mobileScrollable?: boolean;
 }
 
-export function MediaGrid({ title, items, isLoading, skeletonCount = 12, href }: MediaGridProps) {
+export function MediaGrid({ title, items, isLoading, skeletonCount = 12, href, mobileScrollable = false }: MediaGridProps) {
   if (isLoading) {
     return (
       <section className="space-y-4" aria-label={`${title} (loading)`}>
@@ -56,6 +58,15 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 12, href }:
     );
   }
 
+  const mobileRowCount = Math.min(6, items.length);
+  const mobileRows = mobileScrollable
+    ? Array.from({ length: mobileRowCount }, (_, rowIndex) => {
+        const start = Math.floor((rowIndex * items.length) / mobileRowCount);
+        const end = Math.floor(((rowIndex + 1) * items.length) / mobileRowCount);
+        return items.slice(start, end);
+      })
+    : [];
+
   return (
     <section className="space-y-5" aria-label={title}>
       <div className="flex items-center justify-between">
@@ -74,10 +85,31 @@ export function MediaGrid({ title, items, isLoading, skeletonCount = 12, href }:
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-x-3.5 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
-        {items.map((item) => (
-          <MediaCard key={`${item.media_type}-${item.id}`} {...item} />
-        ))}
+      <div
+        className={cn(
+          mobileScrollable
+            ? 'space-y-7 md:grid md:grid-cols-4 md:space-y-0 md:gap-x-3.5 md:gap-y-7 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7'
+            : 'grid grid-cols-2 gap-x-3.5 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7'
+        )}
+      >
+        {mobileScrollable
+          ? mobileRows.map((rowItems, rowIndex) => (
+            <div
+              key={`mobile-row-${rowIndex}`}
+              aria-label={`${title} row ${rowIndex + 1}`}
+              className="no-scrollbar flex snap-x snap-mandatory gap-3.5 overflow-x-auto overscroll-x-contain pb-3 touch-pan-x md:contents"
+            >
+              {rowItems.map((item) => (
+                <div
+                  key={`${item.media_type}-${item.id}`}
+                  className="w-[42vw] min-w-[130px] max-w-[190px] shrink-0 snap-start md:w-auto md:max-w-none md:shrink md:snap-none"
+                >
+                  <MediaCard {...item} />
+                </div>
+              ))}
+            </div>
+          ))
+          : items.map((item) => <MediaCard key={`${item.media_type}-${item.id}`} {...item} />)}
       </div>
     </section>
   );

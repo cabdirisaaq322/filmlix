@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, X, Loader2, Sparkles, TrendingUp } from 'lucide-react';
+import { Search, X, Loader2, TrendingUp } from 'lucide-react';
 import { searchMulti, getTrendingMovies, getTrendingTVShows, TMDBMovie, TMDBTVShow, BLOCKLISTED_MOVIE_IDS } from '@/lib/tmdb';
 import { MediaCard } from '@/components/MediaCard';
 import { useBlockedMovieIds } from '@/lib/blocklist-client';
@@ -97,12 +97,6 @@ export default function SearchPage() {
   return (
     <div className="nf-row-pad w-full space-y-8 py-10 pt-24 md:pt-28">
       <header className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red-300 backdrop-blur-md">
-            <Sparkles className="h-3 w-3 text-red-400" />
-            Instant Search
-          </span>
-        </div>
         <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
           Search Titles
         </h1>

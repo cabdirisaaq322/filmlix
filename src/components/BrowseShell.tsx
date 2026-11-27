@@ -20,6 +20,8 @@ interface BrowseShellProps {
   tabs?: ReactNode;
   gridTitle?: string;
   showFilters?: boolean;
+  mobileScrollableGrid?: boolean;
+  showCatalogueLabel?: boolean;
 }
 
 export function BrowseShell({
@@ -36,6 +38,8 @@ export function BrowseShell({
   tabs,
   gridTitle,
   showFilters = true,
+  mobileScrollableGrid = false,
+  showCatalogueLabel = true,
 }: BrowseShellProps) {
   const hasFilters = showFilters && genres && sorts && years && active;
 
@@ -45,10 +49,12 @@ export function BrowseShell({
         <BackButton className="w-fit" />
         <header className="space-y-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red-300 backdrop-blur-md">
-              <Sparkles className="h-3 w-3 text-red-400" />
-              Catalogue
-            </span>
+            {showCatalogueLabel && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-600/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red-300 backdrop-blur-md">
+                <Sparkles className="h-3 w-3 text-red-400" />
+                Catalogue
+              </span>
+            )}
             {typeof totalResults === 'number' && totalResults > 0 && (
               <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-xs font-semibold text-slate-400">
                 {totalResults.toLocaleString()} titles
@@ -79,7 +85,7 @@ export function BrowseShell({
       )}
 
       {items.length > 0 ? (
-        <MediaGrid title={gridTitle || title} items={items} />
+        <MediaGrid title={gridTitle || title} items={items} mobileScrollable={mobileScrollableGrid} />
       ) : (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.02] py-24 text-center backdrop-blur-md">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.05] text-slate-400 ring-1 ring-white/10">

@@ -118,10 +118,10 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
             </p>
 
             {/* CTA action buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex w-full flex-nowrap items-center gap-2 pt-2 md:w-auto md:gap-3">
               <button
                 onClick={() => router.push(watchHref)}
-                className="nf-btn-hero nf-focus fx-btn-primary group cursor-pointer"
+                className="nf-btn-hero nf-focus fx-btn-primary group min-w-0 flex-1 cursor-pointer gap-1.5 px-2 text-xs whitespace-nowrap md:flex-none md:gap-[10px] md:px-[26px] md:text-[15px]"
                 aria-label={`Play ${displayTitle}`}
               >
                 <Play className="h-4 w-4 fill-current transition-transform group-hover:scale-110" aria-hidden="true" />
@@ -130,7 +130,7 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
 
               <button
                 onClick={() => router.push(infoHref)}
-                className="nf-btn-hero nf-focus fx-btn-secondary group cursor-pointer"
+                className="nf-btn-hero nf-focus fx-btn-secondary group min-w-0 flex-1 cursor-pointer gap-1.5 px-2 text-xs whitespace-nowrap md:flex-none md:gap-[10px] md:px-[26px] md:text-[15px]"
                 aria-label={`More information about ${displayTitle}`}
               >
                 <Info className="h-4 w-4 transition-transform group-hover:rotate-6" aria-hidden="true" />
